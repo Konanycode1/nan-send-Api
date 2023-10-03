@@ -5,7 +5,7 @@ import { connectDB } from "./config/db.js";
 import path from 'path'
 import { fileURLToPath } from 'url';
 import { config } from "dotenv";
-
+import teamRouter from "./router/teams.js"
 const  app = express();
 
 
@@ -38,3 +38,6 @@ connectDB()
 .catch((e)=>{
     console.log("erreur",e.message)
 })
+
+
+app.use('/api/team', teamRouter);
