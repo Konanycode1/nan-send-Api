@@ -41,14 +41,49 @@ class teamController {
   static async editTeam(req, res) {
     try {
       const { id } = req.params;
-      const { name, ...body } = req.body;
+      const { newContact, contactUpdate, contactsToDelete, ...body } = req.body;
       const existTeam = await Teams.findById(id);
+
       if (!existTeam) {
         return res
           .status(400)
           .json({ statut: false, message: "Cette Team n'existe pas" });
       }
-      const updateTeam = await Teams.updateOne({ _id: id }, { name, ...body });
+
+      if (Array.isArray(newContact)) {
+        // Ajouter les nouveaux contacts au tableau existant
+        existTeam.contact = [...existTeam.contact, ...newContact];
+      }
+
+      if (Array.isArray(contactUpdate)) {
+        // Parcourir les contacts à mettre à jour
+        for (const updateInfo of contactUpdate) {
+          const { index, newEmail } = updateInfo;
+
+          // Vérifier si l'index est valide
+          if (index >= 0 && index < existTeam.contact.length) {
+            // Mettre à jour l'email du contact à l'index spécifié
+            existTeam.contact[index] = newEmail;
+          }
+        }
+      }
+
+      if (Array.isArray(contactsToDelete)) {
+        // Parcourir les contacts à supprimer
+        for (const contactIndex of contactsToDelete) {
+          // Vérifier si l'index est valide
+          if (contactIndex >= 0 && contactIndex < existTeam.contact.length) {
+            // Supprimer le contact à l'index spécifié
+            existTeam.contact.splice(contactIndex, 1);
+          }
+        }
+      }
+
+      // Mettre à jour les autres données de l'équipe
+      const updateTeam = await Teams.updateOne(
+        { _id: id },
+        { contact: existTeam.contact, ...body }
+      );
 
       if (!updateTeam) {
         return res.status(400).json({
@@ -56,9 +91,10 @@ class teamController {
           message: "Erreur lors de la modification de la Team",
         });
       }
-      res
+
+      return res
         .status(200)
-        .json({ statut: true, message: { ...updateTeam.toObject() } });
+        .json({ statut: true, message: "bien modifié !!!" });
     } catch (e) {
       res.status(500).json({ statut: false, message: e.message });
     }
@@ -87,7 +123,7 @@ class teamController {
           message: "Erreur lors de la suppression de la Team",
         });
       }
-      res.status(200).json({ statut: true, message: "Team supprimée" });
+      res.status(200).json({ statut: true, message: "Team supprimée !!!" });
     } catch (e) {
       res.status(500).json({ statut: false, message: e.message });
     }
@@ -124,16 +160,14 @@ class teamController {
 
   static async getAllTeam(req, res) {
     try {
-      const allTeam = await Teams.find();
+      const allTeam = await Teams.find({});
 
       if (!allTeam) {
         return res
           .status(400)
           .json({ statut: false, message: "Aucune Team n'existe" });
       }
-      res
-        .status(200)
-        .json({ statut: true, message: { ...allTeam.toObject() } });
+      res.status(200).json({ statut: true, message: allTeam });
     } catch (e) {
       res.status(500).json({ statut: false, message: e.message });
     }
