@@ -178,7 +178,7 @@ class ControlContact {
             .status(201)
             .json({
                 status: true,
-                message: contactsend.toObject()
+                message:{...contactsend.toObject()}
             })
 
             
@@ -200,11 +200,52 @@ class ControlContact {
             .status(201)
             .json({
                 status:true,
-                message: user.toObject()
+                message:{ ...user.toObject()}
             })
         } catch (e) {
             
         }
+    }
+    static async  importContact(req,res){
+        try {
+            const body = [...req.body];
+           const verif=  body.map((ele)=>{
+                let newCont ={}
+                const contactExist = Contact.findOne({email: ele.email})
+                if(contactExist){
+                    newCont= {
+                            ...ele 
+                    }
+                    return newCont
+                }
+                else {
+                    return ele
+                }
+            })
+            const importy = await Contact.create(
+                ... verif
+            )
+            if(!importy){
+                !res.status(404).json({status:200, message:"erreur d'enregistrement"})
+                return
+            }
+            res
+            .status(200)
+            .json({
+                status: true,
+                message:  "enregistrement effectue"
+            })
+            
+            
+        } catch (e) {
+            res
+            .status(500)
+            .json({
+                status: false,
+                message:e.message
+            })
+        }
+
     }
 }
 export default ControlContact 
