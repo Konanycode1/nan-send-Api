@@ -1,25 +1,28 @@
-import {Schema, model} from "mongoose"
+import { Schema, model } from "mongoose";
 
-const Teams = new Schema ({
-    name:{
+const Teams = new Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  contact: {
+    type: [
+      {
         type: String,
-        required: true
-    },
-    description :{
-        type : String,
-        required:true
-    },
-    contact : {
-        type: [String],
-        required : true,
-        ref:"contact",
-        defaut: []
-    },
-    canal: {
-        type: String,
-        enum : ["Whatsapp", "SMS", "email" ],
-        default:"email"
-    }
-})
+        ref: "contact",
+      },
+    ],
+    default: [],
+  },
+  canal: {
+    type: String,
+    enum: ["Whatsapp", "SMS", "email"],
+    default: "email",
+  },
+});
 
-export default model("Teams", Teams)
+export default model("Teams", Teams);
