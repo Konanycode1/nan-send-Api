@@ -5,11 +5,15 @@ import { connectDB } from "./config/db.js";
 import path from 'path'
 import { fileURLToPath } from 'url';
 import { config } from "dotenv";
+
 import teamRouter from "./router/teams.js"
+import contactRouter from "./router/contact.js"
+
 // import mongoose from "./config/db_connect.js";
 // import Router from "./router/routing.js";
 
 
+let port = process.env.PORT || 3000;
 const  app = express();
 config({
     path:path.join(process.cwd(),'.env')
@@ -32,9 +36,7 @@ app.use(express.static("/images"))
 
 
 app.use('/api/team', teamRouter);
-
-
-let port = process.env.PORT || 3000;
+app.use('/api', contactRouter);
 
 // app.listen(port, ()=>{
 //     console.log(`Le serveur a bien été lancé sur le port ${port}`);
