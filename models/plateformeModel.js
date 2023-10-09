@@ -1,7 +1,8 @@
 import mongoose from "../config/db_connect.js";
 import Utilisateur from "./utilisateurModel.js";
 
-const EntrepriseSchema = mongoose.Schema(
+
+const PlateformeSchema = mongoose.Schema(
     {
         // Le nom de la l'entreprise
         raisonSociale:{
@@ -9,14 +10,9 @@ const EntrepriseSchema = mongoose.Schema(
             required: true
         },
         // Activité principale
-        domaineDActivite:{
+        logo:{
             type: String,
-            required: true
-        },
-        // Matricule de l'entreprise
-        adresse:{
-            type: String,
-            required: true
+            required: false
         },
         // Identifiant de celui ou celle qui a créer l'entreprise
         creerPar:[
@@ -26,17 +22,33 @@ const EntrepriseSchema = mongoose.Schema(
         modifierPar:[
             {type: mongoose.Schema.Types.ObjectId, ref: Utilisateur}
         ],
-        // Type d'entreprise c'est-à-dire s'il sagit d'une SARL, SASU, SAS, SA, etc... 
-        type:{
+        // Type d'entreprise c'est-à-dire s'il sagit d'une SARL, SASU, SAS, SA, etc...
+        emailNormal:{
+            type: String,
+            required: true
+        },
+        passwordEmailNormal:{
+            type: String,
+            required: true
+        }, 
+        emailInfo:{
+            type: String,
+            required: true
+        },
+        passwordEmailInfo:{
+            type: String,
+            required: true
+        },
+
+        telephone1:{
+            type: String,
+            required: true
+        },
+        telephone2:{
             type: String,
             required: true
         },
         // Le statut va basculer en 0 et 1 : 0 désigne que l'entreprise en supprimée sinon 1 par défaut
-        statut:{
-            type: Number,
-            default: 1,
-            required: true
-        },
         createdAt:{
             type: Date,
             required: true,
@@ -52,6 +64,6 @@ const EntrepriseSchema = mongoose.Schema(
         timesTamps: true
     }
 );
-const Entreprise = mongoose.model('entreprise', EntrepriseSchema);
-export default Entreprise;
+const Plateforme = mongoose.model('plateforme', PlateformeSchema);
+export default Plateforme;
 

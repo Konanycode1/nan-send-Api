@@ -1,26 +1,26 @@
 import mongoose from 'mongoose';
 import Entreprise from './entrepriseModel.js';
 
-
-
 const UtilisateurSchema = mongoose.Schema(
     {
-        nomPrenom:{
+        nom:{
+            type: String,
+            required: true
+        },
+        prenom:{
             type: String,
             required: true
         },
         nationalite:{
-            type: String,
-            required: true
+            type: String
         },
         photo:{
-            type: String,
-            required: true
+            type: String
         },
         entite:{
             type: String,
             required: true,
-            default: 'GESTIONNAIRE'
+            default: 'simple'
         },
         email:{
             type: String,
@@ -66,9 +66,9 @@ const UtilisateurSchema = mongoose.Schema(
             default: 1,
             required: true
         },
-        // entreprise:[
-        //     {type: mongoose.Schema.Types.ObjectId, ref: Entreprise}
-        // ],
+        entreprise:[
+            {type: mongoose.Schema.Types.ObjectId, ref: 'Entreprise'}
+        ],
         
         createdAt:{
             type: Date,

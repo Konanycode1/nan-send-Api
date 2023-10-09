@@ -2,12 +2,25 @@ import express  from "express";
 import cookieParser from "cookie-parser";
 import EntrepriseController from "../controller/entrepriseController.js";
 import UtilisateurController from "../controller/utilisateurController.js";
-
+import PlateformeController from "../controller/plateformeController.js";
+import EmailController from "../controller/emailController.js";
+import verify_token from "../midlleware/auth.js"
 
 
 const Router = express.Router();
-
 Router.use(cookieParser());
+
+/***************************************** */
+/** LES ROUTES CONCERNANT LA PLATEFORME MERE* */
+/***************************************** */
+/**Route permettant d'ajouter ou de modifier les information de la plateforme mère */
+Router.post("/createOrUpdatePlateforme", PlateformeController.createOrUpdate);
+
+/***************************************** */
+/** LES ROUTES CONCERNANT L'ENOIE D'EMAIL DE CODE DE VALIDATION */
+/***************************************** */
+Router.post("/sendCodeValidation", EmailController.sendCodeValidation);
+
 
 /***************************************** */
 /** LES ROUTES CONCERNANT LES ENTREPRISES* */

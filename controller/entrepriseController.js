@@ -1,6 +1,6 @@
 
 import Entrepise from "../models/entrepriseModel.js";
-import Utilisateur from "../models/utilisateur_model.js";
+import Utilisateur from "../models/utilisateurModel.js";
 
 
 class EntrepriseController{
