@@ -1,5 +1,6 @@
 import express from "express";
 import Teams from "../models/teams.js";
+import User from "../models/user.js";
 class teamController {
   /**
    * @param {express.Request} req
@@ -10,8 +11,10 @@ class teamController {
   static async createTeam(req, res) {
     try {
       const { name, ...body } = req.body;
+      const {_id, email} = req.auth
+      const user = await User.findById(_id)
+      if(!user) return res.status(400).json({ statut: false, message: "Utilisateur introuvable !!!" })
       const existTeam = await Teams.findOne({ name });
-
       if (existTeam) {
         return res
           .status(400)
@@ -42,6 +45,9 @@ class teamController {
     try {
       const { id } = req.params;
       const { newContact, contactUpdate, contactsToDelete, ...body } = req.body;
+      const {_id, email} = req.auth
+      const user = await User.findById(_id)
+      if(!user) return res.status(400).json({ statut: false, message: "Utilisateur introuvable !!!" })
       const existTeam = await Teams.findById(id);
 
       if (!existTeam) {
@@ -108,6 +114,9 @@ class teamController {
   static async deleteTeam(req, res) {
     try {
       const { id } = req.params;
+      const {_id, email} = req.auth
+      const user = await User.findById(_id)
+      if(!user) return res.status(400).json({ statut: false, message: "Utilisateur introuvable !!!" })
       const existTeam = await Teams.findById(id);
       if (!existTeam) {
         return res
@@ -137,7 +146,9 @@ class teamController {
   static async getTeam(req, res) {
     try {
       const { id } = req.params;
-
+      const {_id, email} = req.auth
+      const user = await User.findById(_id)
+      if(!user) return res.status(400).json({ statut: false, message: "Utilisateur introuvable !!!" })
       const existTeam = await Teams.findById(id);
 
       if (!existTeam) {
@@ -160,8 +171,11 @@ class teamController {
 
   static async getAllTeam(req, res) {
     try {
+     
+      const {_id, email} = req.auth
+      const user = await User.findById(_id)
+      if(!user) return res.status(400).json({ statut: false, message: "Utilisateur introuvable !!!" })
       const allTeam = await Teams.find({});
-
       if (!allTeam) {
         return res
           .status(400)

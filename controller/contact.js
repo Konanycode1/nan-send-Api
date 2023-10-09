@@ -5,7 +5,7 @@ class ControlContact {
   static async create(req, res) {
     try {
       const { email, numeroWhatsapp, numeroSms, ...body } = req.body;
-      const { _id } = req.user;
+      const { _id } = req.auth;
       const user = await User.findById(_id);
       if (user) {
         res.status(401).json({
@@ -14,7 +14,7 @@ class ControlContact {
         });
         return;
       }
-      const verifyEmail = await Contact.findOne({ email });
+      const verifyEmail = await Contact.findOne([email]);
       if (verifyEmail) {
         res.status(401).json({
           status: false,
@@ -58,7 +58,7 @@ class ControlContact {
   }
   static async update(req, res) {
     try {
-      const { _id } = req.user;
+      const { _id } = req.auth;
       const { id } = req.params;
       const { email, ...body } = req.body;
       const user = await User.findById(_id);
@@ -89,7 +89,7 @@ class ControlContact {
   }
   static async delete(req, res) {
     try {
-      const { _id } = req.user;
+      const { _id } = req.auth;
       const { id } = req.params;
       const user = await User.findById(_id);
       if (!user) {
@@ -119,7 +119,7 @@ class ControlContact {
   }
   static async getContactId(req, res) {
     try {
-      const { _id } = req.user;
+      const { _id } = req.auth;
       const id = req.params;
       let user = await User.findById(_id);
       if (!user) {
