@@ -20,7 +20,7 @@ app.use("/images" ,express.static( path.join(__dirname,'images') ));
 app.use(cors());
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
-app.use(cookieParser
+app.use(cookieParser)
 app.use(express.static("/images"))
 // app.use((req,res,next)=>{
 //     res.setHeader('Access-Control-Allow-Origin', req.header('Origin'));
