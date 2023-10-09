@@ -10,6 +10,11 @@ import verify_token from "../midlleware/auth.js"
 const Router = express.Router();
 Router.use(cookieParser());
 
+Router.get("/", (req, res)=>{
+    console.log(58)
+    res.status(200)
+})
+
 /***************************************** */
 /** LES ROUTES CONCERNANT LA PLATEFORME MERE* */
 /***************************************** */
