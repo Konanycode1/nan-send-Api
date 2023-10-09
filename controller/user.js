@@ -19,7 +19,7 @@ class UtilisateurController{
                     res.status(202).json({
                         status:true,
                         token: generateToken(newUser.toObject()),
-                        message : "Compte crée !!!!"
+                        message : "Compte crée Merci  !!!!"
                     })
                     req.cookie("token", generateToken(newUser.toObject()))
                 })
