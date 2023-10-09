@@ -6,7 +6,7 @@ class ControlContact {
         try{
             const {email, numeroWhatsapp, numeroSms,...body} = req.body;
             const {_id} = req.user;
-            const user = await User.fondById(_id);
+            const user = await User.findById(_id);
             if(user){
                 res
                 .status(401)
@@ -16,7 +16,7 @@ class ControlContact {
                 })
                 return
             }
-            const verifyEmail =  await Contact.findOne([email])
+            const verifyEmail =  await Contact.findOne({email})
             if(verifyEmail){
                 res
                 .status(401)
@@ -214,7 +214,7 @@ class ControlContact {
                 const contactExist = Contact.findOne({email: ele.email})
                 if(contactExist){
                     newCont= {
-                            ...ele 
+                            ...ele
                     }
                     return newCont
                 }
