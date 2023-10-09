@@ -14,7 +14,7 @@ class ControlContact {
         });
         return;
       }
-      const verifyEmail = await Contact.findOne([email]);
+      const verifyEmail = await Contact.findOne({ email });
       if (verifyEmail) {
         res.status(401).json({
           status: false,
@@ -153,7 +153,12 @@ class ControlContact {
         status: true,
         message: { ...user.toObject() },
       });
-    } catch (e) {}
+    } catch (e) {
+      res.status(500).json({
+        status: false,
+        message: e.message,
+      });
+    }
   }
   static async importContact(req, res) {
     try {
