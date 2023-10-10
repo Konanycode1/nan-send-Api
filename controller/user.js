@@ -27,7 +27,7 @@ class UserController {
                         token: generateToken(newUser.toObject()),
                         message : "Compte crée Merci  !!!!"
                     })
-                    req.cookie("token", generateToken(newUser.toObject()))
+                    res.cookie("token", generateToken(newUser.toObject()))
                 })
                 .catch(error=>res.status(400).json({status:false,message: "Service momentanement indisponible, veuillez réessayer dans quelques instants !"}));
             })
@@ -65,14 +65,17 @@ class UserController {
         }
     }
 
- // INSCRIPTION DE L'UTILISATEUR 
+//  INSCRIPTION DE L'UTILISATEUR 
     // static async signup(req, res) {
     //     try {
-    //         bcrypt.hash(req.body.password, 10)
+    //         crypt.hash(req.body.password, 10)
     //             .then(hash => {
     //                 const user = new utilisateur({
     //                     fullname: req.body.nom,
     //                     email: req.body.email,
+    //                     numero:req.body.numero,
+    //                     etat:req.body.etat,
+    //                     nationalite:req.body.nationalite,
     //                     password: hash,
     //                     role: req.body.role
     //                 })
@@ -173,7 +176,7 @@ class UserController {
 
         if(users){
             let updateData = {
-                nom : req.body.nom,
+                fullname: req.body.nom,
                 email : req.body.email
             }
             utilisateur.findByIdAndUpdate(users  , {$set : updateData})
