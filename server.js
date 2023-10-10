@@ -6,6 +6,9 @@ import path from 'path'
 import { fileURLToPath } from 'url';
 import { config } from "dotenv";
 import teamRouter from "./router/teams.js"
+import RouteEntreprise from "./router/entreprise.js";
+import routerUser from "./router/user.js";
+import RouteContact from "./router/contact.js";
 // import mongoose from "./config/db_connect.js";
 // import Router from "./router/routing.js";
 
@@ -30,8 +33,10 @@ app.use(express.static("/images"))
 // })
 
 
-
+app.use('/api/user', routerUser);
 app.use('/api/team', teamRouter);
+app.use('/api/entreprise', RouteEntreprise);
+app.use('/api/contact', RouteContact);
 
 
 let port = process.env.PORT || 3000;
