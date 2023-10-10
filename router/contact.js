@@ -1,12 +1,12 @@
 import express from 'express'
-import ControlContact from '../controller/contact';
+import ControlContact from '../controller/contact.js';
 const RouteContact = express.Router();
 
 
-RouteContact.post('/contact/', ControlContact.create)
-RouteContact.put('/contact/:id', ControlContact.update)
-RouteContact.delete('/contact/:id', ControlContact.delete)
-RouteContact.get('/contact/', ControlContact.getContactId)
-RouteContact.get('/contactAll/', ControlContact.getAll)
+RouteContact.post('/create', ControlContact.create)
+RouteContact.put('/:id', ControlContact.update)
+RouteContact.delete('/:id', ControlContact.delete)
+RouteContact.get('/:id', ControlContact.getContactId)
+RouteContact.get('all/', ControlContact.getAll)
 
 export default RouteContact;
