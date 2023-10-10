@@ -117,13 +117,13 @@ class UserController {
 
 // OBTENIR TOUT LES UTILISATEUR
     static async getAllUser ( req , res ){
-        utilisateur.find()
+        await utilisateur.find()
         .then(reponse => {
             res.status(200).json({
                 reponse
             })
         })
-        .catch(err => {res.status(400).json({message : err})})
+        .catch(err => { return res.status(400).json({message : err})})
     }
 
 //  OBTENIR UN UTILISATEUR UNIQUE   

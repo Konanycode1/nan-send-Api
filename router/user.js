@@ -2,7 +2,6 @@ import {Router} from 'express'
 import UserController from '../controller/user.js'
 const routerUser = Router();
 
-
 routerUser.post('/create' , UserController.create);
 routerUser.post('/login' , UserController.login);
 routerUser.delete('/delete/:id' , UserController.deleteUser);
