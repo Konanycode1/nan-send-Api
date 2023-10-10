@@ -95,12 +95,12 @@ class EntrepriseController{
      */
     static async getByName(req, res){
         try {
-            const {_id, email} = req.auth
-            
-            User.findOne({email:email})
+            const {raisonSociale} = req.params
+            const {_id} = req.auth
+            User.findOne({_id:_id})
             .then(use=>{
                 if(!use) return res.status(202).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete"});
-                Entrepise.findAll({raisonSociale: req.params.raisonSociale})
+                Entrepise.findAll({raisonSociale: raisonSociale})
                 .then(entreprise=>{
                     if(!entreprise.length) return res.status(201).json({message:"Aucune donnée n'est trouvée !"});
                     res.status(200).json({ status:true, entreprise, message:`Il y'a ${entreprise.length} élément trouvés`});
@@ -121,11 +121,12 @@ class EntrepriseController{
      */
     static async update(req, res){
         try {
+            const {id} = req.params;
             const {_id, email} = req.auth
             User.findOne({email:email})
             .then(use=>{
                 if(!use) return res.status(202).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete"});
-                Entrepise.findById(req.params.id)
+                Entrepise.findById(id)
                 .then(entreprise=>{
                     if(!entreprise.length) return res.status(201).json({message:"Les données au modifier ne sont pas présentes !"});
                     Entrepise.findByIdAndUpdate(req.body.cibling, req.body, {new: true})
@@ -150,11 +151,12 @@ class EntrepriseController{
      */
     static async delete(req, res){
         try {
+            const {id} = req.params
             const {_id, email} = req.auth
             User.findOne({email:email})
             .then(use=>{ 
                 if(!use) return res.status(202).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete"});
-                Entrepise.findById(req.params.id)
+                Entrepise.findById(id)
                 .then(entreprise=>{
                     if(!entreprise.length) return res.status(201).json({message:"Les données au modifier ne sont pas présentes !"});
                     Entrepise.findByIdAndUpdate(req.body.cibling, {statut: 0}, {new: false})

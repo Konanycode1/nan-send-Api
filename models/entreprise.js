@@ -5,6 +5,7 @@ import User from './user.js';
 const EntrepriseSchema = new Schema(
     {
         // Le nom de la l'entreprise
+        
         raisonSociale:{
             type: String,
             required: true

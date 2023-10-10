@@ -7,7 +7,7 @@ import Jwt from "jsonwebtoken";
 export const generateToken = (user)=>{
     const jwtSecret = process.env.JWT_SECRET
     if(!jwtSecret) throw new Error('Code introuvable !!!')
-    return Jwt.sign(id, jwtSecret, {expiresIn: 24*3600})
+    return  Jwt.sign(id, jwtSecret, {expiresIn: 24*3600})
 }
 
 /**
