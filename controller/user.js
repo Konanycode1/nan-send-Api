@@ -1,6 +1,7 @@
 import utilisateur from '../models/user.js';
 import { generateToken } from '../util/token.js';
 import { crypt, comparer } from '../util/bcrypt.js';
+import agent from '../models/agent.js';
 
 class UserController {
 
@@ -41,34 +42,34 @@ class UserController {
     static async createAgent(req, res){
         try {
             const {email,role,password, ...body} = req.body
-            const {_id} = req.auth 
+            const {_id} = req.auth;
+          
             const user = await utilisateur.findById(_id);
+            console.log(user)
             if(!user){
                 res.status(404)
                 .json({
                     status: false,
-                    message: "ù"
+                    message: "user introuvable"
                 })
             }
-            utilisateur.findOne({email: email})
-            .then( async (user)=>{
-                if(user) return res.status(201).json({status:false,message: "Ce utilisatateur est déjà ajouté"});
-
-                utilisateur.create({
+            const verifAgent = await agent.findOne({email: email});
+            if(verifAgent){
+                res.status(401).json({status:false,message: "Ce utilisatateur est déjà ajouté"})
+                return 
+            }
+            await agent.create({
                     email,
+                    parain: user._id,
                     password: await crypt(password),
                     role: role,
                     ...body
                 })
-                .then(newUser=>{
-                    res.status(202).json({
+            res.status(202).json({
                         status:true,
                         message : "Agent crée !!!!"
                     })
-                })
-                .catch(error=>res.status(400).json({status:false,message: "Service momentanement indisponible, veuillez réessayer dans quelques instants !"}));
-            })
-            .catch(error=>res.status(400).json({status:false,message: "Service momentanement indisponible, veuillez réessayer dans quelques instants !"}))
+                
         } catch (error) {
             res.status(501).json({message: "Service momentanement interrompu, veuillez réessayer dans quelques instants !"})
         }
@@ -166,6 +167,7 @@ class UserController {
             if(users){
                 users.deleteOne({_id : id})
                 res.status(200).json({status : true , message : 'utilisateur supprimé !'})
+                return
             }
             res.status(400).json({message : 'utilisateur introuvable !'})
             
