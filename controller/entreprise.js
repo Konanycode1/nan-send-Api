@@ -1,4 +1,5 @@
 
+
 import Entrepise from "../models/entreprise.js";
 import User from "../models/user.js";
 
@@ -11,6 +12,7 @@ class EntrepriseController{
      */
     static async create(req, res){
         try {
+            console.log("--------------------------------------");
             const {_id, email} = req.auth // Midlleware pour l'inscription
             User.findOne({email})
             .then(use=>{
@@ -75,7 +77,7 @@ class EntrepriseController{
                 Entrepise.findById(req.params.id)
                 .then(entreprise=>{
                     if(!entreprise.length) return res.status(201).json({message:"Aucune donnée n'est trouvée !"});
-                    res.status(200).json({entreprise});
+                    res.status(200).json({ status:true, entreprise});
                 })
                 .catch(()=>res.status(400).json({message:"Email ou mot de passe incorrectes !"}));
             })
@@ -101,7 +103,7 @@ class EntrepriseController{
                 Entrepise.findAll({raisonSociale: raisonSociale})
                 .then(entreprise=>{
                     if(!entreprise.length) return res.status(201).json({message:"Aucune donnée n'est trouvée !"});
-                    res.status(200).json({entreprise, message:`Il y'a ${entreprise.length} élément trouvés`});
+                    res.status(200).json({ status:true, entreprise, message:`Il y'a ${entreprise.length} élément trouvés`});
                 })
                 .catch(()=>res.status(400).json({message:"Email ou mot de passe incorrectes !"}));
             })
@@ -129,7 +131,7 @@ class EntrepriseController{
                     if(!entreprise.length) return res.status(201).json({message:"Les données au modifier ne sont pas présentes !"});
                     Entrepise.findByIdAndUpdate(req.body.cibling, req.body, {new: true})
                     .then(newEntreprise=>{
-                        res.status(202).json(newEntreprise);
+                        res.status(202).json({ status:true, newEntreprise});
                     })
                     .catch(()=>res.status(400).json({message:"Email ou mot de passe incorrectes !"}));
                 })
@@ -159,7 +161,7 @@ class EntrepriseController{
                     if(!entreprise.length) return res.status(201).json({message:"Les données au modifier ne sont pas présentes !"});
                     Entrepise.findByIdAndUpdate(req.body.cibling, {statut: 0}, {new: false})
                     .then(newEntreprise=>{
-                        res.status(202).json(newEntreprise);
+                        res.status(202).json({ status:true, newEntreprise});
                     })
                     .catch(()=>res.status(400).json({message:"Email ou mot de passe incorrectes !"}));
                 })

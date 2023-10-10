@@ -1,5 +1,6 @@
-import { Schema, model}  from 'mongoose'
 
+import { Schema, model}  from 'mongoose';
+import User from './user.js';
 
 const EntrepriseSchema = new Schema(
     {
@@ -21,7 +22,7 @@ const EntrepriseSchema = new Schema(
         },
         // Identifiant de celui ou celle qui a créer l'entreprise
         identifiant:[
-            {type: Schema.Types.ObjectId, ref: 'user'}
+            {type: Schema.Types.ObjectId, ref: 'User'}
         ],
         // Type d'entreprise c'est-à-dire s'il sagit d'une SARL, SASU, SAS, SA, etc... 
         type:{

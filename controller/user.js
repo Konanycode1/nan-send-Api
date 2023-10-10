@@ -1,12 +1,6 @@
 import utilisateur from '../models/user.js';
 import { generateToken } from '../util/token.js';
 import { crypt, comparer } from '../util/bcrypt.js';
-
-
-
-
-
-
 class UserController {
 
     // FUNCTION POUR CREER UN UTILISATEUR 
@@ -21,13 +15,14 @@ class UserController {
                     password: await crypt(password),
                     ...body
                 })
+                res.cookie("token", generateToken(newUser.toObject()))
                 .then(newUser=>{
                     res.status(202).json({
                         status:true,
                         token: generateToken(newUser.toObject()),
                         message : "Compte crée Merci  !!!!"
                     })
-                    res.cookie("token", generateToken(newUser.toObject()))
+                    
                 })
                 .catch(error=>res.status(400).json({status:false,message: "Service momentanement indisponible, veuillez réessayer dans quelques instants !"}));
             })
