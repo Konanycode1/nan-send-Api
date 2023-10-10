@@ -56,9 +56,10 @@ class ControlContact {
       });
     }
   }
+
   static async update(req, res) {
     try {
-      const { _id } = req.auth;
+      const { _id } = req.user;
       const { id } = req.params;
       const { email, ...body } = req.body;
       const user = await User.findById(_id);
@@ -87,9 +88,10 @@ class ControlContact {
       });
     }
   }
+
   static async delete(req, res) {
     try {
-      const { _id } = req.auth;
+      const { _id } = req.user;
       const { id } = req.params;
       const user = await User.findById(_id);
       if (!user) {
@@ -117,9 +119,10 @@ class ControlContact {
       });
     }
   }
+  
   static async getContactId(req, res) {
     try {
-      const { _id } = req.auth;
+      const { _id } = req.user;
       const id = req.params;
       let user = await User.findById(_id);
       if (!user) {
@@ -146,6 +149,7 @@ class ControlContact {
       });
     }
   }
+
   static async getAll(req, res) {
     try {
       const user = await Contact.find();
@@ -160,6 +164,7 @@ class ControlContact {
       });
     }
   }
+
   static async importContact(req, res) {
     try {
       const body = [...req.body];

@@ -1,12 +1,6 @@
 import utilisateur from '../models/user.js';
 import { generateToken } from '../util/token.js';
 import { crypt, comparer } from '../util/bcrypt.js';
-
-
-
-
-
-
 class UserController {
 
     // FUNCTION POUR CREER UN UTILISATEUR 
