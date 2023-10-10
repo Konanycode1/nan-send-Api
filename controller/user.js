@@ -118,10 +118,10 @@ class UserController {
                             if (!valid) {
                                 return res.status(400).json({ message: 'adresse mail / mot de passe incorrect' })
                             }
-                            res.cookie("tokenLog", generateToken(user.toObject()))
+                            res.cookie("token", generateToken(user.toObject()))
                             res.status(200).json({
                                 userId: user._id,
-                                tokenLog: generateToken(user.toObject())
+                                token: generateToken(user.toObject())
                             })
                             
                         })
