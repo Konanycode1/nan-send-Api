@@ -1,36 +1,92 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const utilisateur = require('../models/user');
+const { generateToken } = require('../util/token.js')
 
 
 
 class UserController {
 
- // INSCRIPTION DE L'UTILISATEUR 
-    static async signup(req, res) {
+    // FUNCTION POUR CREER UN UTILISATEUR 
+    static async create(req, res){
         try {
-            bcrypt.hash(req.body.password, 10)
-                .then(hash => {
-                    const user = new utilisateur({
-                        fullname: req.body.nom,
-                        email: req.body.email,
-                        password: hash,
-                        role: req.body.role
-                    })
-                    user.save()
-                        .then(() => {
-                            res.status(200).json({ message: 'utilisateur créer avec sucèss !' })
-                        })
-                        .catch(() => {
-                            res.status(400).json({ message: "echec de l'enregistrement de l'utilisateur" })
-                        })
+            const {email, ...body} = req.body
+            utilisateur.findOne({email: email})
+            .then(user=>{
+                if(user) return res.status(201).json({status:false,message: "Ce utilisatateur est déjà ajouté"});
+                utilisateur.create({
+                    email,
+                    ...body
                 })
-                .catch(err => res.status(400).json(err));
+                .then(newUser=>{
+                    res.status(202).json({
+                        status:true,
+                        token: generateToken(newUser.toObject()),
+                        message : "Compte crée Merci  !!!!"
+                    })
+                    req.cookie("token", generateToken(newUser.toObject()))
+                })
+                .catch(error=>res.status(400).json({status:false,message: "Service momentanement indisponible, veuillez réessayer dans quelques instants !"}));
+            })
+            .catch(error=>res.status(400).json({status:false,message: "Service momentanement indisponible, veuillez réessayer dans quelques instants !"}))
         } catch (error) {
-            res.status(400).json({ message: error })
+            res.status(501).json({message: "Service momentanement interrompu, veuillez réessayer dans quelques instants !"})
         }
-
     }
+
+    // FUNCTION POUR CREER UN AGENT 
+    static async createAgent(req, res){
+        try {
+            
+            const {email,role, ...body} = req.body
+            // const {email, role} = req.auth 
+            utilisateur.findOne({email: email})
+            .then(user=>{
+                if(user) return res.status(201).json({status:false,message: "Ce utilisatateur est déjà ajouté"});
+                utilisateur.create({
+                    email,
+                    role: role,
+                    ...body
+                })
+                .then(newUser=>{
+                    res.status(202).json({
+                        status:true,
+                        message : "Compte crée !!!!"
+                    })
+                })
+                .catch(error=>res.status(400).json({status:false,message: "Service momentanement indisponible, veuillez réessayer dans quelques instants !"}));
+            })
+            .catch(error=>res.status(400).json({status:false,message: "Service momentanement indisponible, veuillez réessayer dans quelques instants !"}))
+        } catch (error) {
+            res.status(501).json({message: "Service momentanement interrompu, veuillez réessayer dans quelques instants !"})
+        }
+    }
+
+ // INSCRIPTION DE L'UTILISATEUR 
+    // static async signup(req, res) {
+    //     try {
+    //         bcrypt.hash(req.body.password, 10)
+    //             .then(hash => {
+    //                 const user = new utilisateur({
+    //                     fullname: req.body.nom,
+    //                     email: req.body.email,
+    //                     password: hash,
+    //                     role: req.body.role
+    //                 })
+    //                 user.save()
+    //                     .then(() => {
+    //                         res.status(200).json({ message: 'utilisateur créer avec sucèss !' })
+    //                     })
+    //                     .catch(() => {
+    //                         res.status(400).json({ message: "echec de l'enregistrement de l'utilisateur" })
+    //                     })
+    //             })
+    //             .catch(err => res.status(400).json(err));
+    //     } catch (error) {
+    //         res.status(400).json({ message: error })
+    //     }
+
+    // }
 
 
 // CONNEXION DE L'UTILISATEUR
@@ -127,12 +183,8 @@ class UserController {
                 res.status(200).json({message : 'Donnée mise à jours !'})
             })
             .catch(err => res.status(400).json({err}));
-
         }
     }
 }
 
 module.exports = UserController;
-
-
-

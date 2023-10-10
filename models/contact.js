@@ -17,6 +17,9 @@ const Contact = new Schema ({
     numeroSms:{
         type: Number,
         required: true
+    },
+    user: {
+        type: Schema.Types.ObjectId
     }
 })
 
