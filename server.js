@@ -5,11 +5,14 @@ import { connectDB } from "./config/db.js";
 import path from 'path'
 import { fileURLToPath } from 'url';
 import { config } from "dotenv";
-import teamRouter from "./router/teams.js";
+
+
+import teamRouter from "./router/teams.js"
+import contactRouter from "./router/contact.js"
 
 
 
-const app = express();
+const  app = express();
 config({
     path:path.join(process.cwd(),'.env')
 })
@@ -37,7 +40,9 @@ app.use('/api/entreprise', RouterEntreprise);
 app.use('/api/message', RouterMessage);
 app.use('/api/user', RouteUser);
 
-let port = process.env.PORT || 3007;
+let port = process.env.PORT || 3000;
+app.use('/api', contactRouter);
+
 
 connectDB()
 .then(()=>{
