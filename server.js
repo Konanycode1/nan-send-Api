@@ -6,6 +6,10 @@ import path from 'path'
 import { fileURLToPath } from 'url';
 import { config } from "dotenv";
 
+import RouterEntreprise from "./router/entreprise.js";
+import RouterMessage from "./router/message.js";
+import RouteUser from "./router/user.js";
+
 
 import teamRouter from "./router/teams.js"
 import contactRouter from "./router/contact.js"
@@ -15,7 +19,10 @@ import contactRouter from "./router/contact.js"
 const  app = express();
 config({
     path:path.join(process.cwd(),'.env')
-})
+});
+
+let port = process.env.PORT || 3000;
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use("/images" ,express.static( path.join(__dirname,'images') ));
 
@@ -31,18 +38,15 @@ app.use((req,res,next)=>{
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     next();
 });
-import RouterEntreprise from "./router/entreprise.js";
-import RouterMessage from "./router/message.js";
-import RouteUser from "./router/user.js";
+
 
 app.use('/api/team', teamRouter);
 app.use('/api/entreprise', RouterEntreprise);
 app.use('/api/message', RouterMessage);
 app.use('/api/user', RouteUser);
 
-let port = process.env.PORT || 3000;
-app.use('/api', contactRouter);
 
+app.use('/api', contactRouter);
 
 connectDB()
 .then(()=>{
