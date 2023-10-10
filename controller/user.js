@@ -1,11 +1,13 @@
 import utilisateur from '../models/user.js';
 import { generateToken } from '../util/token.js';
 import { crypt, comparer } from '../util/bcrypt.js';
+import generateRandomString from '../laboratoire/generateRandomString.js';
 class UserController {
 
     // FUNCTION POUR CREER UN UTILISATEUR 
     static async create(req, res){
         try {
+            
             const {email, password, ...body} = req.body
             utilisateur.findOne({email: email})
             .then(async (user)=>{
@@ -15,15 +17,20 @@ class UserController {
                     password: await crypt(password),
                     ...body
                 })
-                .then(newUser=>{
+                .then(async newUser=>{
+                    res.cookie("token", generateToken(newUser.toObject()));
                     res.status(202).json({
                         status:true,
                         token: generateToken(newUser.toObject()),
                         message : "Compte crée Merci  !!!!"
-                    })
-                    req.cookie("token", generateToken(newUser.toObject()))
+                    });
+
+                    // await res.cookie("token", generateToken(newUser.toObject()))
                 })
-                .catch(error=>res.status(400).json({status:false,message: "Service momentanement indisponible, veuillez réessayer dans quelques instants !"}));
+                .catch(error=>{
+                    console.log("------------------", error);
+                    res.status(400).json({status:false,message: "Service momentanement indisponible, veuillez réessayer dans quelques instants !"})
+                });
             })
             .catch(error=>res.status(400).json({status:false,message: "Service momentanement indisponible, veuillez réessayer dans quelques instants !"}))
         } catch (error) {
@@ -82,7 +89,6 @@ class UserController {
     //     } catch (error) {
     //         res.status(400).json({ message: error })
     //     }
-
     // }
 
 
@@ -92,26 +98,25 @@ class UserController {
             const {email, password} = req.body
             utilisateur.findOne({ email: email })
                 .then( async (user) => {
-                    if (!user) {
-                        return res.status(400).json({ message: 'utilisateur introuvable' })
-                    }
-                     await comparer(password, user.password)
-                        .then(valid => {
-                            console.log(valid)
-                            if (!valid) {
-                                return res.status(400).json({ message: 'adresse mail / mot de passe incorrect' })
-                            }
+                    if (!user) return res.status(400).json({ message: 'utilisateur introuvable' })
+                    comparer(password, user.password)
+                    .then(valid => {
+                            if (!valid) return res.status(400).json({ message: 'adresse mail / mot de passe incorrect' });
+                            
+                            res.cookie("token", generateToken(user.toObject()));
                             res.status(200).json({
                                 userId: user._id,
                                 token: generateToken(user.toObject())
-                            })
-                            req.cookie("token", generateToken(newUser.toObject()))
+                            });
+                            // await res.cookie("token", generateToken(newUser.toObject()))
                         })
-                        .catch(err => res.status(501).json({ message: err }))
+                        .catch(err =>{
+                            res.status(401).json({ message: err })
+                        })
                 })
                 .catch(err => res.status(500).json({ message: err }))
         } catch (error) {
-            res.status(400).json({ error })
+            res.status(501).json({ error })
         }
     }
 
