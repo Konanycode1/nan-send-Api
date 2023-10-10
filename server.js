@@ -6,6 +6,7 @@ import path from 'path'
 
 import { fileURLToPath } from 'url';
 import { config } from "dotenv";
+
 import teamRouter from "./router/teams.js"
 import RouteEntreprise from "./router/entreprise.js";
 import routerUser from "./router/user.js";
@@ -50,6 +51,5 @@ connectDB()
     })
 })
 .catch((e)=>{
-    console.log("erreur",e.message)
+    console.log("erreur", e.message)
 })
-
