@@ -2,47 +2,18 @@ import generateRandomString from "../laboratoire/generateRandomString.js";
 import transporteur from "../mailling/transporteur.js";
 import nodemailer from "nodemailer";
 import code_auth from "../mailling/code_auth.js";
-import Utilisateur from "../models/utilisateurModel.js";
+import User from "../models/user.js";
 import Plateforme from "../models/plateformeModel.js";
-
-
-// const transporteur = require("../mailling/transporteur.js");
-// const generateRandomString = require("../laboratoire/generateRandomString.js");
-// const nodemailer = require("nodemailer");
-// const code_auth = require("../mailling/code_auth");
-
-// const { default: Utilisateur } = require("../models/utilisateurModel.js");
-// const { default: Plateforme } = require("../models/plateformeModel.js");
-
-
-
-
-
-// const { Connecteur, Transmetteur } = require("../laboratoire/transmettre_email");
-
-
-// const transporter = nodemailer.createTransport({
-//     host: "smtp-mail.outlook.com",
-//     port: 587,
-//     secure: false,
-//     tls:{
-//         ciphers: "SSLv3"
-//     },
-//     auth: {
-//       user: 'sage.haley@ethereal.email',
-//       pass: 'RjVJtcx44fxzvx46qE'
-//     }
-//   });
 
 class EmailController{
     static async sendCodeValidation(req, res){
         try {
-            Utilisateur.findOne({email: req.body.email})
-            .then(user=>{
-                console.log("------------------------------1 user", user);
-                if(user) return res.status(200).json({error: "Ce compte est déjè utilisé."});
+            User.findOne({email: req.body.email})
+            .then(use=>{
+                console.log("------------------------------1 user", use);
+                if(use) return res.status(200).json({error: "Ce compte est déjè utilisé."});
 
-                console.log("------------------------------2 user", user);
+                console.log("------------------------------2 user", use);
                 const code = generateRandomString("0123456789", 6);
                 Plateforme.findById(req.body.plateforme)
                 .then(plateforme=>{

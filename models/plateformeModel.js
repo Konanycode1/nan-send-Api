@@ -1,6 +1,5 @@
-import mongoose from "../config/db_connect.js";
-import Utilisateur from "./utilisateurModel.js";
-
+import mongoose from "mongoose";
+import User from "./user.js";
 
 const PlateformeSchema = mongoose.Schema(
     {
@@ -16,11 +15,11 @@ const PlateformeSchema = mongoose.Schema(
         },
         // Identifiant de celui ou celle qui a créer l'entreprise
         creerPar:[
-            {type: mongoose.Schema.Types.ObjectId, ref: Utilisateur}
+            {type: mongoose.Schema.Types.ObjectId, ref: "User"}
         ],
         // Identifiant de celui ou celle qui a effectué la dernière modification des informations de l'entreprise
         modifierPar:[
-            {type: mongoose.Schema.Types.ObjectId, ref: Utilisateur}
+            {type: mongoose.Schema.Types.ObjectId, ref: "User"}
         ],
         // Type d'entreprise c'est-à-dire s'il sagit d'une SARL, SASU, SAS, SA, etc...
         emailNormal:{

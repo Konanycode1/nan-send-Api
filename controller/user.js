@@ -1,6 +1,5 @@
-import Entreprise from "../models/entreprise.js";
+// import Entreprise from "../models/entreprise.js";
 import user from "../models/user.js";
-import Utilisateur from "../models/user.js";
 import { generateToken } from "../util/token.js";
 
 
@@ -8,10 +7,10 @@ class UtilisateurController{
     static async create(req, res){
         try {
             const {email, ...body} = req.body
-            Utilisateur.findOne({email: email})
+            user.findOne({email: email})
             .then(user=>{
                 if(user) return res.status(201).json({status:false,message: "Ce utilisatateur est déjà ajouté"});
-                Utilisateur.create({
+                user.create({
                     email,
                     ...body
                 })
@@ -35,10 +34,10 @@ class UtilisateurController{
             
             const {email,role, ...body} = req.body
             // const {email, role} = req.auth 
-            Utilisateur.findOne({email: email})
-            .then(user=>{
-                if(user) return res.status(201).json({status:false,message: "Ce utilisatateur est déjà ajouté"});
-                Utilisateur.create({
+            user.findOne({email: email})
+            .then(use=>{
+                if(use) return res.status(201).json({status:false,message: "Ce utilisatateur est déjà ajouté"});
+                user.create({
                     email,
                     role: role,
                     ...body

@@ -1,10 +1,10 @@
 import Plateforme from "../models/plateformeModel.js";
-import Utilisateur from "../models/utilisateurModel.js";
+import user from "../models/user.js";
 
 class PlateformeController{
     static async createOrUpdate(req, res){
         try {
-            Utilisateur.findOne({email: req.auth.email, entite: "gestionnaire"})
+            user.findOne({email: req.auth.email, entite: "gestionnaire"})
             .then(utilisateur => {
                 if(!utilisateur) return res.status(202).json({message: "Mot de passe ou email incorrect !"});
                 Plateforme.findAll()

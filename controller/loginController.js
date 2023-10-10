@@ -1,14 +1,14 @@
 import {sign_token} from "../midlleware/auth.js"
 
 import bcrypt from "bcrypt";
-import Utilisateur from "../models/utilisateurModel.js";
+import User from "../models/user.js";
 // import Entreprise from "../models/entrepriseModel";
 
 
 class LoginController{
     static async login(req, res){
         try {
-            Utilisateur.findOne({email: req.body.email})
+            User.findOne({email: req.body.email})
             .populate("entreprise")
             .then(utilisateur => {
                 if(!utilisateur || !utilisateur.entreprise) return res.status(201).json({message: "Mot de passe ou email incorrect"});
