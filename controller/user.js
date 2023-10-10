@@ -1,7 +1,10 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const utilisateur = require('../models/user');
-const { generateToken } = require('../util/token.js')
+import { Jwt } from 'jsonwebtoken';
+import utilisateur from '../models/user';
+import { generateToken } from '../util/token.js';
+import { crypt, comparer } from '../util/bcrypt';
+
+
+
 
 
 
@@ -10,12 +13,13 @@ class UserController {
     // FUNCTION POUR CREER UN UTILISATEUR 
     static async create(req, res){
         try {
-            const {email, ...body} = req.body
+            const {email, password, ...body} = req.body
             utilisateur.findOne({email: email})
-            .then(user=>{
+            .then(async (user)=>{
                 if(user) return res.status(201).json({status:false,message: "Ce utilisatateur est déjà ajouté"});
                 utilisateur.create({
                     email,
+                    password: await crypt(password),
                     ...body
                 })
                 .then(newUser=>{
@@ -37,21 +41,21 @@ class UserController {
     // FUNCTION POUR CREER UN AGENT 
     static async createAgent(req, res){
         try {
-            
-            const {email,role, ...body} = req.body
+            const {email,role,password, ...body} = req.body
             // const {email, role} = req.auth 
             utilisateur.findOne({email: email})
-            .then(user=>{
+            .then( async (user)=>{
                 if(user) return res.status(201).json({status:false,message: "Ce utilisatateur est déjà ajouté"});
                 utilisateur.create({
                     email,
+                    password: await crypt(password),
                     role: role,
                     ...body
                 })
                 .then(newUser=>{
                     res.status(202).json({
                         status:true,
-                        message : "Compte crée !!!!"
+                        message : "Agent crée !!!!"
                     })
                 })
                 .catch(error=>res.status(400).json({status:false,message: "Service momentanement indisponible, veuillez réessayer dans quelques instants !"}));
@@ -92,14 +96,13 @@ class UserController {
 // CONNEXION DE L'UTILISATEUR
     static async login(req, res) {
         try {
-            console.log(req.body)
-            utilisateur.findOne({ email: req.body.email })
-
-                .then(user => {
+            const {email, password} = req.body
+            utilisateur.findOne({ email: email })
+                .then( async (user) => {
                     if (!user) {
                         return res.status(400).json({ message: 'utilisateur introuvable' })
                     }
-                    bcrypt.compare(req.body.password, user.password)
+                     await comparer(password, user.password)
                         .then(valid => {
                             console.log(valid)
                             if (!valid) {
@@ -107,12 +110,9 @@ class UserController {
                             }
                             res.status(200).json({
                                 userId: user._id,
-                                token: jwt.sign(
-                                    { userId: user._id },
-                                    "RANDOM_TOKEN_SECRET",
-                                    { expiresIn: '24h' },
-                                )
+                                token: generateToken(user.toObject())
                             })
+                            req.cookie("token", generateToken(newUser.toObject()))
                         })
                         .catch(err => res.status(501).json({ message: err }))
                 })
@@ -152,7 +152,6 @@ class UserController {
 // SUPPRIMER UTILISATEUR AVEC SON ID
     static async deleteUser(req , res){
         const { id } = req.params;
-
         try {
             const users = await utilisateur.findOne({_id : id});
             console.log("l'id de l'utilisateur :" , id)
