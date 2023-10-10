@@ -1,33 +1,39 @@
 import utilisateur from '../models/user.js';
 import { generateToken } from '../util/token.js';
 import { crypt, comparer } from '../util/bcrypt.js';
+
 class UserController {
 
     // FUNCTION POUR CREER UN UTILISATEUR 
     static async create(req, res){
         try {
             const {email, password, ...body} = req.body
-            utilisateur.findOne({email: email})
-            .then(async (user)=>{
-                if(user) return res.status(201).json({status:false,message: "Ce utilisatateur est déjà ajouté"});
-                utilisateur.create({
-                    email,
-                    password: await crypt(password),
-                    ...body
-                })
-                .then(newUser=>{
-                    res.status(202).json({
-                        status:true,
-                        token: generateToken(newUser.toObject()),
-                        message : "Compte crée Merci  !!!!"
-                    })
-                    req.cookie("token", generateToken(newUser.toObject()))
-                })
-                .catch(error=>res.status(400).json({status:false,message: "Service momentanement indisponible, veuillez réessayer dans quelques instants !"}));
+            console.log("email: ",email)
+           const utili =  await utilisateur.findOne({email:email})
+           console.log(utili)
+           if(utili){
+            res.status(400).json({status:false,message: "Utilisationn existe déjà"})
+            return
+           }
+          const createUtil = await utilisateur.create({
+            email,
+            password: await crypt(password),
+            ...body
             })
-            .catch(error=>res.status(400).json({status:false,message: "Service momentanement indisponible, veuillez réessayer dans quelques instants !"}))
-        } catch (error) {
-            res.status(501).json({message: "Service momentanement interrompu, veuillez réessayer dans quelques instants !"})
+            if(!createUtil){
+                res.status(501).json({status:false, message: "inscription echouée"})
+                return
+            }
+            res.cookie("token", generateToken(createUtil.toObject()))
+            res.status(201).json({
+                status:true,
+                token: generateToken(createUtil.toObject()),
+                message : "Compte crée Merci  !!!!"
+            })
+            
+    
+        } catch (e) {
+            res.status(501).json({message: e.message})
         }
     }
 
@@ -35,10 +41,19 @@ class UserController {
     static async createAgent(req, res){
         try {
             const {email,role,password, ...body} = req.body
-            // const {email, role} = req.auth 
+            const {_id} = req.auth 
+            const user = await utilisateur.findById(_id);
+            if(!user){
+                res.status(404)
+                .json({
+                    status: false,
+                    message: "ù"
+                })
+            }
             utilisateur.findOne({email: email})
             .then( async (user)=>{
                 if(user) return res.status(201).json({status:false,message: "Ce utilisatateur est déjà ajouté"});
+
                 utilisateur.create({
                     email,
                     password: await crypt(password),
@@ -97,21 +112,21 @@ class UserController {
                     }
                      await comparer(password, user.password)
                         .then(valid => {
-                            console.log(valid)
                             if (!valid) {
                                 return res.status(400).json({ message: 'adresse mail / mot de passe incorrect' })
                             }
+                            res.cookie("tokenLog", generateToken(user.toObject()))
                             res.status(200).json({
                                 userId: user._id,
-                                token: generateToken(user.toObject())
+                                tokenLog: generateToken(user.toObject())
                             })
-                            req.cookie("token", generateToken(newUser.toObject()))
+                            
                         })
                         .catch(err => res.status(501).json({ message: err }))
                 })
                 .catch(err => res.status(500).json({ message: err }))
         } catch (error) {
-            res.status(400).json({ error })
+            res.status(400).json({ message: error.message })
         }
     }
 
