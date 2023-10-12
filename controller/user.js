@@ -1,7 +1,6 @@
 import utilisateur from '../models/user.js';
 import { generateToken } from '../util/token.js';
 import { crypt, comparer } from '../util/bcrypt.js';
-import generateRandomString from '../laboratoire/generateRandomString.js';
 class UserController {
 
     // FUNCTION POUR CREER UN UTILISATEUR 
@@ -9,32 +8,32 @@ class UserController {
         try {
             
             const {email, password, ...body} = req.body
-            utilisateur.findOne({email: email})
-            .then(async (user)=>{
-                if(user) return res.status(201).json({status:false,message: "Ce utilisatateur est déjà ajouté"});
-                utilisateur.create({
-                    email,
-                    password: await crypt(password),
-                    ...body
-                })
-                .then(async newUser=>{
-                    res.cookie("token", generateToken(newUser.toObject()));
-                    res.status(202).json({
-                        status:true,
-                        token: generateToken(newUser.toObject()),
-                        message : "Compte crée Merci  !!!!"
-                    });
-
-                    // await res.cookie("token", generateToken(newUser.toObject()))
-                })
-                .catch(error=>{
-                    console.log("------------------", error);
-                    res.status(400).json({status:false,message: "Service momentanement indisponible, veuillez réessayer dans quelques instants !"})
-                });
+            console.log("email: ",email)
+           const utili =  await utilisateur.findOne({email:email})
+           console.log(utili)
+           if(utili){
+            res.status(400).json({status:false,message: "Utilisationn existe déjà"})
+            return
+           }
+          const createUtil = await utilisateur.create({
+            email,
+            password: await crypt(password),
+            ...body
             })
-            .catch(error=>res.status(400).json({status:false,message: "Service momentanement indisponible, veuillez réessayer dans quelques instants !"}))
-        } catch (error) {
-            res.status(501).json({message: "Service momentanement interrompu, veuillez réessayer dans quelques instants !"})
+            if(!createUtil){
+                res.status(501).json({status:false, message: "inscription echouée"})
+                return
+            }
+            res.cookie("token", generateToken(createUtil.toObject()))
+            res.status(201).json({
+                status:true,
+                token: generateToken(createUtil.toObject()),
+                message : "Compte crée Merci  !!!!"
+            })
+            
+    
+        } catch (e) {
+            res.status(501).json({message: e.message})
         }
     }
 
@@ -42,10 +41,19 @@ class UserController {
     static async createAgent(req, res){
         try {
             const {email,role,password, ...body} = req.body
-            // const {email, role} = req.auth 
+            const {_id} = req.auth 
+            const user = await utilisateur.findById(_id);
+            if(!user){
+                res.status(404)
+                .json({
+                    status: false,
+                    message: "ù"
+                })
+            }
             utilisateur.findOne({email: email})
             .then( async (user)=>{
                 if(user) return res.status(201).json({status:false,message: "Ce utilisatateur est déjà ajouté"});
+
                 utilisateur.create({
                     email,
                     password: await crypt(password),
@@ -98,37 +106,36 @@ class UserController {
             const {email, password} = req.body
             utilisateur.findOne({ email: email })
                 .then( async (user) => {
-                    if (!user) return res.status(400).json({ message: 'utilisateur introuvable' })
-                    comparer(password, user.password)
-                    .then(valid => {
-                            if (!valid) return res.status(400).json({ message: 'adresse mail / mot de passe incorrect' });
-                            
-                            res.cookie("token", generateToken(user.toObject()));
+                    if (!user) {
+                        return res.status(400).json({ message: 'utilisateur introuvable' })
+                    }
+                     await comparer(password, user.password)
+                        .then(valid => {
+                            if (!valid) {
+                                return res.status(400).json({ message: 'adresse mail / mot de passe incorrect' })
+                            }
+                            res.cookie("tokenLog", generateToken(user.toObject()))
                             res.status(200).json({
                                 userId: user._id,
-                                token: generateToken(user.toObject())
-                            });
-                            // await res.cookie("token", generateToken(newUser.toObject()))
-                        })
-                        .catch(err =>{
-                            res.status(401).json({ message: err })
+                                tokenLog: generateToken(user.toObject())
+                            })
                         })
                 })
                 .catch(err => res.status(500).json({ message: err }))
         } catch (error) {
-            res.status(501).json({ error })
+            res.status(400).json({ message: error.message })
         }
     }
 
 // OBTENIR TOUT LES UTILISATEUR
     static async getAllUser ( req , res ){
-        utilisateur.find()
+        await utilisateur.find()
         .then(reponse => {
             res.status(200).json({
                 reponse
             })
         })
-        .catch(err => {res.status(400).json({message : err})})
+        .catch(err => { return res.status(400).json({message : err})})
     }
 
 //  OBTENIR UN UTILISATEUR UNIQUE   

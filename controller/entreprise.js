@@ -3,7 +3,6 @@
 import Entrepise from "../models/entreprise.js";
 import User from "../models/user.js";
 
-
 class EntrepriseController{
     /**
      * 
