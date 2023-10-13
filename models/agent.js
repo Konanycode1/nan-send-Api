@@ -1,6 +1,6 @@
 import {Schema, model} from "mongoose"
 
-const User = new Schema ({
+const Agent = new Schema ({
     fullname:{
         type: String,
         required: true
@@ -23,6 +23,11 @@ const User = new Schema ({
         type: String,
         required: true
     },
+
+    parain:{
+        type: Schema.Types.ObjectId,
+        ref:'user'
+    },
     password : {
         type: String,
         required : true
@@ -34,4 +39,4 @@ const User = new Schema ({
     }
 })
 
-export default model("User", User)
+export default model("Agent", Agent)

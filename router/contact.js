@@ -1,12 +1,13 @@
 import express from 'express'
-import ControlContact from '../controller/contact';
+import ControlContact from '../controller/contact.js';
 const RouteContact = express.Router();
+import withAuth from '../midlleware/withAuth.js'
 
 
-RouteContact.post('/contact/', ControlContact.create)
-RouteContact.put('/contact/:id', ControlContact.update)
-RouteContact.delete('/contact/:id', ControlContact.delete)
-RouteContact.get('/contact/', ControlContact.getContactId)
-RouteContact.get('/contactAll/', ControlContact.getAll)
+RouteContact.post('/create', withAuth , ControlContact.create)
+RouteContact.put('/:id', withAuth , ControlContact.update)
+RouteContact.delete('/:id', withAuth ,ControlContact.delete)
+RouteContact.get('/:id', withAuth ,ControlContact.getContactId)
+RouteContact.get('/all', withAuth ,ControlContact.getAll)
 
 export default RouteContact;

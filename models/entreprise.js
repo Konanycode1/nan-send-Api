@@ -1,11 +1,11 @@
-// import mongoose from "../config/db_connect.js";
-// import Utilisateur from "./utilisateur_model.js";
-import {Schema,model} from 'mongoose'
 
+import { Schema, model}  from 'mongoose';
+import User from './user.js';
 
-const EntrepriseSchema = mongoose.Schema(
+const EntrepriseSchema = new Schema(
     {
         // Le nom de la l'entreprise
+        
         raisonSociale:{
             type: String,
             required: true
@@ -21,12 +21,8 @@ const EntrepriseSchema = mongoose.Schema(
             required: true
         },
         // Identifiant de celui ou celle qui a créer l'entreprise
-        creerPar:[
-            {type: Schema.Types.ObjectId, ref: 'Utilisateur'}
-        ],
-        // Identifiant de celui ou celle qui a effectué la dernière modification des informations de l'entreprise
-        modifierPar:[
-            {type: Schema.Types.ObjectId, ref: 'Utilisateur'}
+        identifiant:[
+            {type: Schema.Types.ObjectId, ref: 'User'}
         ],
         // Type d'entreprise c'est-à-dire s'il sagit d'une SARL, SASU, SAS, SA, etc... 
         type:{
