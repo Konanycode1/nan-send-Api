@@ -12,23 +12,24 @@ class EntrepriseController{
      */
     static async create(req, res){
         try {
-            console.log("--------------------------------------");
-            const {_id, email} = req.auth // Midlleware pour l'inscription
-            User.findOne({email})
-            .then(use=>{
-                if(!use) return res.status(202).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete"});
-                Entrepise.findOne({identifiant: _id})
-                .then(entreprise=>{
-                    if(entreprise) return res.status(201).json({message:"Cette structure est déjà occupée !"});
-                    Entrepise.create(req.body)
-                    .then(newEntreprise=>res.status(200).json(newEntreprise));
-                })
-                .catch(()=>res.status(400).json({message:"Email ou mot de passe incorrectes !"}));
+            const {email, ...body} = req.body
+            const {_id} = req.auth // Midlleware pour l'inscription
+            const verifUser = User.findById(_id)
+            if(!verifUser){
+                return res.status(401).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete"})
+            }
+            const creatEntr = await Entrepise.create({
+                email: email,
+                identifiant: _id,
+                ...body
             })
-            .catch(()=>res.status(400).json({message:"Email ou mot de passe incorrectes !"}));
+            verifUser.updateOne({
+                entreprise: creatEntr._id
+            })
+            res.status(202).json({status:true, message:'entreprise bien crée'})
         } catch (error) {
             console.log("Erreur provenant de entrepriseController.create", error);
-            res.status(500).json({message: "Mot de passe ou email incorrect"});
+            res.status(500).json({message: error.message});
         } 
     }
 
