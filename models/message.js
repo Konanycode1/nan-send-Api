@@ -12,14 +12,6 @@ const Message = new Schema ({
         ref : "contact",
         default :[]
     },
-    numeroWhatsapp:{
-        type: Number,
-        required: false
-    },
-    numeroSms:{
-        type: Number,
-        required: true
-    },
     contenu:{
         type: String,
         required:true,

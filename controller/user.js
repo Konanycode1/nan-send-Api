@@ -41,7 +41,8 @@ class UserController {
     static async createAgent(req, res){
         try {
             const {email,role,password, ...body} = req.body
-            const {_id} = req.auth;
+            const {_id, entreprise} = req.auth;
+          
             const user = await utilisateur.findById(_id);
             console.log(user)
             if(!user){
@@ -59,6 +60,7 @@ class UserController {
             await agent.create({
                     email,
                     parain: user._id,
+                    entreprise:entreprise,
                     password: await crypt(password),
                     role: role,
                     ...body

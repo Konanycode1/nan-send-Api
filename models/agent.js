@@ -28,6 +28,10 @@ const Agent = new Schema ({
         type: Schema.Types.ObjectId,
         ref:'user'
     },
+    entreprise:{
+        type: Schema.Types.ObjectId,
+        ref:'entreprise'
+    },
     password : {
         type: String,
         required : true
