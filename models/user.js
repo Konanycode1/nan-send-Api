@@ -20,7 +20,7 @@ const User = new Schema ({
         required: true
     },
     entreprise:{
-        type: Schema.types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref:'entreprise'
     },
     nationalite:{
