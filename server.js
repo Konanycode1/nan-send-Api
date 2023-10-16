@@ -11,6 +11,7 @@ import teamRouter from "./router/teams.js"
 import RouteEntreprise from "./router/entreprise.js";
 import routerUser from "./router/user.js";
 import RouteContact from "./router/contact.js";
+import RouterMessage from "./router/message.js";
 const  app = express();
 config({
     path:path.join(process.cwd(),'.env')
@@ -29,6 +30,7 @@ app.use('/api/user',routerUser);
 app.use('/api/team',teamRouter);
 app.use('/api/entreprise',RouteEntreprise);
 app.use('/api/contact',RouteContact);
+app.use('/api/message',RouterMessage);
 
 // app.use(express.static("/images"));
 // app.use((req,res,next)=>{

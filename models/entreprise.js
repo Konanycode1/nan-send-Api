@@ -21,7 +21,7 @@ const EntrepriseSchema = new Schema(
             required: true
         },
         // Identifiant de celui ou celle qui a créer l'entreprise
-        identifiant:[
+        user:[
             {type: Schema.Types.ObjectId, ref: 'User'}
         ],
         // Type d'entreprise c'est-à-dire s'il sagit d'une SARL, SASU, SAS, SA, etc... 

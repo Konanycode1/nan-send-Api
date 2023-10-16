@@ -3,6 +3,7 @@ import Entreprise  from '../models/entreprise.js';
 import User from '../models/user.js'
 import { verifEmail } from '../util/verifEmail.js';
 import { sendEmail } from '../util/sendMail.js';
+import message from '../models/message.js';
 class Message{
 
     static async createEmail(req,res){
@@ -11,7 +12,8 @@ class Message{
             const {_id, entreprise, role} = req.auth;
 
             const {canal, piecesJointes, contenu, contact} = req.body;
-            
+            contact = contact.split(',')
+            console.log(contact)
             const verifCompagny = await Entreprise.findById(entreprise)
             if(!verifCompagny){
                 res.status(404).json({status:false,message:'Entreprise introuvable'})
@@ -26,6 +28,7 @@ class Message{
                 res.status(404).json({status:false, message:'Impossible de poursuivre cette requette.'})
                 return
             }
+          
             contact.forEach((eleCon) => {
                 if(isNaN(parseInt(eleCon)) ||  verifEmail(eleCon)){
                     res.status(404).json({status:false, message:'Impossible de poursuivre cette requette NaN-Send.'})
@@ -44,6 +47,7 @@ class Message{
             })
         }
         catch(e){
+            console.log(e.message)
             res.status(500).json({status:false , message: e.message})
         }
     }

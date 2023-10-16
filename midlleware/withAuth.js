@@ -4,7 +4,6 @@ const verify_token = (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     // const token = req.cookies.token
-    console.log(token)
     const tokenStatut = verifyToken(token);
     if (!tokenStatut) {
       res.status(404).json({
