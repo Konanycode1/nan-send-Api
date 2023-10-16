@@ -30,10 +30,8 @@ class UserController {
             res.status(201).json({
                 status:true,
                 token: generateToken(createUtil.toObject()),
-                message : "Compte crée Merci  !!!!"
+                message : "Compte crée Merci  !!!!",createUtil
             })
-            
-    
         } catch (e) {
             res.status(501).json({message: e.message})
         }
@@ -44,7 +42,6 @@ class UserController {
         try {
             const {email,role,password, ...body} = req.body
             const {_id} = req.auth;
-          
             const user = await utilisateur.findById(_id);
             console.log(user)
             if(!user){

@@ -1,8 +1,6 @@
-import {Schema, model} from "mongoose";
-import Entreprise from "./entreprise.js";
+import {Schema, model} from "mongoose"
 
-
-const User = new Schema ({
+const Administrateur = new Schema ({
     fullname:{
         type: String,
         required: true
@@ -16,9 +14,6 @@ const User = new Schema ({
         type: String,
         required: true
     },
-    entreprise:[
-        {type: Schema.Types.ObjectId, ref: "Entreprise"}
-    ],
     etat:{
         type: Number,
         default: 1,
@@ -28,15 +23,11 @@ const User = new Schema ({
         type: String,
         required: true
     },
+
     password : {
         type: String,
         required : true
-    },
-    role: {
-        type: String,
-        enum : ["Proprio", "manager", "agent" ],
-        default: "Proprio"
     }
 })
 
-export default model("User", User)
+export default model("Administrateur", Administrateur)

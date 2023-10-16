@@ -10,6 +10,13 @@ import teamRouter from "./router/teams.js"
 import RouteEntreprise from "./router/entreprise.js";
 import routerUser from "./router/user.js";
 import RouteContact from "./router/contact.js";
+import RouteAdministrateur from "./router/administrateur.js";
+import RouterPlateforme from "./router/plateforme.js";
+import RouterLogin from "./router/LoginAdmin.js";
+import RouterSendCodeValidation from "./router/sendEmail.js";
+
+
+
 const  app = express();
 config({
     path:path.join(process.cwd(),'.env')
@@ -21,13 +28,17 @@ app.use(express.json());
 app.use(cookieParser());
 
 
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use("/images" ,express.static( path.join(__dirname,'images') ));
 app.use('/api/user',routerUser);
 app.use('/api/team',teamRouter);
 app.use('/api/entreprise',RouteEntreprise);
 app.use('/api/contact',RouteContact);
+app.use('/api/admin',RouteAdministrateur);
+app.use('/api/plateforme', RouterPlateforme);
+app.use('/api/admin', RouterLogin);
+app.use('/api/sendmail', RouterSendCodeValidation);
+
 
 // app.use(express.static("/images"));
 // app.use((req,res,next)=>{
@@ -38,7 +49,7 @@ app.use('/api/contact',RouteContact);
 //     next();
 // });
 
-const port =3000 || process.env.PORT ;
+const port = process.env.PORT || 3000 ;
 // app.listen(port, ()=>{
 //     console.log(`Le serveur a bien été lancé sur le port ${port}`);
 //     console.log("La base de données a été bien connectéé avec succès !")
