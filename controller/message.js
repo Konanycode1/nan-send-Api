@@ -42,9 +42,6 @@ class Message{
                 status:true,
                 message: "email envoyé !!"
             })
-
-
-
         }
         catch(e){
             res.status(500).json({status:false , message: e.message})
