@@ -41,9 +41,11 @@ class EmailController{
     static async sendEmailForOneAdress(req, res){
         const user = await User.findById(req.auth._id);
         if(!user) return res.status(203).json({message: "Vous n'êtes pas authorisé(e) à effectuer cette requète, veuillez-vous authentifier !", status: false});
+        const plateforme = await Plateforme.find();
+        if(!plateforme.length) return req.status(202).json({message: "Service momentanement indisponible !", statut:false});
+        
 
     }
 }
-
 
 export default  EmailController;
