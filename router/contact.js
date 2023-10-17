@@ -9,4 +9,5 @@ RouteContact.delete('/contact/:id', ControlContact.delete)
 RouteContact.get('/contact/', ControlContact.getContactId)
 RouteContact.get('/contactAll/', ControlContact.getAll)
 
+
 export default RouteContact;
