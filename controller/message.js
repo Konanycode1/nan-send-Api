@@ -7,9 +7,6 @@ import htmlFormatEmail from "../mailling/htmlFormatEmail.js";
 import transporteur from "../mailling/transporteur.js";
 import verify_email_adress from '../laboratoire/verify_email_adress.js';
 
-
-
-
 class Message{
     static async createEmail(req,res){
         try{
@@ -18,9 +15,10 @@ class Message{
 
             const {canal, piecesJointes, contenu, contact} = req.body;
             // On vérifie si la constante contact est un un tableau qui contient au moins un adresse email
-            if(!Array.isArray(contact) || !contact.some(item=>verify_email_adress(item))) return res.status(400).json({message: "Les contacts chargés ne contiennent aucun adresse mail.", status: false})
+            if(!(Array.isArray(contact) && contact.some(emailAdress =>verify_email_adress(emailAdress)) && !(typeof(contact)==="string" && verify_email_adress(contact)))) return res.status(400).json({message: "Les contacts chargés ne contiennent aucun adresse mail.", status: false})
             // On tente de récupérer les informations de l'entréprise dans la base de données
-            const verifCompagny = await Entreprise.findById(entreprise);
+            const allContact =Array.isArray(contact) && contact.some(emailAdress =>verify_email_adress(emailAdress)) ?contact.filter(item=>verify_email_adress(item)):
+            // const verifCompagny = await Entreprise.findById(entreprise);
             // Si la l'entréprise n'existe pas dans la base de données, on renvoie un message au client
             if(!verifCompagny) return res.status(404).json({status:false,message:'Entreprise introuvable'});
             /**Si l'entreprise existe, on vérifie si celui qui effectue la requette est le chef d'entreprise, sinon il devra être un employé de l'entreprise
@@ -44,7 +42,8 @@ class Message{
                 // On définit l'objet du message
                 subject:req.body.subject,
                 // On transmettre le contenu au format html
-                html: htmlFormatEmail(donneEmail)
+                html: htmlFormatEmail(donneEmail),
+                attachments:[]
             });
             // On le serveur n'a pas accès à la connexion internet on renvoie un message au client consernant la connexion
             if(!email.response.includes("OK")) return res.status(400).json({message: "Connexion interrompue.", statut:false, error});
