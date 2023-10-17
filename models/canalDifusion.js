@@ -1,7 +1,7 @@
 import {Schema, model} from "mongoose"
 
-const Contact = new Schema ({
-    fullname:{
+const Canaux = new Schema ({
+    libelle:{
         type: String,
         required: true
     },
@@ -11,22 +11,16 @@ const Contact = new Schema ({
         required: true
     },
     numeroWhatsapp:{
-        type: Number,
+        type: String,
         required: false
     },
     numeroSms:{
-        type: Number,
+        type: String,
         required: true
     },
     user: {
-        type: Schema.Types.ObjectId,
-        ref: 'user'
-    },
-    entreprise:{
-
-        type: Schema.Types.ObjectId,
-        ref:'entreprise'
+        type: Schema.Types.ObjectId
     }
 })
 
-export default model("Contact", Contact)
+export default model("canaux", Canaux)

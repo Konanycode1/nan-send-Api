@@ -1,5 +1,7 @@
+// import contact from "../models/contact.js";
 import Contact from "../models/contact.js";
 import User from "../models/user.js";
+import Entreprise from "../models/entreprise.js";
 
 class ControlContact {
   static async create(req, res) {
@@ -7,10 +9,18 @@ class ControlContact {
       const { email, numeroWhatsapp, numeroSms, ...body } = req.body;
       const { _id } = req.auth;
       const user = await User.findById(_id);
-      if (user) {
+      if (!user) {
         res.status(401).json({
           status: false,
           message: "Vous n'etes pas enregistrer",
+        });
+        return;
+      }
+      const entreprise = await Entreprise.findById(req.auth.entreprise);
+      if (!entreprise) {
+        res.status(401).json({
+          status: false,
+          message: "Entreprise introuvable"
         });
         return;
       }
@@ -43,6 +53,7 @@ class ControlContact {
         numeroWhatsapp,
         numeroSms,
         user: user._id,
+        entreprise: entreprise._id,
         ...body,
       });
       res.status(201).json({
@@ -56,10 +67,12 @@ class ControlContact {
       });
     }
   }
+
   static async update(req, res) {
     try {
       const { _id } = req.auth;
       const { id } = req.params;
+      console.log(req.params)
       const { email, ...body } = req.body;
       const user = await User.findById(_id);
       if (!user) {
@@ -69,13 +82,39 @@ class ControlContact {
         });
       }
       const contactExist = await Contact.findOne({ _id: id });
+      console.log(contactExist)
       if (!contactExist) {
         res.status(401).json({
           status: false,
           message: "contact introuvable !!",
         });
+        return
       }
-      await contactExist.update({ email, ...body });
+      const mailUsed = await Contact.findOne({ email : req.body.email})
+      if(mailUsed){
+        res.status(401).json({
+          status:false,
+          message:'adresse mail déjà utilisé !!!'
+        })
+        return
+      }
+      const numeroWhatsappUsed = await Contact.findOne({ numeroWhatsapp: req.body.numeroWhatsapp})
+      if(numeroWhatsappUsed){
+        res.status(401).json({
+          status:false,
+          message:"numero whatsapp déjà utilisé !!!"
+        })
+        return
+      }
+      const numeroSmsUsed = await Contact.findOne({ numeroSms: req.body.numeroSms})
+      if(numeroSmsUsed){
+        res.status(401).json({
+          status:false,
+          message: 'numéro sms déjà utilisé !!!'
+        })
+        return
+      }
+      await contactExist.updateOne({ email, ...body });
       res.status(200).json({
         status: true,
         message: "Contact modifié",
@@ -87,6 +126,7 @@ class ControlContact {
       });
     }
   }
+
   static async delete(req, res) {
     try {
       const { _id } = req.auth;
@@ -117,6 +157,7 @@ class ControlContact {
       });
     }
   }
+  
   static async getContactId(req, res) {
     try {
       const { _id } = req.auth;
@@ -146,6 +187,7 @@ class ControlContact {
       });
     }
   }
+
   static async getAll(req, res) {
     try {
       const user = await Contact.find();
@@ -160,6 +202,7 @@ class ControlContact {
       });
     }
   }
+
   static async importContact(req, res) {
     try {
       const body = [...req.body];
