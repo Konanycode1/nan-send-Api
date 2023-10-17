@@ -23,6 +23,7 @@ class EntrepriseController{
             const creatEntr = await Entreprise.create({
                 email: email,
                 user: _id,
+                raisonSociale:raisonSociale,
                 ...body
             })
             await verifUser.updateOne({
