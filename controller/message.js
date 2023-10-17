@@ -17,7 +17,7 @@ class Message{
             // On vérifie si la constante contact est un un tableau qui contient au moins un adresse email
             if(!(Array.isArray(contact) && contact.some(emailAdress =>verify_email_adress(emailAdress)) && !(typeof(contact)==="string" && verify_email_adress(contact)))) return res.status(400).json({message: "Les contacts chargés ne contiennent aucun adresse mail.", status: false})
             // On tente de récupérer les informations de l'entréprise dans la base de données
-            const allContact =Array.isArray(contact) && contact.some(emailAdress =>verify_email_adress(emailAdress)) ?contact.filter(item=>verify_email_adress(item)):
+            // const allContact =Array.isArray(contact) && contact.some(emailAdress =>verify_email_adress(emailAdress)) ?contact.filter(item=>verify_email_adress(item)):
             // const verifCompagny = await Entreprise.findById(entreprise);
             // Si la l'entréprise n'existe pas dans la base de données, on renvoie un message au client
             if(!verifCompagny) return res.status(404).json({status:false,message:'Entreprise introuvable'});
@@ -51,6 +51,7 @@ class Message{
             return res.status(201).json({message: "Message transféré avec succès !", statut:true})
         }
         catch(e){
+            console.log(e.message)
             res.status(500).json({status:false , message: e.message})
         }
     }

@@ -14,6 +14,7 @@ import RouteAdministrateur from "./router/administrateur.js";
 import RouterPlateforme from "./router/plateforme.js";
 import RouterLogin from "./router/LoginAdmin.js";
 import RouterSendCodeValidation from "./router/sendEmail.js";
+import RouterMessage from "./router/message.js";
 
 
 
@@ -38,7 +39,7 @@ app.use('/api/admin',RouteAdministrateur);
 app.use('/api/plateforme', RouterPlateforme);
 app.use('/api/admin', RouterLogin);
 app.use('/api/sendmail', RouterSendCodeValidation);
-
+app.use('/api/message', RouterMessage);
 
 // app.use(express.static("/images"));
 // app.use((req,res,next)=>{

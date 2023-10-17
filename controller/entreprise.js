@@ -1,6 +1,5 @@
 
-
-import Entrepise from "../models/entreprise.js";
+import Entreprise from "../models/entreprise.js";
 import User from "../models/user.js";
 
 class EntrepriseController{
@@ -11,18 +10,23 @@ class EntrepriseController{
      */
     static async create(req, res){
         try {
-            const {email, ...body} = req.body
+            const {email,raisonSociale, ...body} = req.body
             const {_id} = req.auth // Midlleware pour l'inscription
             const verifUser = User.findById(_id)
             if(!verifUser){
                 return res.status(401).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete"})
             }
-            const creatEntr = await Entrepise.create({
+           const existEntre = await Entreprise.findOne({raisonSociale})
+           if(existEntre){
+                return res.status(401).json({message: "Entreprise existe déjà"})
+            }
+            const creatEntr = await Entreprise.create({
                 email: email,
-                identifiant: _id,
+                user: _id,
+                raisonSociale:raisonSociale,
                 ...body
             })
-            verifUser.updateOne({
+            await verifUser.updateOne({
                 entreprise: creatEntr._id
             })
             res.status(202).json({status:true, message:'entreprise bien crée'})

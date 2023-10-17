@@ -19,7 +19,13 @@ const Contact = new Schema ({
         required: true
     },
     user: {
-        type: Schema.Types.ObjectId
+        type: Schema.Types.ObjectId,
+        ref: 'user'
+    },
+    entreprise:{
+
+        type: Schema.Types.ObjectId,
+        ref:'entreprise'
     }
 })
 

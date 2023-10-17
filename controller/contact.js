@@ -1,6 +1,7 @@
-import contact from "../models/contact.js";
+// import contact from "../models/contact.js";
 import Contact from "../models/contact.js";
 import User from "../models/user.js";
+import Entreprise from "../models/entreprise.js";
 
 class ControlContact {
   static async create(req, res) {
@@ -12,6 +13,14 @@ class ControlContact {
         res.status(401).json({
           status: false,
           message: "Vous n'etes pas enregistrer",
+        });
+        return;
+      }
+      const entreprise = await Entreprise.findById(req.auth.entreprise);
+      if (!entreprise) {
+        res.status(401).json({
+          status: false,
+          message: "Entreprise introuvable"
         });
         return;
       }
@@ -44,6 +53,7 @@ class ControlContact {
         numeroWhatsapp,
         numeroSms,
         user: user._id,
+        entreprise: entreprise._id,
         ...body,
       });
       res.status(201).json({

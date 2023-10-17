@@ -10,7 +10,6 @@ class UserController {
         try {
             
             const {email, password, ...body} = req.body
-            console.log("email: ",email)
            const utili =  await utilisateur.findOne({email:email})
            console.log(utili)
            if(utili){
