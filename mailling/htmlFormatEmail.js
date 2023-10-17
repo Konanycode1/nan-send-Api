@@ -1,4 +1,4 @@
-const code_auth = data => 
+const htmlFormatEmail = data => 
 ` <div class="inbox-area">
     <div class="container">
         <div class="row">
@@ -18,4 +18,4 @@ const code_auth = data =>
     </div>
 </div>`;
 
-export default code_auth;
+export default htmlFormatEmail;

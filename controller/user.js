@@ -8,6 +8,7 @@ class UserController {
     // FUNCTION POUR CREER UN UTILISATEUR 
     static async create(req, res){
         try {
+            
             const {email, password, ...body} = req.body
            const utili =  await utilisateur.findOne({email:email})
            console.log(utili)
@@ -28,10 +29,8 @@ class UserController {
             res.status(201).json({
                 status:true,
                 token: generateToken(createUtil.toObject()),
-                message : "Compte crée Merci  !!!!"
+                message : "Compte crée Merci  !!!!",createUtil
             })
-            
-    
         } catch (e) {
             res.status(501).json({message: e.message})
         }
@@ -101,7 +100,6 @@ class UserController {
     //     } catch (error) {
     //         res.status(400).json({ message: error })
     //     }
-
     // }
 
 
@@ -124,9 +122,7 @@ class UserController {
                                 userId: user._id,
                                 token: generateToken(user.toObject())
                             })
-                            
                         })
-                        .catch(err => res.status(501).json({ message: err }))
                 })
                 .catch(err => res.status(500).json({ message: err }))
         } catch (error) {

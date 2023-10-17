@@ -5,7 +5,6 @@ import User from './user.js';
 const EntrepriseSchema = new Schema(
     {
         // Le nom de la l'entreprise
-        
         raisonSociale:{
             type: String,
             required: true
@@ -22,7 +21,7 @@ const EntrepriseSchema = new Schema(
         },
         // Identifiant de celui ou celle qui a créer l'entreprise
         user:[
-            {type: Schema.Types.ObjectId, ref: 'User'}
+            {type: Schema.Types.ObjectId, ref: "User"}
         ],
         // Type d'entreprise c'est-à-dire s'il sagit d'une SARL, SASU, SAS, SA, etc... 
         type:{
@@ -52,4 +51,3 @@ const EntrepriseSchema = new Schema(
 );
 const Entreprise = model('entreprise', EntrepriseSchema);
 export default Entreprise;
-

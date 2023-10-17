@@ -1,52 +1,47 @@
+import administrateur from "../models/administrateur.js";
 import Plateforme from "../models/plateformeModel.js";
 import user from "../models/user.js";
+
 
 class PlateformeController{
     static async createOrUpdate(req, res){
         try {
-            user.findOne({email: req.auth.email, entite: "gestionnaire"})
-            .then(utilisateur => {
-                if(!utilisateur) return res.status(202).json({message: "Mot de passe ou email incorrect !"});
-                Plateforme.findAll()
+            administrateur.findOne({email: req.auth.email})
+            .then(admin => {
+                if(!admin) return res.status(202).json({message: "Mot de passe ou email incorrect !", statut:false});
+                Plateforme.find()
                 .then(plateforme => {
-                    req.body.modifierPar = utilisateur.id;
+                    req.body.modifierPar = admin.id;
                     if(!plateforme.length){
-                        req.body.creerPar = utilisateur.id;
+                        req.body.creerPar = admin.id;
                         Plateforme.create(req.body)
                         .then(newPlateforme => {
-                            res.status(201).json(newPlateforme);
+                            res.status(201).json({newPlateforme, statut:true, message:"Utilisateur ajouté avec succès !"});
                         })
                         .catch(error => {
-                            console.log("--------------------------error0", error);
-                            res.status(401).json({error : "Insertion échouée, veuillez réessayer plus tard !"})
+                            res.status(401).json({error : "Insertion échouée, veuillez réessayer plus tard !", statut:false})
                         })
                     }else{
-                        Plateforme.updateOne(req.body, {_id: plateforme[0]._id})
-                        .then(newPlateforme => {
-                            Plateforme.findById(plateforme[0]._id)
-                            .then(newPlat => {
-                                res.status(201).json({message: "Mise à jour effectuée avec succès !", plateforme:newPlat})
-                            })
-                            .catch(error => {
-                                console.log("--------------------------error1", error);
-                                res.status(401).json({error : "Mise à jour échouée, veuillez réessayer plus tard !"});
-                            } )
+                        req.body.updatedAt = new Date();
+                        Plateforme.updateOne({_id: plateforme[0]._id},req.body)
+                        .then(async opdated =>{
+                            const newPlateforme = await Plateforme.findById(plateforme[0]._id);
+                            res.status(201).json({message: "Mise à jour effectuée avec succès !", plateforme:newPlateforme, statut:true})
                         })
                         .catch(error => {
-                            console.log("--------------------------error2", error);
-                            res.status(401).json({error : "Requète interceptée, veuillez réessayer plus tard !"})
+                            res.status(401).json({error : "Requète interceptée, veuillez réessayer plus tard !", statut:false})
                         } )
                     }
                 })
                 .catch(error => {
                     console.log("--------------------------error3", error);
                     res.status(401).json({error : "Requète érronée, veuillez réessayer dans quelques instants !"})
-                } )
+                });
             })
             .catch(error => {
                 console.log("--------------------------error4", error);
                 res.status(401).json({error : "Requète éronée, veuillez réessayer dans quelques instants !"})
-            } )
+            });
         } catch (error) {
             console.log("--------------------------error5", error);
             res.status(401).json({error : "Une erreur est survenue, veuillez réessayer dans quelques instants !"})

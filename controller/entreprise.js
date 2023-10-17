@@ -2,7 +2,6 @@
 import Entreprise from "../models/entreprise.js";
 import User from "../models/user.js";
 
-
 class EntrepriseController{
     /**
      * 
@@ -45,7 +44,7 @@ class EntrepriseController{
     static async getAll(req, res){
         try {
             const {_id, email} = req.auth
-            User.findOne({email})
+            User.findOne({email, statut: 1})
             .then(use=>{
                 if(!use) return res.status(202).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete"});
                 Entrepise.findAll()
@@ -75,7 +74,7 @@ class EntrepriseController{
     static async getById(req, res){
         try {
             const {_id, email} = req.auth
-            User.findOne({email:email})
+            User.findOne({email:email, statut: 1})
             .then(use=>{
                 if(!use) return res.status(202).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete"});
                 Entrepise.findById(req.params.id)
@@ -101,7 +100,7 @@ class EntrepriseController{
         try {
             const {raisonSociale} = req.params
             const {_id} = req.auth
-            User.findOne({_id:_id})
+            User.findOne({_id:_id, statut: 1})
             .then(use=>{
                 if(!use) return res.status(202).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete"});
                 Entrepise.findAll({raisonSociale: raisonSociale})
@@ -133,7 +132,7 @@ class EntrepriseController{
                 Entrepise.findById(id)
                 .then(entreprise=>{
                     if(!entreprise.length) return res.status(201).json({message:"Les données au modifier ne sont pas présentes !"});
-                    Entrepise.findByIdAndUpdate(req.body.cibling, req.body, {new: true})
+                    Entrepise.findByIdAndUpdate({_id:req.body.cibling, statut: 1}, req.body, {new: true})
                     .then(newEntreprise=>{
                         res.status(202).json({ status:true, newEntreprise});
                     })
@@ -157,12 +156,12 @@ class EntrepriseController{
         try {
             const {id} = req.params
             const {_id, email} = req.auth
-            User.findOne({email:email})
+            User.findOne({email:email, statut: 1})
             .then(use=>{ 
                 if(!use) return res.status(202).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete"});
-                Entrepise.findById(id)
+                Entrepise.findOne({_id:id, statut: 1})
                 .then(entreprise=>{
-                    if(!entreprise.length) return res.status(201).json({message:"Les données au modifier ne sont pas présentes !"});
+                    if(!entreprise) return res.status(201).json({message:"Les données au modifier ne sont pas présentes !"});
                     Entrepise.findByIdAndUpdate(req.body.cibling, {statut: 0}, {new: false})
                     .then(newEntreprise=>{
                         res.status(202).json({ status:true, newEntreprise});

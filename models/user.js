@@ -1,4 +1,6 @@
-import {Schema, model} from "mongoose"
+import {Schema, model} from "mongoose";
+import Entreprise from "./entreprise.js";
+
 
 const User = new Schema ({
     fullname:{
@@ -14,6 +16,9 @@ const User = new Schema ({
         type: String,
         required: true
     },
+    entreprise:[
+        {type: Schema.Types.ObjectId, ref: "Entreprise"}
+    ],
     etat:{
         type: Number,
         default: 1,
