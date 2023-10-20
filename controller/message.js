@@ -15,7 +15,6 @@ class Message{
         try{
             let verifUser = {}
             const {_id, entreprise, role} = req.auth;
-
             const {canal, piecesJointes, contenu, contact} = req.body;
             // On vérifie si la constante contact est un un tableau qui contient au moins un adresse email
             if(!Array.isArray(contact) || !contact.some(item=>verify_email_adress(item))) return res.status(400).json({message: "Les contacts chargés ne contiennent aucun adresse mail.", status: false})
@@ -53,6 +52,15 @@ class Message{
         }
         catch(e){
             console.log(e.message)
+            res.status(500).json({status:false , message: e.message})
+        }
+    }
+
+    static async createWhatsApp(req,res){
+
+        try {
+            const {} = req.body;
+        } catch (e) {
             res.status(500).json({status:false , message: e.message})
         }
     }
