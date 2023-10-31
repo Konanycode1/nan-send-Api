@@ -1,4 +1,6 @@
-import {Schema, model} from "mongoose"
+import {Schema, model} from "mongoose";
+import mongooseAutoPopulate from "mongoose-autopopulate";
+
 
 const Canaux = new Schema ({
     libelle:{
@@ -19,8 +21,13 @@ const Canaux = new Schema ({
         required: true
     },
     user: {
-        type: Schema.Types.ObjectId
+        type: Schema.Types.ObjectId,
+        ref: "user",
+        autopopulate: true
     }
+},
+{
+    timesTamps: true
 })
 
-export default model("canaux", Canaux)
+export default model("canaux", Canaux.plugin(mongooseAutoPopulate))

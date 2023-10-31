@@ -1,4 +1,6 @@
-import {Schema, model} from "mongoose"
+import {Schema, model} from "mongoose";
+import mongooseAutoPopulate from "mongoose-autopopulate";
+
 
 const Message = new Schema ({
     canal:{
@@ -8,24 +10,42 @@ const Message = new Schema ({
         default : 'email'
     },
     contact :{
-        type : [String],
+        type : Array,
         ref : "contact",
-        default :[]
+        required: true
     },
     contenu:{
         type: String,
         required:true,
     },
     piecesJointes: {
-        type: [String],
+        type: Array,
         required: false,
         default :[],
     },
     Accuse:{
         type: Boolean,
-        enum:["false", "true"],
-        default : "false"
+        default : false,
+        required: true
+    },
+    statut:{
+        type: Number,
+        default: 1,
+        required: true
+    },
+    createdAt:{
+        type: Date,
+        required: true,
+        default: Date.now()
+    },
+    updatedAt:{
+        type: Date,
+        required: true,
+        default: Date.now()
     }
+},
+{
+    timesTamps: true
 })
 
-export default model("Message", Message)
+export default model("message", Message)

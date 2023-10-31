@@ -1,4 +1,6 @@
 import { Schema, model } from "mongoose";
+import mongooseAutoPopulate from "mongoose-autopopulate";
+
 
 const Teams = new Schema({
   name: {
@@ -13,7 +15,7 @@ const Teams = new Schema({
     type: [
       {
         type: String,
-        ref: "contact",
+        ref: "contact", autopopulate: true
       },
     ],
     default: [],
@@ -23,6 +25,24 @@ const Teams = new Schema({
     enum: ["Whatsapp", "SMS", "email"],
     default: "email",
   },
+  statut: {
+    type: Number,
+    required: true,
+    default: 1
+  },
+  createdAt:{
+    type: Date,
+    required: true,
+    default: Date.now
+},
+updatedAt:{
+    type: Date,
+    required: true,
+    default: Date.now
+}
+},
+{
+    timesTamps: true
 });
 
-export default model("Teams", Teams);
+export default model("Teams", Teams.plugin(mongooseAutoPopulate));
