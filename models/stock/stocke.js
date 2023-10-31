@@ -1,6 +1,8 @@
-import  {Schema, model}  from "mongoose"
+import  {Schema, model}  from "mongoose";
+import mongooseAutoPopulate from "mongoose-autopopulate";
+
 // On définit le schema de model
-const stockeSchema = new Schema(
+const Stocke = new Schema(
     {
         reference: {
             type: String,
@@ -24,14 +26,21 @@ const stockeSchema = new Schema(
             required:true,
             default: true
         },
-        admins:[
-            {type: mongoose.Schema.Types.ObjectId, ref: 'entreprise'}
-        ]
+        entreprise:{type: Schema.Types.ObjectId, ref: "entreprise", autopopulate: true},
+        createdAt:{
+            type: Date,
+            required: true,
+            default: Date.now
+        },
+        updatedAt:{
+            type: Date,
+            required: true,
+            default: Date.now
+        }
     },
     {
         timesTamps: true
     }
 )
 
-const Stocke = model('Stocke', stockeSchema);
-export default Stocke;
+export default model('stocke', Stocke.plugin(mongooseAutoPopulate));

@@ -1,5 +1,5 @@
 import express  from "express";
-import PlateformeController from "../controller/plateformeController.js";
+import PlateformeController from "../controller/plateforme.js";
 import verify_token from "../midlleware/withAuth.js";
 
 const RouterPlateforme = express.Router();

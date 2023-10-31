@@ -2,19 +2,26 @@ import express from "express"
 import cors from "cors"
 import cookieParser  from "cookie-parser"
 import { connectDB } from "./config/db.js";
-import path from 'path'
+import path from 'path';
 
 import { fileURLToPath } from 'url';
 import { config } from "dotenv";
 import teamRouter from "./router/teams.js"
-import RouteEntreprise from "./router/entreprise.js";
+import RouterEntreprise from "./router/entreprise.js";
 import routerUser from "./router/user.js";
-import RouteContact from "./router/contact.js";
-import RouteAdministrateur from "./router/administrateur.js";
+import RouterContact from "./router/contact.js";
+import RouterAdministrateur from "./router/administrateur.js";
 import RouterPlateforme from "./router/plateforme.js";
-import RouterLogin from "./router/LoginAdmin.js";
-import RouterSendCodeValidation from "./router/sendEmail.js";
+import RouterLogin from "./router/login.js";
 import RouterMessage from "./router/message.js";
+import RouterStocke from "./router/stocke.js";
+import RouterCategorie from "./router/categorie.js";
+import RouterArticle from "./router/article.js";
+import RouterAgent from "./router/agent.js";
+import saveAdmin from "./laboratoire/admin.js";
+
+
+
 
 
 
@@ -30,16 +37,24 @@ app.use(cookieParser());
 
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+app.use("/attachement", express.static(path.join(__dirname, "attachement")));
 app.use("/images" ,express.static( path.join(__dirname,'images') ));
 app.use('/api/user',routerUser);
 app.use('/api/team',teamRouter);
-app.use('/api/entreprise',RouteEntreprise);
-app.use('/api/contact',RouteContact);
-app.use('/api/admin',RouteAdministrateur);
+app.use('/api/entreprise',RouterEntreprise);
+app.use('/api/contact',RouterContact);
+app.use('/api/admin',RouterAdministrateur);
 app.use('/api/plateforme', RouterPlateforme);
-app.use('/api/admin', RouterLogin);
-app.use('/api/sendmail', RouterSendCodeValidation);
+app.use('/api/auth', RouterLogin);
+
 app.use('/api/message', RouterMessage);
+app.use('/api/stocke', RouterStocke);
+app.use('/api/categorie', RouterCategorie);
+app.use('/api/article', RouterArticle);
+app.use('/api/agent', RouterAgent);
+
+
+
 
 // app.use(express.static("/images"));
 // app.use((req,res,next)=>{
@@ -55,14 +70,16 @@ const port = process.env.PORT || 3000 ;
 //     console.log(`Le serveur a bien été lancé sur le port ${port}`);
 //     console.log("La base de données a été bien connectéé avec succès !")
 // });
+
 connectDB()
 .then(()=>{
     app.listen(port, ()=>{
-        console.log(`server lancé avec ${port}`)
+        console.log(`server lancé avec ${port}`);
+        console.log("La base de données a été bien connectéé avec succès !");
+        saveAdmin();
     })
 })
 .catch((e)=>{
-    console.log(`server lancé`)
-    // console.log("erreur", e.message)
+    console.log(`Serveur intérrompu`);
 })
 

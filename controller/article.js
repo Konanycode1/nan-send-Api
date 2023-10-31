@@ -1,169 +1,112 @@
+import generateRandomString from '../laboratoire/generateRandomString.js';
+import Agent from '../models/agent.js';
 import Entreprise from '../models/entreprise.js';
 import Article from '../models/stock/article.js';
-import Categorie from '../models/stock/categorie.js';
-import Stocke from '../models/stock/stocke.js';
+import User from '../models/user.js';
 
-class articleController {
+const chaine = "azertyuiopqsdfghjklmwxcvbn0123456789";
+
+class ArticleController {
     static async create(req, res){
-
-        let reference = 100
+        const {_id, entreprise} = req.auth;
         try {
-            const {_id} = req.auth
-            Article.find({})
-            .then(allArticle=>{ // Cette fonctionnalité permet de générer une terminason unique pour la référence de chaque article
-                if(allArticle.length > 0){
-                    reference = Number(allArticle[allArticle.length-1].reference.split('RTC')[1])+1; // 
-                }
-            })
-            Entreprise.findOne({_id: _id})
-            .then((data)=>{
-                if(!data){
-                    res.status(404).json({msg:"Compte introuvable !!"})
-                    return
-                }
-                Stocke.findOne({_id:req.body.stockes})
-                .then((stok) =>{
-                    if(!stok){
-                        res.status(404).json({msg: "Stocke introuvable !!"})
-                        return 
-                    }
-                    else{
-                        Categorie.findOne({_id: req.body.categories})
-                        .then((cate)=>{
-                            if(!cate){
-                                res.status(404).json({msg: "Catégorie introuvable"})
-                                return 
-                            }
-                            else{
-                                let article = new Article({
-                                    ...req.body,
-                                    reference: `ARTC${reference}`, // J'ai jugé bon d'ajouter une reéférence à chaque article ce qui va facilité la recherche à l'oeil nu
-                                    montant: req.body.quantite*req.body.prix_unitaire,
-                                    stockes:stok._id,
-                                    categorie:cate._id,
-                                    admin:data._id
-                                })
-                                article.save()
-                                .then((arti)=>{
-                                    if(arti){
-                                        res.status(200).json({msg: "Produit ajoué !!!"})
-                                    }
-                                    else{
-                                        res.status(400).json({msg: "Une erreur est survenue !!! "})
-                                    }
-                                })
-                                .catch((error)=> res.status(400).json({error: error.message}))
-                            }
-                        })
-                        .catch((error)=> res.status(400).json({error: error.message}))
-                    }
-                })
-                .catch((error)=> res.status(400).json({error: error.message}))
-            })
-            .catch((error)=> res.status(400).json({error: error.message}))
-        } catch (error) {
-            console.log(error.message);
-            res.status(500).json({message: error.message})
+            const user = await User.findOne({_id, email, statut: 1});
+            const agent = await Agent.findOne({_id, email, statut: 1});
+            if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes.", status: false});
+            const isEntreprise = await Entreprise.findOne({_id:entreprise, statut: 1});
+            if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", status: false})
+            const reference = "STOCKE"+generateRandomString(chaine, 14);
+            const article = await Article.create({ libelle:req.body.libelle, reference, montant: req.body.montant, entreprise:isEntreprise._id });
+            if(!stocke) return res.status(201).json({message: "Enrégistrement échoué !", status: false});
+            res.status(200).json({message: "Stocke ajouté !!", stocke, status: true});
+        } catch (error){
+            res.status(500).json({message: error.massege, status: false});
         }
     }
-    static async update(req, res){
-        Entreprise.findOne({_id: _id})
-        .then((data)=>{
-            if(!data){
-                res.status(500).json({msg: "Compte introuvable !!"})
-                return
-            }
-            
-            Article.findOne({_id:req.params.id})
-            .then((arti)=>{
-                if(!arti){
-                    res.status(404).json({msg: "Article introuvable !!"})
-                    return
-                }
-                
-                Categorie.findOne({reference: req.body.categorie})
-                .then((cate) => {
-                    if(!cate){
-                        res.status(404).json({msg: "Catégorie introuvable !!"})
-                        return
-                    }
-                    
-                    Stocke.findOne({reference: req.body.stockes})
-                    .then((stok)=>{
-                        if(!stok){
-                            res.status(404).json({msg: "Stocke introuvable !!"})
-                            return
-                        }
-                        
-                        let article = {
-                            ...req.body,
-                            stockes: stok._id,
-                            categorie: cate._id,
-                            admins: data._id
-                        }
-                        Article.updateOne({_id: req.params.id},{...article, _id:req.params.id})
-                        .then((valid)=>{
-                            console.log(valid)
-                            if(valid){
-                                res.status(201).json({msg :"Article modifié !!"})
-                            }
-                            else{
-                                res.status(404).json({msg:"Une erreur est survenue !!"})
-                            }
-                        })
-                        .catch((error)=> res.status(400).json({error: error.json}))
-                    })
-                    .catch((error)=> res.status(400).json({error: error.message}))
-                })
-                .catch((error)=> res.status(400).json({error: error.message}))
-            })
-            .catch((error)=> res.status(400).json({error: error.message}))
-        })
-        .catch((error)=>res.status(500).json({error:error.message}))
+
+    static async getAll(req, res){
+        try{
+            const {_id, entreprise} = req.auth;
+            const user = await User.findOne({_id, email, statut: 1});
+            const agent = await Agent.findOne({_id, email, statut: 1});
+            if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes.", status: false});
+            const isEntreprise = await Entreprise.findOne({_id:req.auth.entreprise});
+            if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", status: false});
+            const article = await Article.find({statut: 1, entreprise});
+            res.status(200).json({article, status: true});
+        }catch(error){
+            console.log(error)
+            res.status(500).json({data: error.message, status: false});
+        }
     }
-    static  async read(req,res){
-        Entreprise.findOne({_id: _id})
-        .then((data)=>{
-            if(!data){
-                res.status(404).json({msg: "Compte introuvable !!"})
-                return
-            }
-            Article.findOne({_id: req.params.id})
-            .then((article)=> res.status(201).json({article}))
-            .catch((error)=> res.status(400).json({error: error.message}))
-        })
-        .catch((error)=> res.status(400).json({error: error.message}))
+
+    static async getById(req, res){ // On trouve en fonction de la cle primière du stocke
+        try{
+            const {_id, entreprise} = req.auth;
+            const user = await User.findOne({_id, email, statut: 1});
+            const agent = await Agent.findOne({_id, email, statut: 1});
+            if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes.", status: false});
+            const isEntreprise = await Entreprise.findOne({_id:entreprise, statut: 1});
+            if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", status: false});
+            const article = await Article.findOne({_id:req.params.id, statut:1, entreprise});
+            if(!article) return res.status(400).json({message: "Aucun stocke trouvé.", status: false});
+            res.status(200).json({article, status: true});
+        }catch(error){
+            res.status(500).json({message: "URL non valable", data: error.message, status: false});
+        }
     }
-    static  async readAll(req,res){
-        Entreprise.findOne({_id: _id})
-        .then((data)=>{
-            if(!data){
-                res.status(404).json({msg: "Compte introuvable !!"})
-                return
-            }
-            Article.find()
-            .then((article)=> res.status(201).json({article}))
-            .catch((error)=> res.status(400).json({error: error.message}))
-        })
-        .catch((error)=> res.status(400).json({error: error.message}))
+
+    static async getByReference(req, res){  // On trouve en fonction de la référence du stocke
+        try{
+            const {_id, entreprise} = req.auth;
+            const user = await User.findOne({_id, email, statut: 1});
+            const agent = await Agent.findOne({_id, email, statut: 1});
+            if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes.", status: false});
+            const isEntreprise = await Entreprise.findOne({_id:entreprise, statut:1});
+            if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", status: false});
+            const article = await Article.findOne({reference: req.params.reference, statut: 1, entreprise});
+            if(!stocke) return res.status(400).json({message: "Aucun stocke trouvé.", status: false})
+            res.status(200).json({stocke, status: true});
+        }catch(error){
+            const message = `URL non valable.`;
+            res.status(500).json({message: "URL non valable", error, status: false});
+        }
     }
-    static async delete(req, res){
+
+    static async update(req,res){
         try {
-            Entreprise.findOne({_id: _id})
-        .then((data)=>{
-            if(!data){
-                res.status(404).json({msg: "Compte introuvable !!"})
-                return
-            }
-            Article.deleteOne({_id: req.params.id})
-            .then(()=> res.status(201).json({msg: "Article supprimé !!"}))
-            .catch((error)=> res.status(400).json({error: error.message}))
-        })
-        .catch((error)=> res.status(400).json({error: error.message}))
+            const {_id, entreprise} = req.auth;
+            const user = await User.findOne({_id, email, statut: 1});
+            const agent = await Agent.findOne({_id, email, statut: 1});
+            if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes.", status: false});
+            const isEntreprise = await Entreprise.findOne({_id:entreprise, statut: 1});
+            if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", status: false});
+            req.body.updatedAt = Date.now();
+            delete req.body.statut;
+            delete req.body._id;
+            const newEntrprise = await Article.updateOne({_id: req.params.id, statut: 1, entreprise},req.body);
+            if(!newEntrprise.acknowledged || !newEntrprise.modifiedCount) return res.status(203).json({message: "Modification non effectué.", status: false});
+            res.status(201).json({message: "Modification effectué avec succès", newEntrprise, status: true});
         } catch (error) {
-            res.status(500).json({error: error.message})
+            res.status(400).json({error, status: false})
+        }
+    }
+
+    static async delete(req,res){
+        try {
+            const {_id, entreprise} = req.auth;
+            const user = await User.findOne({_id, email, statut: 1});
+            const agent = await Agent.findOne({_id, email, statut: 1});
+            if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes.", statut: false});
+            const isEntreprise = await Entreprise.findOne({_id:entreprise, statut: 1});
+            if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", statut: false});
+            const newEntrprise = await Article.updateOne({_id: req.params.id, statut: 1, entreprise},{statut: 0, updatedAt: Date.now()});
+            if(!newEntrprise.acknowledged || !newEntrprise.modifiedCount) return res.status(203).json({statut: false, message: "Suppression non effectué."});
+            res.status(201).json({message: "Suppression effectué avec succès", status: true});
+        } catch (error) {
+            console.log("Controller Stocke try{}catch(){}", error.message, error)
+            res.status(501).json({message: "Controller Stocke try{}catch(){}"+error.message,error, statut: false})
         }
     }
 }
-
-export default articleController;
+export default ArticleController;

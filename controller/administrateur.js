@@ -1,9 +1,6 @@
-
-
 import Administrateur from "../models/administrateur.js";
 import { crypt, comparer } from '../util/bcrypt.js';
 import { generateToken } from "../util/token.js";
-
 
 class AdminController{
     /**
@@ -13,12 +10,14 @@ class AdminController{
      */
     static async create(req, res){
         try {
-            const admin =  await Administrateur.findOne({email:req.body.email});
-            if(admin) return res.status(400).json({status:false, message: "Utilisateur existe déjà"});
-            req.body.password = await crypt(req.body.password);
+            const {email, password, ...body} = req.body;
+            const isAdmin =  await Administrateur.findOne({email, statut: 1});
+            if(isAdmin) return res.status(400).json({status:false,message: "Utilisateur existe déjà"});
+            req.body.password = await crypt(password);
             const newAdmin = await Administrateur.create(req.body);
-            if(!newAdmin) return res.status(501).json({status:false, message: "inscription echouée"});
-            res.status(201).json({newAdmin, message : "Compte crée Merci  !!!!" })
+            if(!newAdmin) return res.status(501).json({status:false, message: "Inscription echouée"});
+            res.cookie("token", generateToken(newAdmin.toObject()))
+            res.status(201).json({ status:true, token: generateToken(newAdmin.toObject()), message : "Compte crée Merci  !!!!", newAdmin })
         } catch (error) {
             console.log(error);
             res.status(501).json({message: error.message});

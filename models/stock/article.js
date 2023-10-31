@@ -1,9 +1,8 @@
-const mongoose = require('mongoose');
-const Admin = require('./modelAdmin');
-const Stocke = require('./modelStocke');
-const Categorie = require('./modelCategorie');
+import {Schema, model} from "mongoose";
+import mongooseAutoPopulate from "mongoose-autopopulate";
+
 // On définit le schema de model
-const articleSchema = mongoose.Schema(
+const Article = new Schema(
     {
         reference: {
             type: String,
@@ -24,21 +23,29 @@ const articleSchema = mongoose.Schema(
         montant: {
             type: Number,
             required: [true, 'Veuillez définir le montant de l\'article !']
-        }, 
-        stockes:[
-            {type: mongoose.Schema.Types.ObjectId, ref: 'stocke'}
-        ],
-        categorie:[
-            {type: mongoose.Schema.Types.ObjectId, ref: 'categorie'}
-        ],
-        admins:[
-            {type: mongoose.Schema.Types.ObjectId, ref: 'entreprise'}
-        ]
+        },
+        stockes:{type: Schema.Types.ObjectId, ref: "stocke", autopopulate: true},
+        categorie:{type: Schema.Types.ObjectId, ref: "categorie", autopopulate: true},
+        entreprise:{type: Schema.Types.ObjectId, ref: "entreprise", autopopulate: true},
+        statut: {
+            type: Number,
+            required: true,
+            default: 1
+        },
+        createdAt:{
+            type: Date,
+            required: true,
+            default: Date.now
+        },
+        updatedAt:{
+            type: Date,
+            required: true,
+            default: Date.now
+        }
     },
     {
         timesTamps: true
     }
 )
 
-const Article = mongoose.model('article', articleSchema);
-export default Article;
+export default model('Article', Article.plugin(mongooseAutoPopulate));;

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form id="form" enctype="multipart/form-data">
+        <input type="text" name="contact" id="contact" value="devdjobo@gmail.com" placeholder="contact" required placeholder=""><hr>
+        <input type="text" name="subject" id="subject" value="AZERTY" placeholder="subject" required placeholder=""><hr>
+        <textarea name="contenu" id="contenu" cols="30" rows="10" placeholder="Contenu">Bonjour</textarea><hr>
+        <input type="file" name="pieceJoints" id="pieceJoints" required multiple><hr>
+        <input type="text" name="canal" id="canal" value="email" required multiple hidden><hr>
+        <button type="submit">Envoyer</button>
+    </form>
+</body>
+</html>
+<script>
+    document.getElementById("form").addEventListener("submit", event=>{
+        event.preventDefault();
+        const file = event.target.querySelectorAll("input, textarea");
+        const formData = new FormData();
+        file.forEach(input => {
+            if(input.files){
+                for(let i = 0; i< input.files.length; i++) formData.append("pieceJoints", input.files[i]);
+                // input.files.forEach(fil=>formData.append(input.name, fil));
+            }else{
+                formData.append(input.name, input.value);
+            }
+        });
+        const token = "token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NTNhZjNmODYyYzM3ODU1YzJjM2Y0NjAiLCJlbWFpbCI6InVzZXIxQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJERwZU5CaVRodzN3bERtdkpSLnA3Ty5IUllTUkt2TXY4Lkt1M2xIWjZtV3QzbmJZQTRCa3MyIiwiZW50cmVwcmlzZSI6IjY1M2FmNDUxNjJjMzc4NTVjMmMzZjQ2NCIsImlhdCI6MTY5ODU0MjE4MiwiZXhwIjoxNjk4NjI4NTgyfQ.6mV4y9AtIPRDIyeGgltiODChBLGhTYukem6-tlo-H9o";
+        // for(let i = 0; i< file.files.length; i++) formData.append("pieceJoints", file.files[i]);
+        console.log("+++++++++++++++",...formData);
+        fetch("http://localhost:3000/api/message/email", {
+            method: "POST",
+            body: formData,
+            headers: {Authorization : token}
+        })
+        .then(res=>res.json())
+        .then(succes=>console.log(succes))
+    })
+</script>
