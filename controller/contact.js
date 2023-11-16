@@ -10,22 +10,22 @@ import verify_email_adress from "../laboratoire/verify_email_adress.js";
 class ControlContact {
   static async create(req, res) {
     try {
+      
       const { _id, email, entreprise } = req.auth;
       const isUser = await User.findOne({_id, email, entreprise, statut: 1});
       const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
       if(isUser) req.body.user = isUser._id;
       if(isAgent) req.body.agent = isAgent._id;
       const isUserOrIsAgent = isUser ? isUser : (isAgent ? isAgent : undefined);
-      if(!isUserOrIsAgent) return res.status(203).json({message: "Mot de passe ou email incorrects !", status: false});
+      if(!isUserOrIsAgent) return res.status(401).json({message: "Mot de passe ou email incorrects !", status: false});
       const isEntreprise = await Entreprise.findOne({_id: entreprise, statut: 1});
-      if(!isEntreprise) return res.status(203).json({message: "Vous ne faites pas partie d'uncune entreprise.", status: false});
+      if(!isEntreprise) return res.status(402).json({message: "Vous ne faites pas partie d'uncune entreprise.", status: false});
       const isPresent = await Contact.findOne({email: req.body.email, statut: 1});
-      if(isPresent) return res.status(203).json({message: "Ce contact est déjà ajouté", status: false});
+      if(isPresent) return res.status(400).json({message: "Ce contact est déjà ajouté", status: false});
       req.body.entreprise = isEntreprise._id;
-      
       const contact = await Contact.create(req.body);
       if(!contact) return res.status(203).json({message: "Enregistrement avorté avec succès.", status: false});
-      res.status(202).json({contact, message: "Enregistrer effectué avec succès.", status:true});
+      res.status(202).json({data: contact, message: "Enregistrer effectué avec succès.", status:true});
     } catch (e) {
       res.status(500).json({ status: false, message: e.message });
     }
@@ -42,7 +42,7 @@ class ControlContact {
       if(!isEntreprise) return res.status(203).json({message: "Vous ne faites pas partie d'uncune entreprise.", status: false});
       const contact = await Contact.findOne({_id: req.params.id, entreprise:isEntreprise._id, statut:1});
       if(!contact) return res.status(203).json({message: "Aucun contact trouvé.", status: false});
-      res.status(202).json({message: "Requête effectuée avec succès.", status: true, contact});
+      res.status(202).json({message: "Requête effectuée avec succès.", status: true, data: contact});
     } catch (error) {
       res.status(500).json({ status: false, message: error.message });
     }
@@ -59,7 +59,7 @@ class ControlContact {
       if(!isEntreprise) return res.status(203).json({message: "Vous ne faites pas partie d'uncune entreprise.", status: false});
       const contact = await Contact.findOne({_id: req.params.email, entreprise:isEntreprise._id, statut:1});
       if(!contact) return res.status(203).json({message: "Aucun contact trouvé.", status: false});
-      res.status(202).json({message: "Requête effectuée avec succès.", status: true, contact});
+      res.status(202).json({message: "Requête effectuée avec succès.", status: true, data: contact});
     } catch (error) {
       res.status(500).json({ status: false, message: error.message });
     }
@@ -97,7 +97,7 @@ class ControlContact {
       })
 
       if(!resultat.length) return res.status(203).json({message: "Aucun contact trouvé.", status: false});
-      res.status(202).json({message: "Requête effectuée avec succès.", total:resultat.length, status: true, contact: resultat});
+      res.status(202).json({message: "Requête effectuée avec succès.", total:resultat.length, status: true, data: resultat});
     } catch (error) {
       res.status(500).json({ status: false, message: error.message });
     }

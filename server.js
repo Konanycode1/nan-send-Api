@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url';
 import { config } from "dotenv";
 import teamRouter from "./router/teams.js"
 import RouterEntreprise from "./router/entreprise.js";
-import routerUser from "./router/user.js";
+import RouterUser from "./router/user.js";
 import RouterContact from "./router/contact.js";
 import RouterAdministrateur from "./router/administrateur.js";
 import RouterPlateforme from "./router/plateforme.js";
@@ -19,10 +19,9 @@ import RouterCategorie from "./router/categorie.js";
 import RouterArticle from "./router/article.js";
 import RouterAgent from "./router/agent.js";
 import saveAdmin from "./laboratoire/admin.js";
-
-
-
-
+import RouterValidateCode from "./router/valideCode.js";
+import DeleteExpired from "./laboratoire/filterValidate.js";
+import { setInterval } from "timers/promises";
 
 
 const  app = express();
@@ -39,7 +38,7 @@ app.use(cookieParser());
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use("/attachement", express.static(path.join(__dirname, "attachement")));
 app.use("/images" ,express.static( path.join(__dirname,'images') ));
-app.use('/api/user',routerUser);
+app.use('/api/user',RouterUser);
 app.use('/api/team',teamRouter);
 app.use('/api/entreprise',RouterEntreprise);
 app.use('/api/contact',RouterContact);
@@ -52,9 +51,7 @@ app.use('/api/stocke', RouterStocke);
 app.use('/api/categorie', RouterCategorie);
 app.use('/api/article', RouterArticle);
 app.use('/api/agent', RouterAgent);
-
-
-
+app.use('/api/validate', RouterValidateCode);
 
 // app.use(express.static("/images"));
 // app.use((req,res,next)=>{
@@ -77,9 +74,10 @@ connectDB()
         console.log(`server lancé avec ${port}`);
         console.log("La base de données a été bien connectéé avec succès !");
         saveAdmin();
-    })
+        DeleteExpired();
+    })    
 })
 .catch((e)=>{
-    console.log(`Serveur intérrompu`);
+    console.log(`Serveur intérrompu\n`, e.message);
 })
 

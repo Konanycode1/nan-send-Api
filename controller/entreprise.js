@@ -22,11 +22,11 @@ class EntrepriseController{
             const existEntre = await Entreprise.findOne({raisonSociale:req.body.raisonSociale, statut: 1})
             if(existEntre) return res.status(401).json({message: "Entreprise existe déjà"});
             req.body.user = _id;
-            const newEntrprise = await Entreprise.create(req.body)
+            const newEntrprise = await Entreprise.create(req.body);
             const updateUser = await User.updateOne({_id, statut: 1},{entreprise: newEntrprise._id});
             if(!updateUser.acknowledged || !updateUser.modifiedCount) return res.status(203).json({statut: false, message: "Entreprise bien crée, mais utilisateur n'a pas été mise à jour."});
-            const nose= await Entreprise.findById(newEntrprise._id);
-            // console.log();
+            const nose = await Entreprise.findById(newEntrprise._id);
+            
             const data = {
                 _id:verifUser._id,
                 email: verifUser.email,
@@ -34,8 +34,8 @@ class EntrepriseController{
                 entreprise: newEntrprise._id,
                 plateforme: undefined
             };
-            console.log(data, verifUser._id,_id)
-            res.status(201).json({status:true, message:'Entreprise bien crée !', token: generateToken(data), newEntrprise})
+            console.log('DJOBO NDRI',data, newEntrprise._id);
+            res.status(201).json({status:true, message:'Entreprise bien crée !', token: generateToken(data), data:newEntrprise})
         } catch (error) {
             console.log("Erreur provenant de entrepriseController.create", error);
             res.status(500).json({message: error.message});

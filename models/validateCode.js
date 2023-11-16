@@ -10,7 +10,7 @@ const ValidateCode = new Schema(
     nationalite:{ type: String, required: true },
     password : { type: String, required : true },
     statut: { type: Number, default: 1, required: true },
-    expireIn: { type: Number, default: (Date.now() + 10*60*1000 ) },
+    expireIn: { type: Number, default: (Date.now() + 25*60*1000 ) },
     code:{ type: String, required: true },
     createdAt:{ type: Date, required: true, default: Date.now() },
     updatedAt:{ type: Date, required: true, default: Date.now()}

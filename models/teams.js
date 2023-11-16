@@ -3,28 +3,10 @@ import mongooseAutoPopulate from "mongoose-autopopulate";
 
 
 const Teams = new Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  contact: {
-    type: [
-      {
-        type: String,
-        ref: "contact", autopopulate: true
-      },
-    ],
-    default: [],
-  },
-  canal: {
-    type: String,
-    enum: ["Whatsapp", "SMS", "email"],
-    default: "email",
-  },
+  name: { type: String, required: true },
+  description: { type: String, required: true },
+  contact: { type: [ { type: String, ref: "contact", autopopulate: true }], default: [] },
+  canal: { type: String, enum: ["whatsapp", "SMS", "email"], default: "email" },
   statut: {
     type: Number,
     required: true,

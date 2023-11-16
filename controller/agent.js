@@ -11,19 +11,20 @@ class AgentController {
         try {
             const {_id, entreprise} = req.auth;
             const {email, password} = req.body;
+            console.log(req.auth, entreprise)
             const user =  await User.findOne({_id, entreprise, statut: 1});
             if(!user) return res.status(400).json({status:false,message: "Mot de passe ou email incorrect !"});
             const isEntreprise = await Entreprise.findOne({_id:entreprise, statut:1});
             if(!isEntreprise) return res.status(203).json({message: "Vous ne faites pas partie d'aucune entreprise", status: false});
             const isAgent = await Agent.findOne({email, statut: 1});
-            if(isAgent) return res.status(201).json({message: "Ce agent est déjà ajouté !", status: false});
+            if(isAgent) return res.status(400).json({message: "Ce agent est déjà ajouté !", status: false});
             req.body.password = await crypt(password);
             req.body.entreprise = isEntreprise._id;
             req.body.user = user._id;
             const newAgent = await Agent.create(req.body);
             if(!newAgent) return res.status(501).json({status:false, message: "Inscription échouée"});
             res.cookie("token", generateToken(newAgent.toObject()));
-            res.status(201).json({ status:true, message : "Compte crée Merci  !!!!", newAgent });
+            res.status(201).json({ status:true, message : "Compte crée Merci  !!!!", data: newAgent });
         } catch (e) {
             res.status(501).json({message: e.message});
         }
@@ -47,13 +48,13 @@ class AgentController {
             if(!isEntreprise && !isPlateforme) return res.status(203).json({message: "Vous ne faites pas partie d'aucune structure", status: false});
             const agent = isEntreprise ? await Agent.find({entreprise:isEntreprise._id, statut: 1}) : await Agent.find({statut: 1});
             if(!agent.length) return res.status(201).json({message: "Données introuvables", status: false});
-            res.status(201).json({message: "Requête traitée avec succès.", status: true, total: agent.length, agent});
+            res.status(201).json({message: "Requête traitée avec succès.", status: true, total: agent.length, data: agent});
         } catch (error) {
             res.status(400).json({ message: error.message });
         }
     }
 
-    //  OBTENIR UN UTILISATEUR UNIQUE   
+    
     static async getById(req , res ){
         try {
             const {_id, email, entreprise, plateforme} = req.auth;
@@ -76,7 +77,7 @@ class AgentController {
         }
     }
 
-    //  OBTENIR UN UTILISATEUR UNIQUE   
+    
     static async getByName(req , res ){
         try {
             const {_id, email, entreprise, plateforme} = req.auth;

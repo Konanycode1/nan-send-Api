@@ -11,6 +11,10 @@ import Plateforme from '../models/plateforme.js';
 import ValidateCode from '../models/validateCode.js';
 import code_auth from "../mailling/code_auth.js";
 import generateRandomString from '../laboratoire/generateRandomString.js';
+import wbm from "wbm";
+import verify_number from '../laboratoire/verify_number.js';
+import Contact from '../models/contact.js';
+const urlFont = 'http://localhost:5173/entreprise';
 
 
 
@@ -22,21 +26,21 @@ class MessageController{
             // On récupère le destinataire dans la base de données
             const user = await User.findOne({email: req.body.email});
             // Si le destinataire existe on interrompe l'envoie du mail en envoyant un message au client pour informer que le compte est utilisé
-            if(user) return res.status(200).json({message: "Ce compte est déjè utilisé.", statut:false});
+            if(user) return res.status(400).json({message: "Ce compte est déjè utilisé.", statut:false});
             // Si le destinataire n'existe pas dans la base de données on tente de récpérer l'expéditeur dans la base de données
             const plateforme = await Plateforme.find();
             // Si l'expéditeur n'existe pas on interrompe la suite du traitement en envoyant un message au client
             if(!plateforme.length) return req.status(202).json({message: "Service momentanement indisponible !", statut:false});
             // Si l'expéditeur existe en génère de manière aléatoire un code de 6 chiffre dont le premier chiffre est difference de 0
             req.body.code = generateRandomString("0123456789", 6);
-            console.log("...............................", req.body);
             const isTry = await ValidateCode.findOne({email: req.body.email});
             if(isTry) return res.status(203).json({message: "Veuillez confirmer l'email de validation"})
-            const valide = await ValidateCode.create(req.body);
-            
-            const url = `http://127.0.0.1:5500/controller/valide.html?${valide.code}#${valide.id}`;
+            const valide = await ValidateCode.findOne({email: req.body.email});
+            if(valide) return res.status(401).json({message: 'Veuillez confirmer votre email', status: false})
+            console.log('-------------------URL-------------',req.body)
+            const url = req.body.urlfrontend+`/?${req.body.code}#${req.body.email}`;
             // On met en forme l'information à transmettre
-            const donneEmail={ fullname:valide.fullname, plateforme:plateforme[0].raisonSociale, url, code:valide.code };
+            const donneEmail={ fullname:req.body.fullname, plateforme:plateforme[0].raisonSociale, url, code:req.body.code };
             // On établie la connexion au serveur de méssagerie ootlmail
             const connection = transporteur({ user: `${plateforme[0].emailInfo}`, pass: `${plateforme[0].passwordEmailInfo}`});
             // On transmet l'information de l'expéditeur vers le receveur
@@ -50,7 +54,7 @@ class MessageController{
             if(!email.response.includes("OK")) return res.status(400).json({message: "Connexion interrompue.", statut:false, error});
             const validate = await ValidateCode.create(req.body);
             // Sinon on retourne le code de validation au client.
-            return res.status(201).json({message: "Code de validation unique.",code: valide.code, new: validate, statut:true})
+            return res.status(201).json({message: "Code de validation unique.", code: validate.code, data: validate, statut:true})
         } catch (error) {
             console.log(error)
             // Si un problème survient au niveau du serveur, on retourne un message
@@ -75,7 +79,6 @@ class MessageController{
             /**Si l'entreprise existe, on vérifie si celui qui effectue la requette est le chef d'entreprise, sinon il devra être un employé de l'entreprise
              * et on tente de recupèrer  les information de ce employé dans la base données
             */
-            
             const isMember =  await Agent.findOne({_id, entreprise, statut: 1}) || await User.findOne({_id, entreprise, statut: 1});
             // Si ce employé n'est belle pas dans la base de données, on renvoie un message au client
             if(!isMember) return res.status(404).json({status:false, message:'Compte introuvable'});
@@ -117,6 +120,34 @@ class MessageController{
         }catch(e){
             console.log(e)
             res.status(500).json({status:false , message: e.message, error:e})
+        }
+    }
+
+    static async sendWhatsAppMessage(req, res){
+        try {
+            const {_id, email, entreprise, role} = req.auth;
+            let {canal, contenu, contact} = req.body;
+            const verifCompagny = await Entreprise.findOne({_id:entreprise, statut: 1});
+            if(!verifCompagny) return res.status(404).json({status:false,message:'Entreprise introuvable'});
+            const isMember =  await Agent.findOne({_id, entreprise, statut: 1}) || await User.findOne({_id, entreprise, statut: 1});
+            // Si ce employé n'est belle pas dans la base de données, on renvoie un message au client
+            if(!isMember) return res.status(404).json({status:false, message:'Compte introuvable'});
+            // Sinon, on vérifie si le canal de difision n'est pas celui du canal email on renvoie un message au client
+            console.log("-----------------------------", isMember);
+            if(canal != "whatsApp") return res.status(400).json({status:false, message:'Impossible de poursuivre cette requette.'});
+            const allContact = await Contact.find({entreprise: entreprise, statut: 1});
+            if(!allContact.length) return res.status(404).json({status:false, message:'Vous contacts ne sont pas conforment.'});
+            const filterContact = contact.filter(number => allContact.find(element => element.numeroWhatsapp == number.phone) && verify_number(number.phone));
+            if(!filterContact.length) return res.status(404).json({status:false, message:'Vous contacts ne sont pas conforment.'});
+            wbm.start().then(async () => {
+                const sending = await wbm.send(filterContact, contenu);
+                if(!sending) res.status(501).json({message:"Traitement a été interrompu.", status:false});
+                const finish = await wbm.end();
+                res.status(202).json({message:"Message envoyé.", status:true, sending, finish});
+                
+            }).catch(err => { console.log(err); });
+        } catch (error) {
+            res.status(501).json({message:"Traitement de la demande a été interrompu.", status:false, error});
         }
     }
 }

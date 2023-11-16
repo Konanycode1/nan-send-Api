@@ -1,5 +1,4 @@
 const code_auth = data =>{
-    console.log("+*+*+-*+-*+-*+-*+-*+-*+-*+-*+-*",data);
     return `<div class="inbox-area">
     <div class="container">
         <div class="row">
