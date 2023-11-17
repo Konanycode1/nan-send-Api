@@ -8,8 +8,8 @@ const Agent = new Schema ({
     telephone:{ type: String, required: true },
     etat:{ type: Number, default: 1, required: true },
     nationalite:{ type: String, required: true },
-    user:{ type: Schema.Types.ObjectId, ref:'user', autopopulate: true },
-    entreprise:{ type: Schema.Types.ObjectId, ref:'entreprise', autopopulate: true },
+    user:{ type: Schema.Types.ObjectId, ref:'user' },
+    entreprise:{ type: Schema.Types.ObjectId, ref:'entreprise' },
     password : { type: String, required : true },
     role: { type: String, enum : ["manager", "agent" ], default: "manager" },
     statut: { type: Number, default: 1, required: true },
@@ -20,4 +20,5 @@ const Agent = new Schema ({
     timesTamps: true
 })
 
-export default model("Agent", Agent.plugin(mongooseAutoPopulate))
+// export default model("Agent", Agent.plugin(mongooseAutoPopulate));
+export default model("Agent", Agent);

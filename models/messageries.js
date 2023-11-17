@@ -9,10 +9,10 @@ const Messagerie = new Schema ({
         required: true,
         default : 'email'
     },
-    user:{type: Schema.Types.ObjectId, ref: "User", autopopulate: true},
-    canal:{type: Schema.Types.ObjectId, ref: "canal", autopopulate: true},
-    entreprise:{type: Schema.Types.ObjectId, ref: "entreprise", autopopulate: true},
-    contact:{type: Schema.Types.ObjectId, ref: "contact", autopopulate: true},
+    user:{type: Schema.Types.ObjectId, ref: "User" },
+    canal:{type: Schema.Types.ObjectId, ref: "canal" },
+    entreprise:{type: Schema.Types.ObjectId, ref: "entreprise" },
+    contact:{type: Schema.Types.ObjectId, ref: "contact" },
     numeroWhatsapp:{
         type: Number,
         required: false
@@ -44,4 +44,4 @@ const Messagerie = new Schema ({
     timesTamps: true
 })
 
-export default model("messagerie", Messagerie.plugin(mongooseAutoPopulate))
+export default model("messagerie", Messagerie)

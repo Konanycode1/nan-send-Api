@@ -21,7 +21,7 @@ const EntrepriseSchema = new Schema(
             required: true
         },
         // Identifiant de celui ou celle qui a créer l'entreprise
-        user:{type: Schema.Types.ObjectId, ref: "user", autopopulate: true},
+        user:{type: Schema.Types.ObjectId, ref: "user"},
         // Type d'entreprise c'est-à-dire s'il sagit d'une SARL, SASU, SAS, SA, etc... 
         type:{
             type: String,
@@ -56,5 +56,5 @@ const EntrepriseSchema = new Schema(
         timesTamps: true
     }
 );
-const Entreprise = model('entreprise', EntrepriseSchema.plugin(mongooseAutoPopulate));
+const Entreprise = model('entreprise', EntrepriseSchema);
 export default Entreprise;

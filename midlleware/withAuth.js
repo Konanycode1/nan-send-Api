@@ -9,7 +9,7 @@ const verify_token = (req, res, next) => {
     next();
   } catch (error) {
     console.log("Erreur produite au niveau du token", error.message);
-    res.status(404).json({ error });
+    res.status(501).json({ message: 'Expired token', status: false, errorMessage: error.message });
   }
 };
 export default verify_token;

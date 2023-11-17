@@ -8,7 +8,7 @@ const User = new Schema(
     fullname:{ type: String, required: true },
     email :{ type : String, unique: true, required: true },
     telephone:{ type: String, required: true },
-    entreprise:{type: Schema.Types.ObjectId, ref: "entreprise", autopopulate: true},
+    entreprise:{type: Schema.Types.ObjectId, ref: "entreprise" },
     etat:{ type: Number, default: 1, required: true },
     nationalite:{ type: String, required: true },
     password : { type: String, required : true },
@@ -19,4 +19,4 @@ const User = new Schema(
 },
 { timesTamps: true })
 
-export default model('user', User.plugin(mongooseAutoPopulate));
+export default model('user', User );

@@ -5,6 +5,8 @@ import Contact from "../models/contact.js";
 import Entreprise from "../models/entreprise.js";
 import User from "../models/user.js";
 import Groupe from "../models/groupe.js";
+import Plateforme from "../models/plateforme.js";
+
 
 
 
@@ -65,8 +67,38 @@ class GroupeController{
 
     /**
      * 
-     * @param {Express.Response} req 
-     * @param {Express.Request} res 
+     * @param {Express.Request} req 
+     * @param {Express.Response} res 
+     */
+    static async getAll(req, res){
+        try {
+            const { _id, email, entreprise, plateforme } = req.auth;
+            const isUser = await User.findOne({_id, email, entreprise, statut: 1});
+            const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
+            const isAdmin = await Administrateur.findOne({_id, email, plateforme, statut: 1});
+            let isStructure, isMember, resultat = [];
+            if(!isUser && !isAgent && !isAdmin) return res.status(403).json({message: "Mot de passe ou email incorrects.", status: false});
+            isMember = isUser || isAgent;
+            console.log(isMember);
+            if(isMember){
+                isStructure = await Entreprise.findOne({_id:isMember.entreprise, statut: 1});
+                if(isStructure) resultat = await Groupe.find({entreprise: isStructure._id, statut: 1});
+            }else{
+                isStructure = await Plateforme.findOne({_id:isAdmin.plateforme._id});
+                if(isStructure) resultat = await Groupe.find({ statut: 1 });
+            }
+            if(!isStructure) return res.status(403).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
+            if(!resultat.length) return res.status(403).json({message: "Aucun contact trouvé.", status: false});
+            return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, data:resultat});
+        } catch (error) {
+            res.status(500).json({message: error.message, status: false});
+        }
+    }
+    
+    /**
+     * 
+     * @param {Express.Request} req 
+     * @param {Express.Response} res 
      */
     static async getById(req, res){
         try {
@@ -78,8 +110,8 @@ class GroupeController{
 
     /**
      * 
-     * @param {Express.Response} req 
-     * @param {Express.Request} res 
+     * @param {Express.Request} req 
+     * @param {Express.Response} res 
      */
     static async getByName(req, res){
         try {
@@ -91,8 +123,8 @@ class GroupeController{
 
     /**
      * 
-     * @param {Express.Response} req 
-     * @param {Express.Request} res 
+     * @param {Express.Request} req 
+     * @param {Express.Response} res 
      */
     static async getByEntreprise(req, res){
         try {
@@ -104,8 +136,8 @@ class GroupeController{
 
     /**
      * 
-     * @param {Express.Response} req 
-     * @param {Express.Request} res 
+     * @param {Express.Request} req 
+     * @param {Express.Response} res 
      */
     static async update(req, res){
         try {
@@ -117,8 +149,8 @@ class GroupeController{
 
     /**
      * 
-     * @param {Express.Response} req 
-     * @param {Express.Request} res 
+     * @param {Express.Request} req 
+     * @param {Express.Response} res 
      */
     static async delete(req, res){
         try {

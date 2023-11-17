@@ -26,7 +26,7 @@ const Stocke = new Schema(
             required:true,
             default: true
         },
-        entreprise:{type: Schema.Types.ObjectId, ref: "entreprise", autopopulate: true},
+        entreprise:{type: Schema.Types.ObjectId, ref: "entreprise" },
         createdAt:{
             type: Date,
             required: true,
@@ -43,4 +43,4 @@ const Stocke = new Schema(
     }
 )
 
-export default model('stocke', Stocke.plugin(mongooseAutoPopulate));
+export default model('stocke', Stocke );

@@ -26,6 +26,7 @@ class AgentController {
             res.cookie("token", generateToken(newAgent.toObject()));
             res.status(201).json({ status:true, message : "Compte crée Merci  !!!!", data: newAgent });
         } catch (e) {
+            console.log(e);
             res.status(501).json({message: e.message});
         }
     }
@@ -46,7 +47,7 @@ class AgentController {
                 isPlateforme = await Plateforme.findOne({_id:plateforme, statut:1});
             }
             if(!isEntreprise && !isPlateforme) return res.status(203).json({message: "Vous ne faites pas partie d'aucune structure", status: false});
-            const agent = isEntreprise ? await Agent.find({entreprise:isEntreprise._id, statut: 1}) : await Agent.find({statut: 1});
+            const agent = isEntreprise ? await Agent.find({entreprise:isEntreprise._id, statut: 1}).populate('entreprise').populate('user') : await Agent.find({statut: 1}).populate('entreprise').populate('user');
             if(!agent.length) return res.status(201).json({message: "Données introuvables", status: false});
             res.status(201).json({message: "Requête traitée avec succès.", status: true, total: agent.length, data: agent});
         } catch (error) {
@@ -69,9 +70,9 @@ class AgentController {
                 isPlateforme = await Plateforme.findOne({_id:plateforme, statut:1});
             }
             if(!isEntreprise && !isPlateforme) return res.status(203).json({message: "Vous ne faites pas partie d'aucune structure", status: false});
-            const agent = isEntreprise ? await Agent.findOne({_id: req.params.id, entreprise:isEntreprise._id, statut: 1}) : await Agent.findOne({_id: req.params.id, statut: 1});
+            const agent = isEntreprise ? await Agent.findOne({_id: req.params.id, entreprise:isEntreprise._id, statut: 1}).populate('entreprise').populate('user') : await Agent.findOne({_id: req.params.id, statut: 1}).populate('entreprise').populate('user');
             if(!agent) return res.status(201).json({message: "Données introuvables", status: false});
-            res.status(201).json({message: "Requête traitée avec succès.", status: true, agent});
+            res.status(201).json({message: "Requête traitée avec succès.", status: true, data: agent});
         } catch (error) {
             res.status(501).json({message : "Erreur survenue lors du traitement de la requête !", errorMessage: error.message, status: false});
         }
@@ -92,10 +93,10 @@ class AgentController {
                 isPlateforme = await Plateforme.findOne({_id:plateforme, statut:1});
             }
             if(!isEntreprise && !isPlateforme) return res.status(203).json({message: "Vous ne faites pas partie d'aucune structure", status: false});
-            let agent = isEntreprise ? await Agent.find({entreprise:isEntreprise._id, statut: 1}) : await Agent.find({statut: 1});
+            let agent = isEntreprise ? await Agent.find({entreprise:isEntreprise._id, statut: 1}).populate('entreprise').populate('user') : await Agent.find({statut: 1}).populate('entreprise').populate('user');
             agent = agent.filter(element=>element.fullname.toLowerCase().includes(req.params.name.toLowerCase()));
             if(!agent.length) return res.status(201).json({message: "Données introuvables", status: false});
-            res.status(201).json({message: "Requête traitée avec succès.", status: true, total:agent.length, agent});
+            res.status(201).json({message: "Requête traitée avec succès.", status: true, total:agent.length, data: agent});
         } catch (error) {
             res.status(501).json({message : "Erreur survenue lors du traitement de la requête !", errorMessage: error.message, status: false});
         }
@@ -113,7 +114,7 @@ class AgentController {
             const isAgent = Agent.findOne({_id: id, entreprise:isEntreprise._id, statut: 1});
             if(!isAgent) return res.status(203).json({message: "L'agent à supprimer n'existe pas !", status: false});
             const updated = await Agent.updateOne({_id: req.params.id, entreprise:isEntreprise._id, statut: 1}, {statut: 0, updatedAt: Date.now()});
-            if(!updated.acknowledged || !updated.modifiedCount) return res.status(203).json({statut: false, message: "Suppression non effectué."});
+            if(!updated.acknowledged || !updated.modifiedCount) return res.status(401).json({statut: false, message: "Suppression non effectué."});
             res.status(201).json({message: "Suppression effectué avec succès", status: true});
         } catch (error) {
             res.status(400).json({message : error});
@@ -126,16 +127,16 @@ class AgentController {
             const {_id, email, entreprise} = req.auth;
             const { id } = req.params;
             const isUser = await User.findOne({_id, email, entreprise, statut:1});
-            if( !isUser) return res.status(203).json({message: "Mot de passe ou email incorrects !", status: false});
+            if( !isUser) return res.status(401).json({message: "Mot de passe ou email incorrects !", status: false});
             const isEntreprise = await Entreprise.findOne({_id:entreprise, statut:1});
-            if(!isEntreprise) return res.status(203).json({message: "Vous ne faite pas partie d'uncune entreprise.", status: false});
+            if(!isEntreprise) return res.status(401).json({message: "Vous ne faite pas partie d'uncune entreprise.", status: false});
             const isAgent = Agent.findOne({_id: id, entreprise:isEntreprise._id, statut: 1});
-            if(!isAgent) return res.status(203).json({message: "L'agent à supprimer n'existe pas !", status: false});
+            if(!isAgent) return res.status(401).json({message: "L'agent à supprimer n'existe pas !", status: false});
             req.body.updatedAt = Date.now();
             delete req.body.statut;
             delete req.body._id;
             const updated = await Agent.updateOne({_id: req.params.id, entreprise:isEntreprise._id, statut: 1}, req.body);
-            if(!updated.acknowledged || !updated.modifiedCount) return res.status(203).json({statut: false, message: "Mise à jour non effectué."});
+            if(!updated.acknowledged || !updated.modifiedCount) return res.status(401).json({statut: false, message: "Mise à jour non effectué."});
             res.status(201).json({message: "Mise à jour effectué avec succès", status: true});
         } catch (error) {
             console.log(error);

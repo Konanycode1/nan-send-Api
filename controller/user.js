@@ -16,7 +16,7 @@ class UserController {
             const newUser = await User.create(req.body);
             if(!newUser) return res.status(204).json({status:false, message: "inscription echouée"});
             res.cookie("token", generateToken(newUser.toObject()));
-            res.status(201).json({ status:true, token: generateToken(newUser.toObject()), message : "Compte crée Merci  !!!!", newUser })
+            res.status(201).json({ status:true, token: generateToken(newUser.toObject()), message : "Compte crée Merci  !!!!", data: newUser })
         } catch (e) {
             res.status(501).json({message: e.message});
         }
@@ -28,7 +28,7 @@ class UserController {
             const {_id, email, plateforme} = req.auth;
             const admin = await Administrateur.findOne({_id, email, plateforme, statut:1})
             if(!admin) return res.status(203).json({message: "Mot de passe ou email incorrects !", status: false});
-            const listUser = await User.find({statut: 1});
+            const listUser = await User.find({statut: 1}).populate('entreprise');
             if(!listUser.length) return res.status(203).json({message: "Aucun utilisateur trouvé !", statut: false});
             
             res.status(202).json({total: listUser.length, data: listUser, status: true});
@@ -37,19 +37,6 @@ class UserController {
         }
     }
 
-    // static async getByEntreprise(req, res){
-    //     try {
-    //         const {_id, email, entreprise} = req.auth;
-    //         const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
-    //         const isUser = await User.findOne({_id, email, entreprise, statut: 1});
-    //         let result;
-    //         if(isUser){
-    //             result = await Agent. 
-    //         }
-    //     } catch (error) {
-    //         res.status(400).json({ message: error.message, status: false });
-    //     }
-    // }
 
     //  OBTENIR UN UTILISATEUR UNIQUE   
     static async getById(req , res ){
@@ -59,7 +46,7 @@ class UserController {
             const isUser = await User.findOne({_id, email, entreprise, statut:1});
             const agent = await Agent.findOne({ email, entreprise, statut:1});
             if(!admin && !isUser && !agent) return res.status(203).json({message: "Mot de passe ou email incorrects !", status: false});
-            const user = await User.findOne({_id: req.params.id, statut: 1});
+            const user = await User.findOne({_id: req.params.id, statut: 1}).populate('entreprise');
             if(!user) return res.status(203).json({message: "Aucun utilisateur trouvé !", status: false});
             console.log(user);
             res.status(200).json({message: "Un utilisateur trouvé !", status: true, data: user});

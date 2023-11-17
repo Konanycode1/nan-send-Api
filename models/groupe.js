@@ -17,4 +17,4 @@ const Groupe = new Schema({
 { timesTamps: true }
 );
 
-export default model("groupe", Groupe.plugin(mongooseAutoPopulate));
+export default model("groupe", Groupe);

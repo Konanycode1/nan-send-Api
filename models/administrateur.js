@@ -9,10 +9,10 @@ const Administrateur = new Schema ({
     nationalite:{type: String, required: true},
     password:{type: String, required : true},
     statut:{type: Number, required: true, default: 1},
-    plateforme:{type: Schema.Types.ObjectId, ref: "plateforme", autopopulate: true},
+    plateforme:{type: Schema.Types.ObjectId, ref: "plateforme"},
     createdAt:{type: Date, required: true, default: Date.now()},
     updatedAt:{type: Date, required: true, default: Date.now()}
 },
 { timesTamps: true });
 
-export default model("administrateur", Administrateur.plugin(mongooseAutoPopulate))
+export default model("administrateur", Administrateur)
