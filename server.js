@@ -21,7 +21,8 @@ import RouterAgent from "./router/agent.js";
 import saveAdmin from "./laboratoire/admin.js";
 import RouterValidateCode from "./router/valideCode.js";
 import DeleteExpired from "./laboratoire/filterValidate.js";
-import { setInterval } from "timers/promises";
+import RouterGroupe from "./router/groupe.js";
+
 
 
 const  app = express();
@@ -52,6 +53,8 @@ app.use('/api/categorie', RouterCategorie);
 app.use('/api/article', RouterArticle);
 app.use('/api/agent', RouterAgent);
 app.use('/api/validate', RouterValidateCode);
+app.use('/api/groupe', RouterGroupe);
+
 
 // app.use(express.static("/images"));
 // app.use((req,res,next)=>{

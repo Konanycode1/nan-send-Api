@@ -6,7 +6,6 @@ import private_key from "../laboratoire/private_key.js";
 
 const verify_token = (req, res, next) => {
     try {
-        console.log(req.headers.authorization);
         const token_decoded = Jwt.verify(req.headers.authorization.split(" ")[1], private_key);
         req.auth = {id: token_decoded.id, email: token_decoded.email, entreprise: token_decoded.entreprise};
         next();

@@ -171,8 +171,9 @@ class ControlContact {
       }
       if(!isStructure) return res.status(203).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
       if(!resultat.length) return res.status(203).json({message: "Aucun contact trouvé.", status: false});
-      return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, resultat});      
+      return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, data:resultat});      
     } catch (e) {
+      console.log(e);
       res.status(500).json({ status: false, message: e.message });
     }
   }
@@ -206,7 +207,7 @@ class ControlContact {
       })
 
       if(!resultat.length) return res.status(203).json({message: "Aucun contact trouvé.", status: false});
-      res.status(202).json({message: "Requête effectuée avec succès.", total:resultat.length, status: true, contact: resultat});
+      res.status(202).json({message: "Requête effectuée avec succès.", total:resultat.length, status: true, data: resultat});
     } catch (error) {
       res.status(500).json({ status: false, message: error.message });
     }
@@ -242,7 +243,7 @@ class ControlContact {
       })
 
       if(!resultat.length) return res.status(203).json({message: "Aucun contact trouvé.", status: false});
-      res.status(202).json({message: "Requête effectuée avec succès.", total:resultat.length, status: true, contact: resultat});
+      res.status(202).json({message: "Requête effectuée avec succès.", total:resultat.length, status: true, data: resultat});
     } catch (error) {
       res.status(500).json({ status: false, message: error.message });
     }
