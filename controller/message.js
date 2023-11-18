@@ -58,8 +58,7 @@ class MessageController{
             isUser ? req.body.user = isUser._id : req.body.agent = isAgent._id;
             delete req.body.statut;
             const newMessage = await Message.create(req.body);
-            console.log('---------------', newMessage);
-            res.status(201).json({message: 'ok', status: false, data: newMessage})
+            res.status(201).json({message: 'Message créer avec succès', status: false, data: newMessage})
         } catch (error) {
             console.log(error.message, error);
             res.status(500).json({ status: false, message: error.message });
