@@ -1,6 +1,9 @@
-import  {Schema, model}  from "mongoose"
+import  {Schema, model}  from "mongoose";
+import mongooseAutoPopulate from "mongoose-autopopulate";
+
+
 // On définit le schema de model
-const categorieSchema = new Schema(
+const Categorie = new Schema(
     {
         reference: {
             type: String,
@@ -24,17 +27,22 @@ const categorieSchema = new Schema(
             required:true,
             default: ''
         }, 
-        stockes:[
-            {type: mongoose.Schema.Types.ObjectId, ref: 'stocke'}
-        ],
-        admin:[
-            {type: mongoose.Schema.Types.ObjectId, ref: 'entreprise'}
-        ]
+        stocke:{type: Schema.Types.ObjectId, ref: "stocke" },
+        entreprise:{type: Schema.Types.ObjectId, ref: "entreprise" },
+        createdAt:{
+            type: Date,
+            required: true,
+            default: Date.now
+        },
+        updatedAt:{
+            type: Date,
+            required: true,
+            default: Date.now
+        }
     },
     {
         timesTamps: true
     }
 )
 
-const Categorie = model('categorie', categorieSchema);
-export default Categorie
+export default model('Categorie', Categorie );

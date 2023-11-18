@@ -1,202 +1,116 @@
-import Entreprise from "../models/entreprise.js";
-import Article from "../models/stock/article.js";
-import Categorie from "../models/stock/categorie.js";
-import Stocke from "../models/stock/stocke.js";
+import generateRandomString from '../laboratoire/generateRandomString.js';
+import Agent from '../models/agent.js';
+import Entreprise from '../models/entreprise.js';
+import Categorie from '../models/stock/categorie.js';
+import Stocke from '../models/stock/stocke.js';
+import User from '../models/user.js';
+const chaine = "azertyuiopqsdfghjklmwxcvbn0123456789";
+
 class CategorieController {
     static async create(req, res){
-        let reference = 100;
+        const {_id, entreprise} = req.auth;
         try {
-            const {_id} = req.auth
-            Categorie.find({})
-            .then(allCategorie=>{
-                if(allCategorie.length > 0){
-                    reference = Number(allCategorie[allCategorie.length-1].reference.split('EG')[1])+1;
-                }
-            })
-            Entreprise.findOne({_id, statut:1})
-            .then((data)=>{
-                if(!data){
-                    res.status(404).json({msg: "Cet compte est introuvable , Veuillez vous connecter à nouveau"})
-                    return
-                }else{
-                    let categorie = new Categorie({
-                        libelle:req.body.libelle,
-                        reference:`CATEG${reference}`,
-                        satut:1,
-                        etat: true,
-                        admins:data._id
-                    })
-                    categorie.save()
-                    .then(()=> res.status(200).json({msg: "Catégorie ajouté !!"}))
-                    .catch((error)=> res.status(401).json({error: error.message}))
-                }
-            })
-            .catch((error)=> res.status(500).json({error: error.message}));
-        }catch (error) {
-            console.log(error.massege, 'erer');
-            res.status(500).json({message: error.massege})
+            console.log(entreprise)
+            const user = await User.findOne({_id, email, statut: 1});
+            const agent = await Agent.findOne({_id, email, statut: 1});
+            if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes.", status: false});
+            const isEntreprise = await Entreprise.findOne({_id:entreprise, statut: 1});
+            if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", status: false});
+            const stocke = await Stocke.findOne({_id:req.body.stocke, entreprise, statut: 1});
+            if(!stocke) return res.status(201).json({message: "Cette stocke n'est liée à aucun stocke !", status: false});
+            const reference = "CATEGO"+generateRandomString(chaine, 14);
+            const categorie = await Categorie.create({ ...req.body, reference, entreprise:isEntreprise._id });
+            if(!categorie) return res.status(201).json({message: "Enrégistrement échoué !", status: false});
+            res.status(200).json({message: "Catégorie ajouté !!", data: categorie, status: true});
+        } catch (error){
+            res.status(500).json({message: error.massege});
         }
     }
 
-    static async read(req, res){
+    static async getAll(req, res){
         try{
-            const {_id} = req.auth
-            Entreprise.findOne({_id, statut:1})
-            .then(admin=>{
-                if(admin){
-                    Categorie.find({statut:1})
-                    .then(allCategorie=> {
-                        const msg = `Il y'a ${allCategorie.length} élémnents disponible(s).`;
-                        res.status(200).json({msg: msg, data: allCategorie});
-                    })
-                    .catch((error)=>{
-                        const msg = "Aucun élément trouvé";
-                        res.status(400).json({msg: msg, data: error.message});
-                    })
-                }else{
-                    res.status(500).json({msg: "Veuillez d'abord vous authentifier !"});
-                    return
-                }
-            })
+            const {_id, entreprise} = req.auth;
+            const user = await User.findOne({_id, entreprise, statut: 1});
+            const agent = await Agent.findOne({_id, entreprise, statut: 1});
+            if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes.", status: false});
+            const isEntreprise = await Entreprise.findOne({_id:entreprise, statut: 1});
+            if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", status: false});
+            console.log(isEntreprise)
+            const categorie = await Categorie.find({statut: 1, entreprise}).populate('entreprise').populate('stocke');
+            res.status(200).json({data: categorie, status: true});
         }catch(error){
-            res.status(500).json({data: error.message});
+            res.status(500).json({data: error.message, status: false});
         }
     }
 
-    static async indexById(req, res){ // On trouve en fonction de la cle primière du catégorie
+    static async getById(req, res){ // On trouve en fonction de la cle primière du stocke
         try{
-            const {_id} = req.auth
-            Entreprise.findOne({_id})
-            .then(admin=>{
-                if(admin){
-                    Categorie.findById(req.params.id)
-                    .then(categorie=>{
-                        if(categorie.length===0 || categorie.statut === 0){
-                            const msg = `Le categorie dont l'identifiant est ${req.params.id} n'existe pas`;
-                            res.status(200).json({msg: msg});
-                        }else{
-                            const msg = `Un élément est trouvé.`;
-                            res.status(200).json({msg: msg,data: categorie});
-                        }
-                    })
-                    .catch((error)=>{
-                        const msg = `Rien n'est trouvé. Utilisez la bonne référence !`;
-                        res.status(200).json({msg: msg, data: error.message});
-                    })
-                }else{
-                    res.status(500).json({msg: "Veuillez d'abord vous authentifier !"});
-                    return
-                }
-            })
-            .catch((error)=>{
-                res.statut(500);json({error: error.message});
-            })
+            const {_id, entreprise} = req.auth;
+            const user = await User.findOne({_id, email, statut: 1});
+            const agent = await Agent.findOne({_id, email, statut: 1});
+            if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes."});
+            const isEntreprise = await Entreprise.findOne({_id:entreprise, statut: 1});
+            if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", status: false});
+            const categorie = await Categorie.findOne({_id:req.params.id, statut: 1, entreprise}).populate('entreprise').populate('stocke');
+            if(!categorie) return res.status(203).json({message: "Aucun stocke trouvé.", status: false});
+            res.status(202).json({data: categorie, status: true});
         }catch(error){
-            const msg = `URL non valable`;
-            res.status(500).json({msg: msg, data: error.message});
+            res.status(500).json({message: "URL non valable", data: error.message, status: false});
         }
     }
 
-    static async indexByRef(req, res){  // On trouve en fonction de la référence du catégorie
+    static async getByReference(req, res){  // On trouve en fonction de la référence du stocke
         try{
-            const {_id} = req.auth
-            Entreprise.findOne({_id})
-            .then(admin=>{
-                if(admin){
-                    Categorie.find({reference: req.params.reference})
-                    .then(categorie=>{
-                        if(categorie.length===0 || categorie.statut === 0){
-                            const msg = `Le categorie dont l'identifiant est ${req.params.reference} n'existe pas`;
-                            res.status(200).json({msg: msg});
-                        }else{
-                            const msg = `Un élément est trouvé.`;
-                            res.status(200).json({msg: msg,data: categorie});
-                        }
-                    })
-                    .catch((error)=>{
-                        const msg = `Rien n'est trouvé. Utilisez la bonne référence !`;
-                        res.status(200).json({msg: msg, data: error.message});
-                    })
-                }else{
-                    res.status(500).json({msg: "Veuillez d'abord vous authentifier !"});
-                    return
-                }
-            })
-            .catch((error)=>{
-                res.statut(500);json({error: error.message});
-            })
+            const {_id, entreprise} = req.auth;
+            const user = await User.findOne({_id, email, statut: 1});
+            const agent = await Agent.findOne({_id, email, statut: 1});
+            if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes.", status: false});
+            const isEntreprise = await Entreprise.findOne({_id:entreprise, statut: 1});
+            if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", status: false});
+            const categorie = await Categorie.findOne({reference: req.params.reference, statut: 1, entreprise}).populate('entreprise').populate('stocke');
+            if(!categorie) return res.status(400).json({message: "Aucune catégorie trouvée.", status: false})
+            res.status(200).json({data: categorie, status: true});
         }catch(error){
-            const msg = `URL non valable.`;
-            res.status(500).json({msg: msg,data: error.message});
+            res.status(500).json({message: "URL non valable.",data: error.message, status: false});
         }
     }
 
     static async update(req,res){
         try {
-            const {_id} = req.auth
-            Entreprise.findOne({_id})
-            .then(admin=>{
-                if(!admin) return res.json({msg: "Veuillez-vous authentifier !"});
-                Categorie.findOne({_d:req.body.id, statut:1})
-                .then((data)=>{
-                    if(data){
-                        let updat = {...req.body};
-                        Categorie.updateOne({id: req.body.id},{...updat,_id:req.body._id})
-                        .then((newData)=>{
-                            res.status(201).json({msg: "Modification effectué avec succès", newData: newData});
-                        })
-                        .catch((error)=> {
-                            console.log(error);
-                            res.status(404).json({error: error.message});
-                        })
-                    }
-                    else{
-                        console.log('Compte introuvable');
-                        res.status(401).json({msg: "Compte introuvable !!!"});
-                    }
-                })
-                .catch(error=> {
-                    console.log(error);
-                    res.status(404).json({error: error.message});
-                })
-            })
+            const {_id, entreprise} = req.auth;
+            const user = await User.findOne({_id, email, statut: 1});
+            const agent = await Agent.findOne({_id, email, statut: 1});
+            if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes.", status: false});
+            const isEntreprise = await Entreprise.findOne({_id:entreprise, statut: 1});
+            if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", status: false});
+            const updated = await Categorie.findOne({_d:req.params.id, entreprise});
+            if(!updated) return res.status(203).json({message: "La catégorie à modifier n'existe pas !", status: false});
+            req.body.updatedAt = Date.now();
+            delete req.body.statut;
+            delete req.body._id;
+            const newCategorie = await Stocke.updateOne({_id:req.params.id, entreprise}, req.body);
+            if(!newCategorie.acknowledged || !newCategorie.modifiedCount) return res.status(203).json({statut: false,message: "Modification non effectué."});
+            res.status(201).json({message: "Modification effectué avec succès", status: true});
         } catch (error) {
-            console.log(error)
-            res.status(400).json({error})
+            res.status(400).json({error, status: false})
         }
     }
 
     static async delete(req,res){
         try {
-            const {_id} = req.auth
-            Entreprise.findOne({_id})
-            .then(admin=>{
-                if(!admin) return res.json({msg: "Veuillez-vous authentifier !"});
-                Categorie.findOne({_d:req.body.id, statut:1})
-                .then((data)=>{
-                    if(data){
-                        Categorie.updateOne({id: req.body.id},{statut:0})
-                        .then(()=>{
-                            res.status(201).json({msg: "Suppression effectué avec succès !!"});
-                        })
-                        .catch((error)=> {
-                            console.log(error);
-                            res.status(404).json({error: error.message});
-                        })
-                    }
-                    else{
-                        console.log('Compte introuvable');
-                        res.status(401).json({msg: "Compte introuvable !!!"});
-                    }
-                })
-                .catch(error=> {
-                    console.log(error);
-                    res.status(404).json({error: error.message});
-                })
-            })
+            const {_id, entreprise} = req.auth;
+            const user = await User.findOne({_id, email, statut: 1});
+            const agent = await Agent.findOne({_id, email, statut: 1});
+            if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes.", status: false});
+            const isEntreprise = await Entreprise.findOne({_id:entreprise, statut: 1});
+            if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", status: false});
+            const deleted = await Categorie.findOne({_id:req.params.id, entreprise});
+            if(!deleted) return res.status(203).json({message: "La catégorie à modifier n'existe pas !", status: false});
+            const newDeleted = await Categorie.updateOne({id: req.params.id, entreprise}, {statut: 0, updatedAt: Date.now});
+            if(!newDeleted.acknowledged || !newDeleted.modifiedCount) return res.status(203).json({statut: false, message: "Suppression non effectué."});
+            res.status(201).json({message: "Suppression effectué avec succès", status: true});
         } catch (error) {
-            console.log(error);
-            res.status(400).json({error});
+            res.status(400).json({error, status: false})
         }
     }
 }
