@@ -14,13 +14,58 @@ import generateRandomString from '../laboratoire/generateRandomString.js';
 import wbm from "wbm";
 import verify_number from '../laboratoire/verify_number.js';
 import Contact from '../models/contact.js';
+import Message from '../models/message.js';
+import Groupe from '../models/groupe.js';
+import mongoose from 'mongoose';
+
+
 const urlFont = 'http://localhost:5173/entreprise';
 
-
-
-
-
 class MessageController{
+
+    static async create(req, res){
+        try {
+            const {_id, entreprise, email} = req.auth;
+            const isUser = await User.findOne({_id, email, entreprise, statut: 1});
+            const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
+
+            if(!isUser && !isAgent) return res.status(403).json({message: 'vous n\'êtes pas authorisé(s) à effectuer cette requête: Mot de passe ou email incorrects', status: false});
+            const isEntreprise = await Entreprise.findOne({_id: entreprise, statut: 1});
+            if(!isEntreprise) return res.status(403).json({message: 'vous n\'êtes pas authorisé(s) à effectuer cette requête: Vous n\'êtes pas membre de l\'entreprise', status: false});
+            
+            const idCollection = [];
+            let newCollections = [];
+            const idObjetCollection = [];
+            if(req.body.groupe && req.body.groupe.length){
+                let myGroupes = await Groupe.find({entreprise, statut: 1});
+                if(!myGroupes.length) return res.status(403).json({message: 'Vous ne disposez aucun groupe.', status: false});
+                myGroupes.map(item=> idCollection.push(item._id.toString()));
+                newCollections = req.body.groupe.filter(item=> idCollection.includes(item));
+                if(!newCollections.length) return res.status(403).json({message: 'Les contacts ou groupe n\'existent pas', status: false});
+                newCollections.map(item => idObjetCollection.push(new mongoose.Types.ObjectId(item)));
+                req.body.groupe = idObjetCollection;
+            }else if(req.body.contact && req.body.contact.length){
+                let myContacts = await Contact.find({entreprise, statut: 1});
+                if(!myContacts.length) return res.status(403).json({message: 'Vous ne disposez aucun contact.', status: false});
+                myContacts.map(item => idCollection.push(item._id.toString()));
+                newCollections = req.body.contact.filter(item => idCollection.includes(item) );
+                if(!newCollections.length) return res.status(403).json({message: 'Les contacts ou groupe n\'existent pas', status: false});
+                newCollections.map(item => idObjetCollection.push(new mongoose.Types.ObjectId(item)));
+                req.body.contact = idObjetCollection;
+            }
+            req.body.entreprise = isEntreprise._id;
+
+            isUser ? req.body.user = isUser._id : req.body.agent = isAgent._id;
+            delete req.body.statut;
+            const newMessage = await Message.create(req.body);
+            console.log('---------------', newMessage);
+            res.status(201).json({message: 'ok', status: false, data: newMessage})
+        } catch (error) {
+            console.log(error.message, error);
+            res.status(500).json({ status: false, message: error.message });
+        }
+    }
+
     static async verifyEmail(req, res){
         try {
             // On récupère le destinataire dans la base de données

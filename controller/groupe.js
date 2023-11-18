@@ -79,13 +79,12 @@ class GroupeController{
             let isStructure, isMember, resultat = [];
             if(!isUser && !isAgent && !isAdmin) return res.status(403).json({message: "Mot de passe ou email incorrects.", status: false});
             isMember = isUser || isAgent;
-            console.log(isMember);
             if(isMember){
                 isStructure = await Entreprise.findOne({_id:isMember.entreprise, statut: 1});
-                if(isStructure) resultat = await Groupe.find({entreprise: isStructure._id, statut: 1});
+                if(isStructure) resultat = await Groupe.find({entreprise: isStructure._id, statut: 1}).populate('entreprise').populate('user').populate('agent').populate('contact');
             }else{
                 isStructure = await Plateforme.findOne({_id:isAdmin.plateforme._id});
-                if(isStructure) resultat = await Groupe.find({ statut: 1 });
+                if(isStructure) resultat = await Groupe.find({ statut: 1 }).populate('entreprise').populate('user').populate('agent').populate('contact');
             }
             if(!isStructure) return res.status(403).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
             if(!resultat.length) return res.status(403).json({message: "Aucun contact trouvé.", status: false});
@@ -94,7 +93,7 @@ class GroupeController{
             res.status(500).json({message: error.message, status: false});
         }
     }
-    
+
     /**
      * 
      * @param {Express.Request} req 
