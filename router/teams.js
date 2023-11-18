@@ -1,11 +1,11 @@
 import { Router } from "express";
 import teamController from "../controller/teams.js";
-const router = Router();
+const RouterTeams = Router();
 
-router.post('/create', teamController.createTeam)
-router.put('/:id', teamController.editTeam)
-router.delete('/:id', teamController.deleteTeam)
-router.get('/:id', teamController.getTeam)
-router.get('/', teamController.getAllTeam)
+RouterTeams.post('/create', teamController.createTeam);
+RouterTeams.put('/:id', teamController.editTeam);
+RouterTeams.delete('/:id', teamController.deleteTeam);
+RouterTeams.get('/:id', teamController.getTeam);
+RouterTeams.get('/', teamController.getAllTeam);
 
-export default router
+export default RouterTeams;
