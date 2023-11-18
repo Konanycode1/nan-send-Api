@@ -19,7 +19,8 @@ let storage = multer.diskStorage({
 const Attachement =  multer({
     storage: storage,
     limits:{fileSize:1024*1024*10} 
-}).array("pieceJoints");
+});
+
 
 export default Attachement;
 
