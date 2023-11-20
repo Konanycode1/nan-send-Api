@@ -62,7 +62,7 @@ class ControlContact {
     try {
       const { _id } = req.auth;
       const { id } = req.params;
-      console.log(req.params)
+      console.log(req.params);
       const { email, ...body } = req.body;
       const user = await User.findById(_id);
       if (!user) {

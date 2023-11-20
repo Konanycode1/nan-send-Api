@@ -1,4 +1,3 @@
-
 import { Schema, model}  from 'mongoose';
 import User from './user.js';
 
