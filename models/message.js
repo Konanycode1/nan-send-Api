@@ -15,11 +15,11 @@ const Message = new Schema ({
     contenu:{ type: String, required:true },
     piecesJointes: { type: Array, required: false, default :[] },
 
-    groupe: { type: [ { type: Schema.Types.ObjectId, ref: 'groupe', /*autopopulate: true*/ } ] },
-    contact: { type: [ { type: Schema.Types.ObjectId, ref: 'contact', /*autopopulate: true*/ } ] },
-    user: { type: Schema.Types.ObjectId, ref: 'user', /*autopopulate: true*/ },
-    agent: { type: Schema.Types.ObjectId, ref: 'agent', /*autopopulate: true*/ },
-    entreprise:{ type: Schema.Types.ObjectId, ref:'entreprise', /*autopopulate: true,*/ required: true },
+    groupe: { type: [ { type: Schema.Types.ObjectId, ref: 'groupe'  } ] },
+    contact: { type: [ { type: Schema.Types.ObjectId, ref: 'contact'  } ] },
+    user: { type: Schema.Types.ObjectId, ref: 'user'  },
+    agent: { type: Schema.Types.ObjectId, ref: 'agent'  },
+    entreprise:{ type: Schema.Types.ObjectId, ref:'entreprise', required: true },
 
     accuse:{ type: Boolean, default : false, required: true },
     statut:{ type: Number, default: 1, required: true },

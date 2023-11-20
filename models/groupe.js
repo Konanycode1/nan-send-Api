@@ -8,7 +8,7 @@ const Groupe = new Schema({
     user: { type: Schema.Types.ObjectId, ref: 'user', /*autopopulate: true*/ },
     agent: { type: Schema.Types.ObjectId, ref: 'agent', /*autopopulate: true*/ },
     entreprise:{ type: Schema.Types.ObjectId, ref:'entreprise', /*autopopulate: true,*/ required: true },
-    contact: { type: [ { type: Schema.Types.ObjectId, ref: Contact, /*autopopulate: true*/ } ] },
+    contact: { type: [ { type: Schema.Types.ObjectId, ref: 'contact', /*autopopulate: true*/ } ] },
     canal: { type: String, enum: ["whatsapp", "sms", "email"], default: "email" },
     statut: { type: Number, required: true, default: 1 },
     createdAt:{ type: Date, required: true, default: Date.now },
