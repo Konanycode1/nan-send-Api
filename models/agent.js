@@ -21,4 +21,4 @@ const Agent = new Schema ({
 })
 
 // export default model("Agent", Agent.plugin(mongooseAutoPopulate));
-export default model("Agent", Agent);
+export default model("agent", Agent);

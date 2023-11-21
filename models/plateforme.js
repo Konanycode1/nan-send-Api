@@ -20,8 +20,8 @@ const Plateforme = new Schema(
         telephone1:{ type: String, required: true },
         telephone2:{ type: String, required: true },
         // Le statut va basculer en 0 et 1 : 0 désigne que l'entreprise en supprimée sinon 1 par défaut
-        createdAt:{ type: Date, required: true, default: Date.now() },
-        updatedAt:{ type: Date, required: true, default: Date.now() }
+        createdAt:{ type: Date, required: true, default: Date.now },
+        updatedAt:{ type: Date, required: true, default: Date.now }
     },
     {
         timesTamps: true

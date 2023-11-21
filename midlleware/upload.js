@@ -19,12 +19,11 @@ let fileFilter = (req, file, callBack)=>{
     if(file.fieldname === "image"){
         (file.mimetype === "image/jpeg" || file.mimetype === "image/png") ? callBack(null, true) : callBack(null, false);
     }else if(file.fieldname === "document"){
-        (file.mimetype === "application/msword" || file.mimetype === "application/pdf") ?
-        callBack(null, true) : callBack(null, false);
+        (file.mimetype === "application/msword" || file.mimetype === "application/pdf") ? callBack(null, true) : callBack(null, false);
     }
 }
 
 // const uploaded = multer({ storage: storage, fileFilter: fileFilter }).fields([{name: "pieceJoints"}]);
-const uploaded = multer({ storage, fileFilter }).array("pieceJoints");
+const uploaded = multer({ storage, fileFilter });
 
 export default uploaded;

@@ -48,4 +48,4 @@ const Article = new Schema(
     }
 )
 
-export default model('Article', Article);;
+export default model('article', Article);;
