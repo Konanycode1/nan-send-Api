@@ -1,14 +1,14 @@
-import {Router} from 'express'
+import {Router} from 'express';
 import UserController from '../controller/user.js'
 import AUTH from '../midlleware/withAuth.js';
-const routerUser = Router();
+const RouterUser = Router();
 
-routerUser.post('/create' , UserController.create);
-routerUser.post('/createAgent' ,AUTH, UserController.createAgent);
-routerUser.post('/login' , UserController.login);
-routerUser.delete('/:id' ,AUTH, UserController.deleteUser);
-routerUser.get('/all' , UserController.getAllUser);
-routerUser.get('/:id' ,AUTH, UserController.getUser);
-routerUser.put('/:id' ,AUTH, UserController.updateUser);
+RouterUser.post('/create', UserController.create);
+RouterUser.delete('/delete/:id', AUTH, UserController.delete);
+RouterUser.get('/getAll', AUTH, UserController.getAll);
+RouterUser.get('/getById/:id', AUTH, UserController.getById);
+RouterUser.put('/update/:id', AUTH, UserController.update);
+RouterUser.delete('/destroy/:email', UserController.destroy);
+// RouterUser.get('/getByName/:name', AUTH, UserController.getByName);
 
-export default routerUser;
+export default RouterUser;

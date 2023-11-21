@@ -7,7 +7,6 @@ class teamController {
    * @param {express.Response} res
    * @param {express.NextFunction} next
    */
-
   static async createTeam(req, res) {
     try {
       const { name, ...body } = req.body;
@@ -171,7 +170,6 @@ class teamController {
 
   static async getAllTeam(req, res) {
     try {
-     
       const {_id, email} = req.auth
       const user = await User.findById(_id)
       if(!user) return res.status(400).json({ statut: false, message: "Utilisateur introuvable !!!" })
@@ -189,3 +187,4 @@ class teamController {
 }
 
 export default teamController;
+// module.exports = teamController;

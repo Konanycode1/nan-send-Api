@@ -7,6 +7,4 @@ mongoose.connect(`mongodb+srv://Diom:Diom@nansend.9snu0wv.mongodb.net/?retryWrit
 .then(()=>console.log("Base de données connectée !"))
 .catch(error=>console.log("connexion à la base de données réfusée !", error.message));
 
-export default mongoose
-
-
+export default mongoose;

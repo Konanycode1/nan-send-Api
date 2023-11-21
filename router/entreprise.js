@@ -1,15 +1,15 @@
 import { Router } from "express";
 import EntrepriseController from "../controller/entreprise.js";
+import verify_token from "../midlleware/withAuth.js";
 
 
-const RouteEntreprise = Router();
+const RouterEntreprise = Router();
 
-RouteEntreprise.post('/create',EntrepriseController.create)
-RouteEntreprise.get('/all/',EntrepriseController.getAll)
-RouteEntreprise.get('/:id',EntrepriseController.getById)
-RouteEntreprise.post('/:raisonSociale',EntrepriseController.getByName)
-RouteEntreprise.put('/:id',EntrepriseController.update)
-RouteEntreprise.delete('/:id',EntrepriseController.delete)
+RouterEntreprise.post('/create', verify_token, EntrepriseController.create)
+RouterEntreprise.get('/getAll', verify_token, EntrepriseController.getAll)
+RouterEntreprise.get('/getById/:id', verify_token, EntrepriseController.getById)
+RouterEntreprise.get('/getByName/:raisonSociale', verify_token, EntrepriseController.getByName)
+RouterEntreprise.put('/update/:id', verify_token, EntrepriseController.update)
+RouterEntreprise.delete('/delete:id', verify_token, EntrepriseController.delete)
 
-
-export default RouteEntreprise
+export default RouterEntreprise
