@@ -267,17 +267,6 @@ class MessageController{
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
     static async verifyEmail(req, res){
         try {
             // On récupère le destinataire dans la base de données
