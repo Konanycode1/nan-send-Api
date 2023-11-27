@@ -68,7 +68,6 @@ class ControlContact {
       if(!req.file) return res.status(403).json({message: 'Aucun ficher present', status: false});
       const myFile = req.file;
       const extension = path.extname(myFile.path);
-      console.log(extension);
       let Results = [];
       const Collections = [];
       let Trading = undefined;
@@ -79,7 +78,6 @@ class ControlContact {
             .on('data', async data => Results.push(data))
             .on('end', async () => {
               if (!Results.length) return res.status(402).json({ message: 'Aucun contact ajouté !', status: false });
-              console.log('result', Results);
               await FormateData(Results, Contact, req, Collections);
               setTimeout(() => {
                 if(!Collections.length) return res.status(403).json({message: 'Aucun contact ajouté !', status: false});
@@ -92,7 +90,6 @@ class ControlContact {
             header: {rows : 1},
             columnToKey: {"*": "{{columnHeader}}"}
           });
-          console.log(excelToJson);
           for (const reff in excelData) {
             if (Object.hasOwnProperty.call(excelData, reff)) {
               await FormateData(excelData[reff], Contact, req, Collections);
@@ -124,10 +121,11 @@ class ControlContact {
       }
       fs.remove(myFile.path);
     } catch (e) {
-      console.log(e);
-      res.status(500).json({ status: false, message: e.message });
+      console.log( e);
+      res.status(501).json({ status: false, message: e.message });
     }
   }
+
 
   /**
    * 
@@ -195,7 +193,6 @@ class ControlContact {
       }else{
         const 
         structure = await Plateforme.findOne({_id: isAdmin.plateforme._id});
-        console.log(isAdmin.plateforme._id)
         if(!structure) return res.status(403).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
         contact = await  Contact.find({ statut:1 }).populate('entreprise').populate('user').populate('agent');
       }

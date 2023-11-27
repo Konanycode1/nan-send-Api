@@ -34,7 +34,6 @@ class EntrepriseController{
                 entreprise: newEntrprise._id,
                 plateforme: undefined
             };
-            console.log('DJOBO NDRI',data, newEntrprise._id);
             res.status(202).json({status:true, message:'Entreprise bien crée !', token: generateToken(data), data:newEntrprise})
         } catch (error) {
             console.log("Erreur provenant de entrepriseController.create", error);

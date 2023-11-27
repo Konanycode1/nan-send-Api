@@ -15,47 +15,36 @@ class ValidateCodeController{
     static async deleteIfExpires(req, res){
         try {
             const {email, code} = req.params;
-            console.log(email, code);
             const isValideCode = await ValidateCode.findOne({email, code});
             const isUser = await User.findOne({email});
-            console.log('await ValidateCode.findOne({email, code})', isValideCode);
-            console.log('await User.findOne({email})', isUser);
             let resultat = null;
             let deleted = null;
             let isEntreprise = null;
             if(isValideCode && !isUser && isValideCode.expireIn > Date.now()){
-                console.log('************1 isValideCode.expireIn > Date.now()', isValideCode.expireIn > Date.now());
                 res.status(201).json({message: 'register entreprise', status: true, data: isValideCode});
             }else if(isValideCode && !isUser && isValideCode.expireIn <= Date.now()){
-                console.log('************2 isValideCode.expireIn <= Date.now()', isValideCode.expireIn <= Date.now());
                 deleted = await ValidateCode.deleteOne({email, code});
                 res.status(203).json({message: 'register user', status: false, data: deleted});
             }else if(isValideCode && isUser && isValideCode.expireIn <= Date.now()){
-                console.log('************3');
                 deleted = await ValidateCode.deleteOne({email, code});
                 res.status(203).json({message: 'register entreprise', status: false, data: deleted});
             }else if(isValideCode && isUser && isValideCode.expireIn > Date.now()){
                 isEntreprise = await Entreprise.findOne({user: isUser._id});
                 if(isEntreprise){
-                    console.log('************4');
                     deleted = await ValidateCode.deleteOne({email, code});
                     res.status(201).json({message: 'location dashboard', status: false, data: deleted});
                 }else{
-                    console.log('************5');
                     res.status(203).json({message: 'register entreprise', status: true, data: isValideCode});
                 }
             }else if(!isValideCode && isUser){
                 isEntreprise = await Entreprise.findOne({user: isUser._id});
                 if(isEntreprise){
-                    console.log('************6');
                     delete isEntreprise.user;
                     res.status(203).json({message: 'location dashboard', status: false, data: isEntreprise});
                 }else{
-                    console.log('************7');
                     res.status(203).json({message: 'register entreprise', status: true, data: isValideCode});
                 }
             }else if(!isValideCode && !isUser){
-                console.log('************8');
                 res.status(203).json({message: 'location user', status: true, data: [0]});
             }
         } catch (error) {
@@ -74,7 +63,6 @@ class ValidateCodeController{
     static async delete(req, res){
         const {_id, code, email} = req.params;
         const isSave = await User.findOne({email});
-        console.log('isSave', isSave);
         if(isSave) await ValidateCode.deleteOne({_id, code});
         const isPresente = await ValidateCode.findOne({_id, code, email});
         if(isPresente) await ValidateCode.deleteOne({_id, code, email});

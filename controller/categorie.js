@@ -10,7 +10,6 @@ class CategorieController {
     static async create(req, res){
         const {_id, entreprise} = req.auth;
         try {
-            console.log(entreprise)
             const user = await User.findOne({_id, email, statut: 1});
             const agent = await Agent.findOne({_id, email, statut: 1});
             if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes.", status: false});
@@ -35,7 +34,6 @@ class CategorieController {
             if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes.", status: false});
             const isEntreprise = await Entreprise.findOne({_id:entreprise, statut: 1});
             if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", status: false});
-            console.log(isEntreprise)
             const categorie = await Categorie.find({statut: 1, entreprise}).populate('entreprise').populate('stocke');
             res.status(200).json({data: categorie, status: true});
         }catch(error){
