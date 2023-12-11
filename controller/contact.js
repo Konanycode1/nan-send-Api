@@ -24,7 +24,6 @@ class ControlContact {
    */
   static async create(req, res) {
     try {
-      
       const { _id, email, entreprise } = req.auth;
       const isUser = await User.findOne({_id, email, entreprise, statut: 1});
       const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
@@ -53,6 +52,7 @@ class ControlContact {
    */
   static async saveContentFileToJson(req, res) {
     try {
+      console.log(req.file)
       const { _id, email, entreprise } = req.auth;
       const isUser = await User.findOne({_id, email, entreprise, statut: 1});
       const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
@@ -70,17 +70,17 @@ class ControlContact {
       const extension = path.extname(myFile.path);
       let Results = [];
       const Collections = [];
-      let Trading = undefined;
       if(fs.existsSync(myFile.path)){
         if(extension === '.csv'){
+          console.log('Results');
           fs.createReadStream(myFile.path)
             .pipe(csvParser())
             .on('data', async data => Results.push(data))
             .on('end', async () => {
-              if (!Results.length) return res.status(402).json({ message: 'Aucun contact ajouté !', status: false });
+              if (!Results.length) return res.status(402).json({ message: 'Aucun contact ajouté, contenu du fichier vide !', status: false });
               await FormateData(Results, Contact, req, Collections);
               setTimeout(() => {
-                if(!Collections.length) return res.status(403).json({message: 'Aucun contact ajouté !', status: false});
+                if(!Collections.length) return res.status(403).json({message: 'Aucun contact ajouté, il se peut que ce(s) contact existent au préalable !', status: false});
                 res.status(202).json({message: 'Contact(s) importé(s) avec succès !', status: true, data: Collections})
               }, 1000)
             });
@@ -96,7 +96,7 @@ class ControlContact {
             }
           }
           setTimeout(() => {
-            if(!Collections.length) return res.status(403).json({message: 'Aucun contact ajouté !', status: false});
+            if(!Collections.length) return res.status(403).json({message: 'Aucun contact ajouté, il se peut que ce(s) contact existent au préalable !', status: false});
             res.status(202).json({message: 'Contact(s) importé(s) avec succès !', status: true, data: Collections});
           }, 1000);
         }else if(extension === '.xls'){
@@ -110,7 +110,7 @@ class ControlContact {
             } else {
               FormateData(jsonData, Contact, req, Collections);
               setTimeout(() => {
-                if(!Collections.length) return res.status(403).json({message: 'Aucun contact ajouté !', status: false});
+                if(!Collections.length) return res.status(403).json({message: 'Aucun contact ajouté, il se peut que ce(s) contact existent au préalable !', status: false});
                 res.status(202).json({message: 'Contact(s) importé(s) avec succès !', status: true, data: Collections});
               }, 1000);
             }
@@ -277,13 +277,16 @@ class ControlContact {
   static async getAll(req, res) {
     try {
       const { _id, email, entreprise, plateforme } = req.auth;
+      
       const isUser = await User.findOne({_id, email, entreprise, statut: 1});
       const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
       const isAdmin = await Administrateur.findOne({_id, email, plateforme, statut: 1});
       let isStructure, isMember, resultat = [];
       if(!isUser && !isAgent && !isAdmin) return res.status(403).json({message: "Mot de passe ou email incorrects.", status: false});
       isMember = isUser || isAgent;
+      
       if(isMember){
+        
         isStructure = await Entreprise.findOne({_id:isMember.entreprise, statut: 1});
         if(isStructure) resultat = await Contact.find({entreprise: isStructure._id, statut: 1}).populate('entreprise').populate('user').populate('agent');
       }else{
@@ -291,8 +294,10 @@ class ControlContact {
         if(isStructure) resultat = await Contact.find({ statut: 1 }).populate('entreprise').populate('user').populate('agent');
       }
       if(!isStructure) return res.status(403).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
+      
       if(!resultat.length) return res.status(403).json({message: "Aucun contact trouvé.", status: false});
-      return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, data:resultat});
+      // console.log(resultat);
+      return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, data: resultat});
     } catch (e) {
       console.log(e);
       res.status(500).json({ status: false, message: e.message });

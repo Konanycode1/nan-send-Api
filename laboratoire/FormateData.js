@@ -7,7 +7,7 @@ const FormateData = async (Data, Model, requete, Collection) => {
             const conversKey = key.toLocaleLowerCase().replaceAll(' ', '');
             if (conversKey === 'fullname' || conversKey === 'name' || conversKey === 'username' || conversKey === 'nomprenom' || conversKey === 'nometprenom' || conversKey === 'nom&prenom') {
               infos.fullname = item[key];
-            } else if (conversKey === 'phone' || conversKey === 'mobilephone' || conversKey === 'telephone' || conversKey === 'téléphone' || conversKey === 'phoneaddress' || conversKey === 'adressetéléphonique' || conversKey === 'adressetelephonique') {
+            } else if (conversKey === 'phone' || conversKey === 'mobilephone' || conversKey === 'telephone' || conversKey === 'téléphone' || conversKey === 'phoneaddress' || conversKey === 'adressetéléphonique' || conversKey === 'adressetelephonique' || conversKey === 'sms' || conversKey === 'SMS') {
               infos.sms = item[key][0] !== '+' ? `+${item[key]}` : item[key];
             } else if (conversKey === 'email' || conversKey === 'e-email' || conversKey === 'adressee-mail' || conversKey === 'adressemail' || conversKey === 'email' || conversKey === 'emailaddress' || conversKey === 'e-mailaddress' || conversKey === 'mailaddress') {
               infos.email = item[key];
@@ -20,11 +20,13 @@ const FormateData = async (Data, Model, requete, Collection) => {
           if (!infos[keys]) delete infos[keys];
         }
         if (infos.fullname && infos.email && (infos.sms || infos.whatsapp)) {
+          
           infos.entreprise = requete.body.entreprise;
           if (requete.body.user) infos.user = requete.body.user;
           if (requete.body.agent) infos.agent = requete.body.agent;
           const { entreprise, email, fullname } = infos;
           let newContat = undefined;
+          // const fetchContacts = await Model.find({entreprise})
           const verifyContact = await Model.findOne({ fullname, entreprise, email });
           if (!verifyContact) {
             newContat = await Model.create(infos);

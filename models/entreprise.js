@@ -28,12 +28,10 @@ const EntrepriseSchema = new Schema(
             required: true
         },
         emailInfo:{
-            type: String,
-            required:true
+            type: String
         },
         passwordEmailInfo:{
             type: String,
-            required:true
         },
         // Le statut va basculer en 0 et 1 : 0 désigne que l'entreprise en supprimée sinon 1 par défaut
         statut:{
