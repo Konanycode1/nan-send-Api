@@ -24,7 +24,7 @@ class PlateformeController{
                         entreprise: undefined,
                         plateforme: newPlateforme._id
                     };
-                    res.status(203).json({statut: true, message: "Plateforme créé avec succès.", plateforme: newPlateforme, token: generateToken(data)});
+                    res.status(203).json({statut: true, message: "Plateforme créé avec succès.", data: newPlateforme, token: generateToken(data)});
                 }
             }else{
                 const isMember = await Administrateur.findOne({_id: req.auth._id, email: req.auth.email, plateforme: req.auth.plateforme, statut: 1});
@@ -34,7 +34,7 @@ class PlateformeController{
                 delete req.body.statut;
                 delete req.body._id;
                 const newPlateforme = await Plateforme.updateOne({_id: req.auth.plateforme}, req.body);
-                if(!newPlateforme.acknowledged || !newPlateforme.modifiedCount) return res.status(400).json({statut: false,message: "Mise à jour non effectuée."});
+                if(!newPlateforme.acknowledged || !newPlateforme.modifiedCount) return res.status(400).json({statut: false, message: "Mise à jour non effectuée."});
                 res.status(203).json({statut: true, message: "Mise à jour effectuée avec succès."});
             }
         }catch(error) {

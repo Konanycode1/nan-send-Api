@@ -17,7 +17,7 @@ class StockeController {
             const reference = "STOCKE"+generateRandomString(chaine, 14);
             const stocke = await Stocke.create({ libelle:req.body.libelle, reference, montant: req.body.montant, entreprise:isEntreprise._id });
             if(!stocke) return res.status(201).json({message: "Enrégistrement échoué !", statut: false});
-            res.status(200).json({message: "Stocke ajouté !!", stocke, statut: true});
+            res.status(200).json({message: "Stocke ajouté !!", data: stocke, statut: true});
         } catch (error){
             console.log(error);
             res.status(500).json({message: error.massege, statut: false});
@@ -33,7 +33,7 @@ class StockeController {
             const isEntreprise = await Entreprise.findOne({_id:entreprise});
             if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", statut: false});
             const stocke = await Stocke.find({statut: 1, entreprise});
-            res.status(200).json({stocke, statut: true});
+            res.status(200).json({data: stocke, statut: true});
         }catch(error){
             console.log(error)
             res.status(500).json({data: error.message, statut: false});
@@ -50,7 +50,7 @@ class StockeController {
             if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", statut: false});
             const stocke = await Stocke.findOne({_id:req.params.id, statut:1, entreprise});
             if(!stocke) return res.status(400).json({message: "Aucun stocke trouvé.", statut: false});
-            res.status(200).json({stocke, statut: true});
+            res.status(200).json({data: stocke, statut: true});
         }catch(error){
             res.status(500).json({message: "URL non valable.", data: error.message, statut: false});
         }
@@ -66,10 +66,10 @@ class StockeController {
             if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", statut: false});
             const stocke = await Stocke.findOne({reference: req.params.reference, statut: 1, entreprise});
             if(!stocke) return res.status(400).json({message: "Aucun stocke trouvé.", statut: false})
-            res.status(200).json({stocke, statut: true});
+            res.status(200).json({data: stocke, statut: true});
         }catch(error){
             const message = `URL non valable.`;
-            res.status(500).json({message: message,data: error.message});
+            res.status(500).json({message: message, data: error.message});
         }
     }
 

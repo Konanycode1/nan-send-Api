@@ -9,9 +9,9 @@ const Plateforme = new Schema(
         // Activité principale
         logo:{ type: String, required: false },
         // Identifiant de celui ou celle qui a créer l'entreprise
-        creerPar:{type: Schema.Types.ObjectId, ref: "user", autopopulate: true},
+        creerPar:{type: Schema.Types.ObjectId, ref: "user" },
         // Identifiant de celui ou celle qui a effectué la dernière modification des informations de l'entreprise
-        modifierPar:{type: Schema.Types.ObjectId, ref: "user", autopopulate: true},
+        modifierPar:{type: Schema.Types.ObjectId, ref: "user" },
         // Type d'entreprise c'est-à-dire s'il sagit d'une SARL, SASU, SAS, SA, etc...
         emailNormal:{ type: String, required: true },
         passwordEmailNormal:{ type: String, required: true }, 
@@ -28,5 +28,5 @@ const Plateforme = new Schema(
     }
 );
 
-export default model('plateforme', Plateforme.plugin(mongooseAutoPopulate));;
+export default model('plateforme', Plateforme );;
 

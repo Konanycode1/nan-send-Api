@@ -21,19 +21,17 @@ const EntrepriseSchema = new Schema(
             required: true
         },
         // Identifiant de celui ou celle qui a créer l'entreprise
-        user:{type: Schema.Types.ObjectId, ref: "user", autopopulate: true},
+        user:{type: Schema.Types.ObjectId, ref: "user"},
         // Type d'entreprise c'est-à-dire s'il sagit d'une SARL, SASU, SAS, SA, etc... 
         type:{
             type: String,
             required: true
         },
         emailInfo:{
-            type: String,
-            required:true
+            type: String
         },
         passwordEmailInfo:{
             type: String,
-            required:true
         },
         // Le statut va basculer en 0 et 1 : 0 désigne que l'entreprise en supprimée sinon 1 par défaut
         statut:{
@@ -56,5 +54,5 @@ const EntrepriseSchema = new Schema(
         timesTamps: true
     }
 );
-const Entreprise = model('entreprise', EntrepriseSchema.plugin(mongooseAutoPopulate));
+const Entreprise = model('entreprise', EntrepriseSchema);
 export default Entreprise;

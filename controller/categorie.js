@@ -10,7 +10,6 @@ class CategorieController {
     static async create(req, res){
         const {_id, entreprise} = req.auth;
         try {
-            console.log(entreprise)
             const user = await User.findOne({_id, email, statut: 1});
             const agent = await Agent.findOne({_id, email, statut: 1});
             if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes.", status: false});
@@ -21,7 +20,7 @@ class CategorieController {
             const reference = "CATEGO"+generateRandomString(chaine, 14);
             const categorie = await Categorie.create({ ...req.body, reference, entreprise:isEntreprise._id });
             if(!categorie) return res.status(201).json({message: "Enrégistrement échoué !", status: false});
-            res.status(200).json({message: "Catégorie ajouté !!", categorie, status: true});
+            res.status(200).json({message: "Catégorie ajouté !!", data: categorie, status: true});
         } catch (error){
             res.status(500).json({message: error.massege});
         }
@@ -35,9 +34,8 @@ class CategorieController {
             if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes.", status: false});
             const isEntreprise = await Entreprise.findOne({_id:entreprise, statut: 1});
             if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", status: false});
-            console.log(isEntreprise)
-            const categorie = await Categorie.find({statut: 1, entreprise});
-            res.status(200).json({categorie, status: true});
+            const categorie = await Categorie.find({statut: 1, entreprise}).populate('entreprise').populate('stocke');
+            res.status(200).json({data: categorie, status: true});
         }catch(error){
             res.status(500).json({data: error.message, status: false});
         }
@@ -51,9 +49,9 @@ class CategorieController {
             if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes."});
             const isEntreprise = await Entreprise.findOne({_id:entreprise, statut: 1});
             if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", status: false});
-            const categorie = await Categorie.findOne({_id:req.params.id, statut: 1, entreprise});
+            const categorie = await Categorie.findOne({_id:req.params.id, statut: 1, entreprise}).populate('entreprise').populate('stocke');
             if(!categorie) return res.status(203).json({message: "Aucun stocke trouvé.", status: false});
-            res.status(202).json({categorie, status: true});
+            res.status(202).json({data: categorie, status: true});
         }catch(error){
             res.status(500).json({message: "URL non valable", data: error.message, status: false});
         }
@@ -67,9 +65,9 @@ class CategorieController {
             if(!user && !agent) return res.status(201).json({message: "Vous accès d'authentifications sont incorrectes.", status: false});
             const isEntreprise = await Entreprise.findOne({_id:entreprise, statut: 1});
             if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", status: false});
-            const stocke = await Stocke.findOne({reference: req.params.reference, statut: 1, entreprise});
-            if(!stocke) return res.status(400).json({message: "Aucune catégorie trouvée.", status: false})
-            res.status(200).json({stocke, status: true});
+            const categorie = await Categorie.findOne({reference: req.params.reference, statut: 1, entreprise}).populate('entreprise').populate('stocke');
+            if(!categorie) return res.status(400).json({message: "Aucune catégorie trouvée.", status: false})
+            res.status(200).json({data: categorie, status: true});
         }catch(error){
             res.status(500).json({message: "URL non valable.",data: error.message, status: false});
         }
@@ -106,7 +104,7 @@ class CategorieController {
             if(!isEntreprise) return res.status(201).json({message: "Vos accès de l'entreprise introuvable !", status: false});
             const deleted = await Categorie.findOne({_id:req.params.id, entreprise});
             if(!deleted) return res.status(203).json({message: "La catégorie à modifier n'existe pas !", status: false});
-            const newDeleted = await Categorie.updateOne({id: req.params.id}, {statut: 0, updatedAt: Date.now()});
+            const newDeleted = await Categorie.updateOne({id: req.params.id, entreprise}, {statut: 0, updatedAt: Date.now});
             if(!newDeleted.acknowledged || !newDeleted.modifiedCount) return res.status(203).json({statut: false, message: "Suppression non effectué."});
             res.status(201).json({message: "Suppression effectué avec succès", status: true});
         } catch (error) {

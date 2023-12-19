@@ -3,7 +3,7 @@ import path from "path";
 
 let storage = multer.diskStorage({
     destination: (req, file, callBack)=>{
-        if(file.fieldname === "image"){
+        if(file.mimetype.includes("image")){
             callBack(null, "attachement/images");
         }else{
             callBack(null, "attachement/documents");
@@ -19,7 +19,7 @@ let storage = multer.diskStorage({
 const Attachement =  multer({
     storage: storage,
     limits:{fileSize:1024*1024*10} 
-}).array("pieceJoints");
+});
 
 export default Attachement;
 

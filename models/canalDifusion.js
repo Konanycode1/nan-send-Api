@@ -22,12 +22,11 @@ const Canaux = new Schema ({
     },
     user: {
         type: Schema.Types.ObjectId,
-        ref: "user",
-        autopopulate: true
+        ref: "user"
     }
 },
 {
     timesTamps: true
 })
 
-export default model("canaux", Canaux.plugin(mongooseAutoPopulate))
+export default model("canaux", Canaux)
