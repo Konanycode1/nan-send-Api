@@ -1,45 +1,22 @@
 import { Schema, model } from "mongoose";
-import Entreprise from "./entreprise.js";
+import mongooseAutoPopulate from "mongoose-autopopulate";
 
-const User = new Schema({
-  fullname: {
-    type: String,
-    required: true,
+// On définit le schema de model
+const User = new Schema(
+  {
+    fullname: { type: String, required: true },
+    email: { type: String, unique: true, required: true },
+    telephone: { type: String, required: true },
+    entreprise: { type: Schema.Types.ObjectId, ref: "entreprise" },
+    etat: { type: Number, default: 1, required: true },
+    nationalite: { type: String, required: true },
+    password: { type: String, required: true },
+    role: { type: String, default: "Proprio" },
+    statut: { type: Number, default: 1, required: true },
+    createdAt: { type: Date, required: true, default: Date.now },
+    updatedAt: { type: Date, required: true, default: Date.now },
   },
-  email: {
-    type: String,
-    unique: true,
-    required: true,
-  },
-  telephone: {
-    type: String,
-    required: true,
-  },
-  entreprise: [{ type: Schema.Types.ObjectId, ref: "Entreprise" }],
-  etat: {
-    type: Number,
-    default: 1,
-    required: true,
-  },
-  entreprise: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "entreprise",
-    },
-  ],
-  nationalite: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  role: {
-    type: String,
-    enum: ["Proprio", "manager", "agent"],
-    default: "Proprio",
-  },
-});
+  { timesTamps: true }
+);
 
-export default model("User", User);
+export default model("user", User);
