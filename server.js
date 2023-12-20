@@ -6,9 +6,8 @@ import path from 'path';
 
 import { fileURLToPath } from 'url';
 import { config } from "dotenv";
-import teamRouter from "./router/teams.js"
 import RouterEntreprise from "./router/entreprise.js";
-import routerUser from "./router/user.js";
+import RouterUser from "./router/user.js";
 import RouterContact from "./router/contact.js";
 import RouterAdministrateur from "./router/administrateur.js";
 import RouterPlateforme from "./router/plateforme.js";
@@ -19,9 +18,9 @@ import RouterCategorie from "./router/categorie.js";
 import RouterArticle from "./router/article.js";
 import RouterAgent from "./router/agent.js";
 import saveAdmin from "./laboratoire/admin.js";
-
-
-
+import RouterValidateCode from "./router/valideCode.js";
+import DeleteExpired from "./laboratoire/filterValidate.js";
+import RouterGroupe from "./router/groupe.js";
 
 
 
@@ -39,8 +38,10 @@ app.use(cookieParser());
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use("/attachement", express.static(path.join(__dirname, "attachement")));
 app.use("/images" ,express.static( path.join(__dirname,'images') ));
-app.use('/api/user',routerUser);
-app.use('/api/team',teamRouter);
+app.use("/documents" ,express.static( path.join(__dirname,'documents') ));
+app.use('/attachement', express.static(path.join(__dirname, 'attachement/documents/')));
+app.use('/api/user',RouterUser);
+
 app.use('/api/entreprise',RouterEntreprise);
 app.use('/api/contact',RouterContact);
 app.use('/api/admin',RouterAdministrateur);
@@ -52,24 +53,10 @@ app.use('/api/stocke', RouterStocke);
 app.use('/api/categorie', RouterCategorie);
 app.use('/api/article', RouterArticle);
 app.use('/api/agent', RouterAgent);
-
-
-
-
-// app.use(express.static("/images"));
-// app.use((req,res,next)=>{
-//     // res.setHeader('Access-Control-Allow-Origin', req.header('Origin'));
-//     res.setHeader('Access-Control-Allow-Origin', "*");
-//     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
-//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-//     next();
-// });
+app.use('/api/validate', RouterValidateCode);
+app.use('/api/groupe', RouterGroupe);
 
 const port = process.env.PORT || 3000 ;
-// app.listen(port, ()=>{
-//     console.log(`Le serveur a bien été lancé sur le port ${port}`);
-//     console.log("La base de données a été bien connectéé avec succès !")
-// });
 
 connectDB()
 .then(()=>{
@@ -77,9 +64,10 @@ connectDB()
         console.log(`server lancé avec ${port}`);
         console.log("La base de données a été bien connectéé avec succès !");
         saveAdmin();
-    })
+        DeleteExpired();
+    })    
 })
 .catch((e)=>{
-    console.log(`Serveur intérrompu`);
+    console.log(`Serveur intérrompu\n`, e.message);
 })
 

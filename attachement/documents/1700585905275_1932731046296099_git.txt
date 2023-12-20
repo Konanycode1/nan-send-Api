@@ -1,0 +1,2 @@
+recuperer les modification d'une brance A
+git pull origin A

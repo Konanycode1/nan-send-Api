@@ -31,18 +31,11 @@ class AdminController{
      */
     static async getAll(req, res){
         try {
-            Administrateur.findOne({_id: req.auth._id, email: req.auth.email})
-            .then(admin=>{
-                if(!admin) return res.status(202).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete", status: false});
-                Administrateur.findAll()
-                .then(allAdmin=>{
-                    if(!allAdmin.length) return res.status(201).json({message:"Aucune donnée n'est trouvée !", status: false});
-                    // req.cookie("token", generateToken(newUser.toObject()))
-                    res.status(202).json({ status:true, message : "Entrprise bien crée !!" })
-                })
-                .catch(()=>res.status(400).json({message:"Email ou mot de passe incorrectes !", status: false}));
-            })
-            .catch(()=>res.status(400).json({message:"Email ou mot de passe incorrectes !", status: false}));
+            const isAdmin = await Administrateur.findOne({_id: req.auth._id, email: req.auth.email, statut: 1});
+            if(!isAdmin) return res.status(202).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete", status: false});
+            const allAdmin = await Administrateur.find({statut: 1}).populate('plateforme');
+            if(!allAdmin.length) return res.status(401).json({message:"Aucune donnée n'est trouvée !", status: false});
+            res.status(202).json({ status:true, message : "Entrprise bien crée !!", data: allAdmin });
         } catch (error) {
             console.log("Erreur provenant de entrepriseController.create", error);
             res.status(500).json({message: "Mot de passe ou email incorrect", status: false});
@@ -56,20 +49,14 @@ class AdminController{
      */
     static async getById(req, res){
         try {
-            Administrateur.findOne({email:req.auth.email, _id:req.auth._id})
-            .then(admin=>{
-                if(!admin) return res.status(202).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete"});
-                Entrepise.findById(req.params.id)
-                .then(oneAdmin=>{
-                    if(!oneAdmin) return res.status(201).json({message:"Aucune donnée n'est trouvée !"});
-                    res.status(200).json({ status:true, oneAdmin});
-                })
-                .catch(()=>res.status(400).json({message:"Email ou mot de passe incorrectes !"}));
-            })
-            .catch(()=>res.status(400).json({message:"Email ou mot de passe incorrectes !"}));
+            const isAdmain = await Administrateur.findOne({email:req.auth.email, _id:req.auth._id, statut: 1});
+            if(!isAdmain) return res.status(202).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete", status: false});
+            const admin = await Administrateur.findById(req.params.id).populate('plateforme');
+            if(!admin || !admin.statut) return res.status(401).json({message:"Aucune donnée n'est trouvée !", status: false});
+            res.status(201).json({ status:true, data: admin, messag: 'Requête favorable.'});
         } catch (error) {
             console.log("Erreur provenant de entrepriseController.create", error);
-            res.status(500).json({message: "Mot de passe ou email incorrect"});
+            res.status(500).json({message: "Mot de passe ou email incorrect", status: false});
         } 
     }
 
@@ -80,20 +67,13 @@ class AdminController{
      */
     static async getByName(req, res){
         try {
-            Administrateur.findOne({_id:req.auth._id})
-            .then(admin=>{
-                if(!admin) return res.status(202).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete"});
-                Administrateur.findAll({fullname: req.params.fullname})
-                .then(someAdmin=>{
-                    if(!someAdmin.length) return res.status(201).json({message:"Aucune donnée n'est trouvée !"});
-                    res.status(200).json({ status:true, someAdmin, message:`Il y'a ${someAdmin.length} élément trouvés`});
-                })
-                .catch(()=>res.status(400).json({message:"Email ou mot de passe incorrectes !"}));
-            })
-            .catch(()=>res.status(400).json({message:"Email ou mot de passe incorrectes !"}));
+            const isAdmin = await Administrateur.findOne({_id:req.auth._id, statut: 1});
+            if(!isAdmin) return res.status(400).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete", status: false});
+            const allAdmin = await Administrateur.find({fullname: req.params.fullname, statut: 1}).populate('plateforme');
+            res.status(200).json({ status:true, data: allAdmin, message:`Il y'a ${allAdmin.length} élément trouvés`});
         } catch (error) {
-            console.log("Erreur provenant de entrepriseController.create", error);
-            res.status(500).json({message: "Mot de passe ou email incorrect"});
+            console.log("Erreur provenant de entrepriseController.getByName", error.message);
+            res.status(500).json({message: error.messag, status: false});
         } 
     }
 
@@ -104,19 +84,14 @@ class AdminController{
      */
     static async update(req, res){
         try {
-            Administrateur.findOne({email:req.auth.email, _id: req.auth._id})
-            .then(admin=>{
-                if(!admin) return res.status(202).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete"});
-                Entrepise.findById(id)
-                .then(oneAdmin=>{
-                    if(!oneAdmin) return res.status(201).json({message:"Les données au modifier ne sont pas présentes !"});
-                    Entrepise.findByIdAndUpdate(req.body.cibling, req.body, {new: true})
-                    .then(newoneAdmin => res.status(202).json({ status:true, newoneAdmin}))
-                    .catch(()=>res.status(400).json({message:"Requète avortée !"}));
-                })
-                .catch(()=>res.status(400).json({message:"Requète avortée !"}));
-            })
-            .catch(()=>res.status(400).json({message:"Requète avortée !"}));
+            const isAdmin = await Administrateur.findOne({email:req.auth.email, _id: req.auth._id, statut: 1});
+            if(!isAdmin) return res.status(202).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete"});
+            const hasAdmin = await Administrateur.findOne({_d: req.params.id, statut: 1});
+            if(!hasAdmin) return res.status(201).json({message:"Les données au modifier ne sont pas présentes !", status: false});
+            delete req.body._id;
+            delete req.body.statut;
+            const updated = await Administrateur.findByIdAndUpdate(req.params.id, req.body, {new: true});
+            res.status(202).json({ status:true, data: updated});
         } catch (error) {
             console.log("Erreur provenant de entrepriseController.create", error);
             res.status(500).json({message: "Mot de passe ou email incorrect"});
@@ -132,21 +107,12 @@ class AdminController{
         try {
             const {id} = req.params
             const {_id, email} = req.auth
-            Administrateur.findOne({email:email})
-            .then(admin=>{ 
-                if(!admin) return res.status(202).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete"});
-                Administrateur.findById(req.params.id)
-                .then(oneAdmin=>{
-                    if(!oneAdmin) return res.status(201).json({message:"Les données au modifier ne sont pas présentes !"});
-                    Administrateur.findByIdAndUpdate(req.body.cibling, {statut: 0}, {new: false})
-                    .then(newEntreprise=>{
-                        res.status(202).json({ status:true, newEntreprise});
-                    })
-                    .catch(()=>res.status(400).json({message:"Email ou mot de passe incorrectes !"}));
-                })
-                .catch(()=>res.status(400).json({message:"Email ou mot de passe incorrectes !"}));
-            })
-            .catch(()=>res.status(400).json({message:"Email ou mot de passe incorrectes !"}));
+            const isAdmin = await Administrateur.findOne({_id, email, statut: 1});
+            if(!isAdmin) return res.status(400).json({message: "Vous n'êtes pas authorisé à effectuer cette réquete", status: false});
+            const hasAdmin = await Administrateur.findOne({_id: id, statut: 1});
+            if(!hasAdmin) return res.status(401).json({message:"Les données au modifier ne sont pas présentes !", statut: false});
+            const deleted = await Administrateur.updateOne({_id: id}, {statut: 0});
+            res.status(202).json({ status:true, data: deleted, message: 'Modification effectuée avec succès !'});
         } catch (error) {
             console.log("Erreur provenant de entrepriseController.create", error);
             res.status(500).json({message: "Mot de passe ou email incorrect"});

@@ -27,8 +27,8 @@ const Categorie = new Schema(
             required:true,
             default: ''
         }, 
-        stocke:{type: Schema.Types.ObjectId, ref: "stocke", autopopulate: true},
-        entreprise:{type: Schema.Types.ObjectId, ref: "entreprise", autopopulate: true},
+        stocke:{type: Schema.Types.ObjectId, ref: "stocke" },
+        entreprise:{type: Schema.Types.ObjectId, ref: "entreprise" },
         createdAt:{
             type: Date,
             required: true,
@@ -45,4 +45,4 @@ const Categorie = new Schema(
     }
 )
 
-export default model('Categorie', Categorie.plugin(mongooseAutoPopulate));
+export default model('categorie', Categorie );

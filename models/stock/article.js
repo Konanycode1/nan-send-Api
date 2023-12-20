@@ -24,9 +24,9 @@ const Article = new Schema(
             type: Number,
             required: [true, 'Veuillez définir le montant de l\'article !']
         },
-        stockes:{type: Schema.Types.ObjectId, ref: "stocke", autopopulate: true},
-        categorie:{type: Schema.Types.ObjectId, ref: "categorie", autopopulate: true},
-        entreprise:{type: Schema.Types.ObjectId, ref: "entreprise", autopopulate: true},
+        stockes:{type: Schema.Types.ObjectId, ref: "stocke" },
+        categorie:{type: Schema.Types.ObjectId, ref: "categorie" },
+        entreprise:{type: Schema.Types.ObjectId, ref: "entreprise" },
         statut: {
             type: Number,
             required: true,
@@ -48,4 +48,4 @@ const Article = new Schema(
     }
 )
 
-export default model('Article', Article.plugin(mongooseAutoPopulate));;
+export default model('article', Article);;
