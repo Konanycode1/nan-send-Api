@@ -37,7 +37,7 @@ class GroupeController{
             const isEntreprise = await Entreprise.findOne({_id: entreprise, statut: 1});
             if(!isEntreprise) return res.status(402).json({message: "Vous ne faites pas partie d'uncune entreprise.", status: false});
             const isPresent = await Groupe.findOne({name: req.body.name.toLowerCase(), statut: 1});
-            if(isPresent) return res.status(402).json({message: "Ce contact est déjà ajouté", status: false});
+            if(isPresent) return res.status(402).json({message: "Ce groupe est déjà ajouté", status: false});
             req.body.entreprise = isEntreprise._id;
 
             const ourContacts = await Contact.find({entreprise});
@@ -47,11 +47,11 @@ class GroupeController{
             }else if(ourCanal === 'whatsapp'){
                 ourContacts.map(item =>  {if(newsInformations.includes(item._id.toString())) filterContact.push(item)});
             }else if(ourCanal === 'sms'){
-                ourContacts.map(item => {console.log(item._id.toString()); if(newsInformations.includes(item._id.toString())) filterContact.push(item)});
+                ourContacts.map(item => {if(newsInformations.includes(item._id.toString())) filterContact.push(item)});
             }else{
                 return res.status(402).json({message: "Canal de difusion non valide", status: false});
             }
-            console.log(filterContact, )
+
             if(!filterContact.length) return res.status(402).json({message: 'Impossible de créer une équipe, contacta(s) introuvable.', status: false});
             filterContact.map(item => formatContact.push(new mongoose.Types.ObjectId(item._id)));
             req.body.contact = formatContact;
@@ -155,6 +155,7 @@ class GroupeController{
             for (const key in req.body) {
                 if(!req.body[key]) delete req.body[key];
             }
+            
             const fetchNewsInformations = [];
             const filterContact = [];
             const formatContact = [];
@@ -174,21 +175,27 @@ class GroupeController{
             if(isAgent) req.body.agent = isAgent._id;
             const isEntreprise = await Entreprise.findOne({_id: entreprise, statut: 1});
             if(!isEntreprise) return res.status(402).json({message: "Vous ne faites pas partie d'uncune entreprise.", status: false});
-            const isPresent = await Groupe.findOne({name: req.body.name.toLowerCase(), statut: 1});
-            if(isPresent) return res.status(402).json({message: "Ce contact est déjà ajouté", status: false});
+            const isPresent = await Groupe.findOne({_id: req.params.id, statut: 1});
+            if(!isPresent) return res.status(402).json({message: "Le groupe à modifier n'existe pas", status: false});
             req.body.entreprise = isEntreprise._id;
 
-            const ourContacts = await Contact.find({entreprise: req.body.entreprise});
-            if(!ourContacts) return res.status(402).json({message: 'Impossible de créer une équipe, contacta(s) introuvable.', status: false});
+            const ourContacts = await Contact.find({entreprise});
+            
+            
+            if(!ourContacts.length) return res.status(402).json({message: 'Impossible de créer une équipe, contacta(s) introuvable.', status: false});
             if(ourCanal === 'email'){
-                ourContacts.map(item => {if(fetchNewsInformations.includes(item.email)) filterContact.push(item)});
+                ourContacts.map(item => {if(fetchNewsInformations.includes(item._id.toString())) filterContact.push(item)});
             }else if(ourCanal === 'whatsapp'){
-                ourContacts.map(item => {if(fetchNewsInformations.includes(item.whatsapp)) filterContact.push(item)});
+                
+                ourContacts.map(item => {if(fetchNewsInformations.includes(item._id.toString())) filterContact.push(item)});
             }else if(ourCanal === 'sms'){
-                ourContacts.map(item => {if(fetchNewsInformations.includes(item.sms)) filterContact.push(item)});
+                ourContacts.map(item => {if(fetchNewsInformations.includes(item._id.toString())) filterContact.push(item)});
             }else{
                 return res.status(402).json({message: "Canal de difusion non valide", status: false});
             }
+
+            
+            
 
             if(!filterContact.length) return res.status(402).json({message: 'Impossible de créer une équipe, contacta(s) introuvable.', status: false});
             filterContact.map(item => formatContact.push(new mongoose.Types.ObjectId(item._id)));
