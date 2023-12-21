@@ -27,7 +27,6 @@
     "ovh": "^2.0.3",
     "mongoose-autopopulate": "^1.0.1",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.9.5",
     "wbm": "^1.1.16",
     "xls-to-json": "^2.1.1",
     "xlsx": "^0.18.5"
