@@ -5,7 +5,7 @@ const Contact = new Schema ({
     fullname:{ type: String, required: true },
     email :{ type : String, required: true },
     whatsapp:{ type: String, required: false },
-    sms:{ type: String, required: true },
+    sms:{ type: String, required: false },
     user: { type: Schema.Types.ObjectId, ref: 'user' },
     agent: { type: Schema.Types.ObjectId, ref: 'agent' },
     entreprise:{ type: Schema.Types.ObjectId, ref:'entreprise', required: true },
@@ -17,4 +17,4 @@ const Contact = new Schema ({
     timesTamps: true
 })
 
-export default model("Contact", Contact)
+export default model("contact", Contact)

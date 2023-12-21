@@ -11,7 +11,6 @@ class AgentController {
         try {
             const {_id, entreprise} = req.auth;
             const {email, password} = req.body;
-            console.log(req.auth, entreprise)
             const user =  await User.findOne({_id, entreprise, statut: 1});
             if(!user) return res.status(400).json({status:false,message: "Mot de passe ou email incorrect !"});
             const isEntreprise = await Entreprise.findOne({_id:entreprise, statut:1});

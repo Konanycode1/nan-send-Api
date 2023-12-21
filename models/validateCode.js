@@ -12,8 +12,8 @@ const ValidateCode = new Schema(
     statut: { type: Number, default: 1, required: true },
     expireIn: { type: Number, default: (Date.now() + 25*60*1000 ) },
     code:{ type: String, required: true },
-    createdAt:{ type: Date, required: true, default: Date.now() },
-    updatedAt:{ type: Date, required: true, default: Date.now()}
+    createdAt:{ type: Date, required: true, default: Date.now },
+    updatedAt:{ type: Date, required: true, default: Date.now }
 },
 { timesTamps: true })
 

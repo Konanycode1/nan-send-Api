@@ -45,4 +45,4 @@ const Categorie = new Schema(
     }
 )
 
-export default model('Categorie', Categorie );
+export default model('categorie', Categorie );
