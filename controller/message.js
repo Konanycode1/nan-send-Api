@@ -30,13 +30,14 @@ class MessageController{
      */
     static async create(req, res){
         try {
+            console.log('req.auth88')
             const {_id, entreprise, email} = req.auth;
             const isUser = await User.findOne({_id, email, entreprise, statut: 1});
             const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
             if(!isUser && !isAgent) return res.status(403).json({message: 'vous n\'êtes pas authorisé(s) à effectuer cette requête: Mot de passe ou email incorrects', status: false});
             const isEntreprise = await Entreprise.findOne({_id: entreprise, statut: 1});
             if(!isEntreprise) return res.status(403).json({message: 'vous n\'êtes pas authorisé(s) à effectuer cette requête: Vous n\'êtes pas membre de l\'entreprise', status: false});
-            if(!Array.isArray(req.body.groupe) && typeof(req.body.groupe)=== 'string') req.body.groupe = req.body.groupe.split(',');
+            if(!Array.isArray(req.body.groupe) && typeof(req.body.groupe) === 'string') req.body.groupe = req.body.groupe.split(',');
             else if(!Array.isArray(req.body.contact) && typeof(req.body.contact)=== 'string') req.body.contact = req.body.contact.split(',');
             const idCollection = [];
             let newCollections = [];
@@ -289,11 +290,14 @@ class MessageController{
             const url = req.body.urlfrontend+`/?${req.body.code}#${req.body.email}`;
             // On met en forme l'information à transmettre
             const donneEmail={ fullname:req.body.fullname, plateforme:plateforme[0].raisonSociale, url, code:req.body.code };
+            console.log('plateforme[0].emailInfo', plateforme[0].emailInfo);
+            console.log('plateforme[0].passwordEmailInfo', plateforme[0].passwordEmailInfo);
+            console.table(donneEmail);
             // On établie la connexion au serveur de méssagerie ootlmail
             const connection = transporteur({ user: `${plateforme[0].emailInfo}`, pass: `${plateforme[0].passwordEmailInfo}`});
             // On transmet l'information de l'expéditeur vers le receveur
             const email = await connection.sendMail({
-                from: `"${plateforme[0].raisonSociale}" <${plateforme[0].emailInfo}>`,
+                from: `${plateforme[0].raisonSociale} <${plateforme[0].emailInfo}>`,
                 bcc: [req.body.email],
                 subject:"VALIDATION DE SECURITE",
                 html: code_auth(donneEmail)

@@ -69,6 +69,5 @@ connectDB()
 })
 .catch((e)=>{
     console.log(`Serveur intérrompu\n`, e.message);
-    
 })
 
