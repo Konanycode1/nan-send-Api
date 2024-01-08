@@ -70,6 +70,7 @@ class GroupeController{
      */
     static async getAll(req, res){
         try {
+            
             const { _id, email, entreprise, plateforme } = req.auth;
             const isUser = await User.findOne({_id, email, entreprise, statut: 1});
             const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
@@ -86,6 +87,7 @@ class GroupeController{
             }
             if(!isStructure) return res.status(402).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
             if(!resultat.length) return res.status(402).json({message: "Aucun contact trouvé.", status: false});
+            console.table(resultat)
             return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, data:resultat});
         } catch (error) {
             res.status(500).json({message: error.message, status: false});
@@ -109,7 +111,7 @@ class GroupeController{
             if(isUser || isAgent) isCompagny = await Entreprise.findOne({_id: entreprise, statut: 1});
             else isCompagny = await Plateforme.findOne({_id: plateforme, statut: 1});
             if(!isCompagny) return res.status(402).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
-            isGroupe = await Groupe.findOne({_id: req.params.id, entreprise, statut: 1}).populate('entreprise');
+            isGroupe = await Groupe.findOne({_id: req.params.id, entreprise, statut: 1}).populate('contact').populate('user').populate('agent').populate('entreprise');
             if(!isGroupe) return res.status(402).json({message: "Ce groupe n'existe pas.", status: false});
             res.status(202).json({message: "Requête traitée avec succès.",  status: true, data:isGroupe});
         } catch (error) {
@@ -135,7 +137,7 @@ class GroupeController{
             if(isUser || isAgent) isCompagny = await Entreprise.findOne({_id: entreprise, statut: 1});
             else isCompagny = await Plateforme.findOne({_id: plateforme, statut: 1});
             if(!isCompagny) return res.status(402).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
-            isGroupe = await Groupe.find({entreprise, statut: 1}).populate('entreprise');
+            isGroupe = await Groupe.find({entreprise, statut: 1}).populate('groupe').populate('contact').populate('user').populate('agent').populate('entreprise');
             isGroupe = isGroupe.filter(item => item.name.includes(req.params.name) && item.entreprise._id === entreprise)
             if(!isGroupe.length) return res.status(402).json({message: "Ce groupe n'existe pas.", status: false});
             res.status(202).json({message: "Requête traitée avec succès.",  status: true, data:isGroupe});
@@ -214,6 +216,7 @@ class GroupeController{
      */
     static async delete(req, res){
         try {
+            console.log(req.auth)
             const { _id, email, entreprise } = req.auth;
             const isUser = await User.findOne({_id, email, entreprise, statut: 1});
             const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});

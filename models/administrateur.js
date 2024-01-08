@@ -9,10 +9,20 @@ const Administrateur = new Schema ({
     nationalite:{type: String, required: true},
     password:{type: String, required : true},
     statut:{type: Number, required: true, default: 1},
-    plateforme:{type: Schema.Types.ObjectId, ref: "plateforme"},
-    createdAt:{type: Date, required: true, default: Date.now},
-    updatedAt:{type: Date, required: true, default: Date.now}
+    plateforme:{type: Schema.Types.ObjectId, ref: "plateforme"}
 },
-{ timesTamps: true });
+{
+    timestamps: true,
+    toJSON: {
+        virtuals: true,
+        transform: function (doc, ret) {
+            // Transformation personnalisée du document JSON
+            ret.id = ret._id; // Remplace le champ "_id" par "id"
+            delete ret._id; // Supprime le champ "_id"
+            delete ret.__v; // Supprime le champ "__v"
+          },
+    },
+}
+);
 
 export default model("administrateur", Administrateur)

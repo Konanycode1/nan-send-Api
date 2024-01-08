@@ -10,11 +10,28 @@ const Groupe = new Schema({
     entreprise:{ type: Schema.Types.ObjectId, ref:'entreprise', /*autopopulate: true,*/ required: true },
     contact: { type: [ { type: Schema.Types.ObjectId, ref: 'contact', /*autopopulate: true*/ } ] },
     canal: { type: String, enum: ["whatsapp", "sms", "email"], default: "email" },
-    statut: { type: Number, required: true, default: 1 },
-    createdAt:{ type: Date, required: true, default: Date.now },
-    updatedAt:{ type: Date, required: true, default: Date.now }
+    statut: { type: Number, required: true, default: 1 }
 },
-{ timesTamps: true }
+{
+    timestamps: true,
+    toJSON: {
+        virtuals: true,
+        transform: function (doc, ret) {
+            // Transformation personnalisée du document JSON
+            ret.id = ret._id; // Remplace le champ "_id" par "id"
+            delete ret._id; // Supprime le champ "_id"
+            delete ret.__v; // Supprime le champ "__v"
+          },
+    },
+}
 );
+
+Groupe.pre("find", function (next) {
+    this.populate("contact");
+    this.populate("user");
+    this.populate("agent");
+    this.populate("entreprise");
+    next();
+});
 
 export default model("groupe", Groupe);

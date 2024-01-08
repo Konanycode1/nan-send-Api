@@ -41,6 +41,7 @@ class MessageController{
             const idCollection = [];
             let newCollections = [];
             const idObjetCollection = [];
+            
             if(req.body.groupe && req.body.groupe.length){
                 let myGroupes = await Groupe.find({entreprise, statut: 1});
                 if(!myGroupes.length) return res.status(403).json({message: 'Vous ne disposez aucun groupe.', status: false});
@@ -58,6 +59,7 @@ class MessageController{
                 newCollections.map(item => idObjetCollection.push(new mongoose.Types.ObjectId(item)));
                 req.body.contact = idObjetCollection;
             }
+            console.log(req.body.contact, req.body.groupe);
             if(req.files){
                 req.body.piecesJointes = [];
                 req.files.map(piece => req.body.piecesJointes.push(
@@ -72,6 +74,7 @@ class MessageController{
             isUser ? req.body.user = isUser._id : req.body.agent = isAgent._id;
             delete req.body.statut;
             const newMessage = await Message.create(req.body);
+            console.log(newMessage);
             res.status(201).json({message: 'Message créer avec succès', status: false, data: newMessage})
         } catch (error) {
             console.log(error.message, error);
@@ -98,7 +101,7 @@ class MessageController{
             if(isStructure) resultat = await Message.find({entreprise: isStructure._id, statut: 1}).populate('entreprise').populate('user').populate('agent');
             }else{
             isStructure = await Plateforme.findOne({_id:isAdmin.plateforme._id});
-            if(isStructure) resultat = await Message.find({ statut: 1 }).populate('entreprise').populate('user').populate('agent');
+            if(isStructure) resultat = await Message.find({ statut: 1 }).populate('groupe').populate('contact').populate('user').populate('agent').populate('entreprise');
             }
             if(!isStructure) return res.status(203).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
             if(!resultat.length) return res.status(203).json({message: "Aucun contact trouvé.", status: false});
@@ -131,7 +134,7 @@ class MessageController{
             } else{
                 isCompagny = await Plateforme.findOne({_id: plateforme, statut: 1});
                 if(!isCompagny) return res.status(402).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
-                isMessage = await Message.findOne({_id:req.params.id, statut: 1}).populate('entreprise').populate('contact').populate('groupe');
+                isMessage = await Message.findOne({_id:req.params.id, statut: 1}).populate('groupe').populate('contact').populate('user').populate('agent').populate('entreprise');;
             }
             if(!isMessage) return res.status(402).json({message: "Ce message n'existe pas.", status: false});
             res.status(202).json({message: "Requête traitée avec succès.",  status: true, data: isMessage});
@@ -162,7 +165,7 @@ class MessageController{
             } else{
                 isCompagny = await Plateforme.findOne({_id: plateforme, statut: 1});
                 if(!isCompagny) return res.status(402).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
-                isMessage = await Message.find({statut: 1}).populate('entreprise');
+                isMessage = await Message.find({statut: 1}).populate('groupe').populate('contact').populate('user').populate('agent').populate('entreprise');
             } 
             if(!isMessage.length) return res.status(402).json({message: "Message non trouvé.", status: false});
             isMessage = isMessage.filter(item => item.object.includes(req.params.object) && item.entreprise._id === entreprise);
@@ -333,6 +336,8 @@ class MessageController{
             // Si le canal est celui des adresses emails, on stocke le nom de l'entreprise et les informations à transferer dans une constante donneEmail
             const donneEmail={ plateforme:verifCompagny.raisonSociale, contenu };
             // On établie la connexion auserveur de messagerie ootlmail
+            // console.log(req.body);
+            // const connection = transporteur({ user: 'devdjobo@outlook.com', pass: 'nfcDJ0B0'});
             const connection = transporteur({ user: verifCompagny.emailInfo, pass: verifCompagny.passwordEmailInfo});
             const attachements = [];
             if(req.files){
@@ -347,6 +352,7 @@ class MessageController{
             const datas = {
                 // On définit le nom et d'adresse au destinataire
                 from: `"${verifCompagny.raisonSociale}" <${verifCompagny.emailInfo}>`,
+                // from: `"devdjobo@outlook.com" <devdjobo@outlook.com>`,
                 // On fait une copie des adresse en caché de sorte que l'receveur n'arrive pas à avoir connaissance aux autres qui ont réçu le même message 
                 bcc: contact,
                 // On définit l'objet du message

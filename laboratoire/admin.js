@@ -1,8 +1,6 @@
 import Administrateur from "../models/administrateur.js";
 import Plateforme from "../models/plateforme.js";
 import { crypt, comparer } from '../util/bcrypt.js';
-import { generateToken } from "../util/token.js";
-
 
 const data = { fullname:"Administrateur", email:"devdjobo@gmail.com", password:"admin", telephone:"+000-00-00-00-00-00", nationalite:"admin" }
 
