@@ -313,7 +313,7 @@ class MessageController{
 
     static async createEmail(req,res){
         try{
-            const {_id, email, entreprise, role} = req.auth;
+            const {_id, entreprise} = req.auth;
             
             let {canal, contenu, contact} = req.body;
             // On vérifie si la constante contact est un tableau qui contient au moins un adresse email
@@ -339,7 +339,8 @@ class MessageController{
             // On établie la connexion auserveur de messagerie ootlmail
             // console.log(req.body);
             // const connection = transporteur({ user: 'devdjobo@outlook.com', pass: 'nfcDJ0B0'});
-            const connection = transporteur({ user: verifCompagny.emailInfo, pass: verifCompagny.passwordEmailInfo});
+            if(!verifCompagny.password) return res.status(402).json({message: 'Impossible de se connecter au serveur de messagerie, Veuillez rattacher le mot de passe de connexion au serveur de messagerie !', statut: false})
+            const connection = transporteur({ user: verifCompagny.email, pass: verifCompagny.password});
             const attachements = [];
             if(req.files){
                 req.files.map( piece =>{
@@ -377,7 +378,7 @@ class MessageController{
 
     static async sendWhatsAppMessage(req, res){
         try {
-            const {_id, email, entreprise, role} = req.auth;
+            const {_id, entreprise} = req.auth;
             let {canal, contenu, contact} = req.body;
             const verifCompagny = await Entreprise.findOne({_id:entreprise, statut: 1});
             if(!verifCompagny) return res.status(404).json({status:false,message:'Entreprise introuvable'});

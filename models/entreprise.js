@@ -1,7 +1,5 @@
 
 import { Schema, model}  from 'mongoose';
-import User from './user.js';
-import mongooseAutoPopulate from "mongoose-autopopulate";
 
 const EntrepriseSchema = new Schema(
     {
@@ -20,6 +18,12 @@ const EntrepriseSchema = new Schema(
             type: String,
             required: true
         },
+
+        pays:{
+            type: String,
+            required: true
+        },
+
         // Identifiant de celui ou celle qui a créer l'entreprise
         user:{type: Schema.Types.ObjectId, ref: "user"},
         // Type d'entreprise c'est-à-dire s'il sagit d'une SARL, SASU, SAS, SA, etc... 
@@ -27,11 +31,19 @@ const EntrepriseSchema = new Schema(
             type: String,
             required: true
         },
-        emailInfo:{
+        email:{
             type: String
         },
-        passwordEmailInfo:{
+        password:{
             type: String,
+        },
+
+        smsAdresse:{
+            type: String
+        },
+
+        whatsappAdresse:{
+            type: String
         },
         // Le statut va basculer en 0 et 1 : 0 désigne que l'entreprise en supprimée sinon 1 par défaut
         statut:{
@@ -45,13 +57,22 @@ const EntrepriseSchema = new Schema(
         toJSON: {
             virtuals: true,
             transform: function (doc, ret) {
-                // Transformation personnalisée du document JSON
-                ret.id = ret._id; // Remplace le champ "_id" par "id"
-                delete ret._id; // Supprime le champ "_id"
-                delete ret.__v; // Supprime le champ "__v"
-              },
-        },
+            // Transformation personnalisée du document JSON
+            ret.id = ret._id; // Remplace le champ "_id" par "id"
+            delete ret._id; // Supprime le champ "_id"
+            delete ret.__v; // Supprime le champ "__v"
+            }
+        }
     }
 );
+
+EntrepriseSchema.pre("save", function (next) {
+    this.email = this.email.toLowerCase();
+    this.smsAdresse = this.smsAdresse ? this.smsAdresse.replaceAll(' ', ''): '';
+    this.whatsappAdresse = this.whatsappAdresse? this.whatsappAdresse.replaceAll(' ', '') : '';
+    next();
+});
+
+
 const Entreprise = model('entreprise', EntrepriseSchema);
 export default Entreprise;
