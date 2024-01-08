@@ -290,9 +290,6 @@ class MessageController{
             const url = req.body.urlfrontend+`/?${req.body.code}#${req.body.email}`;
             // On met en forme l'information à transmettre
             const donneEmail={ fullname:req.body.fullname, plateforme:plateforme[0].raisonSociale, url, code:req.body.code };
-            console.log('plateforme[0].emailInfo', plateforme[0].emailInfo);
-            console.log('plateforme[0].passwordEmailInfo', plateforme[0].passwordEmailInfo);
-            console.table(donneEmail);
             // On établie la connexion au serveur de méssagerie ootlmail
             const connection = transporteur({ user: `${plateforme[0].emailInfo}`, pass: `${plateforme[0].passwordEmailInfo}`});
             // On transmet l'information de l'expéditeur vers le receveur
