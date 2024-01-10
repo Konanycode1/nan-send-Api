@@ -17,3 +17,5 @@ const User = new Schema(
     updatedAt:{ type: Date, required: true, default: Date.now}
 },
 { timesTamps: true })
+
+export default model("user", User);
