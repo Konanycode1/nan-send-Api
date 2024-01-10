@@ -26,20 +26,19 @@ const Stocke = new Schema(
             required:true,
             default: true
         },
-        entreprise:{type: Schema.Types.ObjectId, ref: "entreprise" },
-        createdAt:{
-            type: Date,
-            required: true,
-            default: Date.now
-        },
-        updatedAt:{
-            type: Date,
-            required: true,
-            default: Date.now
-        }
+        entreprise:{type: Schema.Types.ObjectId, ref: "entreprise" }
     },
     {
-        timesTamps: true
+        timestamps: true,
+        toJSON: {
+            virtuals: true,
+            transform: function (doc, ret) {
+                // Transformation personnalisée du document JSON
+                ret.id = ret._id; // Remplace le champ "_id" par "id"
+                delete ret._id; // Supprime le champ "_id"
+                delete ret.__v; // Supprime le champ "__v"
+              },
+        },
     }
 )
 

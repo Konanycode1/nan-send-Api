@@ -19,12 +19,18 @@ const Plateforme = new Schema(
         passwordEmailInfo:{ type: String, required: true },
         telephone1:{ type: String, required: true },
         telephone2:{ type: String, required: true },
-        // Le statut va basculer en 0 et 1 : 0 désigne que l'entreprise en supprimée sinon 1 par défaut
-        createdAt:{ type: Date, required: true, default: Date.now },
-        updatedAt:{ type: Date, required: true, default: Date.now }
     },
     {
-        timesTamps: true
+        timestamps: true,
+        toJSON: {
+            virtuals: true,
+            transform: function (doc, ret) {
+                // Transformation personnalisée du document JSON
+                ret.id = ret._id; // Remplace le champ "_id" par "id"
+                delete ret._id; // Supprime le champ "_id"
+                delete ret.__v; // Supprime le champ "__v"
+              },
+        },
     }
 );
 
