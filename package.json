@@ -8,7 +8,6 @@
   "author": "kouame konan abraham <abrahamkonany@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon node server.js",
     "dev": "nodemon server.js"
   },
   "dependencies": {
