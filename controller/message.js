@@ -22,7 +22,6 @@ import Administrateur from '../models/administrateur.js';
 const urlFont = 'http://localhost:5173/entreprise';
 
 class MessageController{
-
     /**
      * 
      * @param {Express.Request} req 
@@ -321,7 +320,6 @@ class MessageController{
             // On tente de récupérer les informations de l'entréprise dans la base de données
             if(Array.isArray(contact) && contact.some(emailAdress =>verify_email_adress(emailAdress))) contact = contact.filter(item=>verify_email_adress(item));
             
-            // const allContact = Array.isArray(contact) && contact.some(emailAdress =>verify_email_adress(emailAdress)) ?contact.filter(item=>verify_email_adress(item)):
             const verifCompagny = await Entreprise.findOne({_id:entreprise, statut: 1});
             // Si la l'entréprise n'existe pas dans la base de données, on renvoie un message au client
             if(!verifCompagny) return res.status(404).json({status:false,message:'Entreprise introuvable'});
@@ -337,8 +335,6 @@ class MessageController{
             // Si le canal est celui des adresses emails, on stocke le nom de l'entreprise et les informations à transferer dans une constante donneEmail
             const donneEmail={ plateforme:verifCompagny.raisonSociale, contenu };
             // On établie la connexion auserveur de messagerie ootlmail
-            // console.log(req.body);
-            // const connection = transporteur({ user: 'devdjobo@outlook.com', pass: 'nfcDJ0B0'});
             if(!verifCompagny.password) return res.status(402).json({message: 'Impossible de se connecter au serveur de messagerie, Veuillez rattacher le mot de passe de connexion au serveur de messagerie !', statut: false})
             const connection = transporteur({ user: verifCompagny.email, pass: verifCompagny.password});
             const attachements = [];
@@ -351,14 +347,14 @@ class MessageController{
                     });
                 })
             };
+            console.log([verifCompagny.raisonSociale, verifCompagny.email, req.body])
             const datas = {
                 // On définit le nom et d'adresse au destinataire
-                from: `"${verifCompagny.raisonSociale}" <${verifCompagny.emailInfo}>`,
-                // from: `"devdjobo@outlook.com" <devdjobo@outlook.com>`,
+                from: `'${verifCompagny.raisonSociale}' <${verifCompagny.email}>`,
                 // On fait une copie des adresse en caché de sorte que l'receveur n'arrive pas à avoir connaissance aux autres qui ont réçu le même message 
                 bcc: contact,
                 // On définit l'objet du message
-                subject:req.body.subject,
+                subject:req.body.object,
                 // On transmettre le contenu au format html
                 html: htmlFormatEmail(donneEmail),
                 attachments: attachements
@@ -366,6 +362,7 @@ class MessageController{
             if(!req.files) delete datas.attachments;
             // On transmet le message aux contacts
             const sendEmail = await connection.sendMail(datas);
+            // console.log(sendEmail);
             // On le serveur n'a pas accès à la connexion internet on renvoie un message au client consernant la connexion
             if(!sendEmail.response.includes("OK")) return res.status(400).json({message: "Connexion interrompue.", statut:false, error});
             // Sinon on lui envoie une réponse favrable
@@ -403,4 +400,4 @@ class MessageController{
         }
     }
 }
-export default MessageController
+export default MessageController;
