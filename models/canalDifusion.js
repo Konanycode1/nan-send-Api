@@ -26,7 +26,17 @@ const Canaux = new Schema ({
     }
 },
 {
-    timesTamps: true
-})
+    timestamps: true,
+    toJSON: {
+        virtuals: true,
+        transform: function (doc, ret) {
+            // Transformation personnalisée du document JSON
+            ret.id = ret._id; // Remplace le champ "_id" par "id"
+            delete ret._id; // Supprime le champ "_id"
+            delete ret.__v; // Supprime le champ "__v"
+          },
+    },
+}
+)
 
 export default model("canaux", Canaux)

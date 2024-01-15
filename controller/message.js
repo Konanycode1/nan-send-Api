@@ -29,6 +29,7 @@ class MessageController {
    */
   static async create(req, res) {
     try {
+      console.log("req.auth88");
       const { _id, entreprise, email } = req.auth;
       const isUser = await User.findOne({ _id, email, entreprise, statut: 1 });
       const isAgent = await Agent.findOne({
@@ -70,6 +71,7 @@ class MessageController {
       const idCollection = [];
       let newCollections = [];
       const idObjetCollection = [];
+
       if (req.body.groupe && req.body.groupe.length) {
         let myGroupes = await Groupe.find({ entreprise, statut: 1 });
         if (!myGroupes.length)
@@ -116,6 +118,7 @@ class MessageController {
         );
         req.body.contact = idObjetCollection;
       }
+      console.log(req.body.contact, req.body.groupe);
       if (req.files) {
         req.body.piecesJointes = [];
         req.files.map((piece) =>
@@ -130,6 +133,7 @@ class MessageController {
       isUser ? (req.body.user = isUser._id) : (req.body.agent = isAgent._id);
       delete req.body.statut;
       const newMessage = await Message.create(req.body);
+      console.log(newMessage);
       res
         .status(201)
         .json({
@@ -192,9 +196,11 @@ class MessageController {
         isStructure = await Plateforme.findOne({ _id: isAdmin.plateforme._id });
         if (isStructure)
           resultat = await Message.find({ statut: 1 })
-            .populate("entreprise")
+            .populate("groupe")
+            .populate("contact")
             .populate("user")
-            .populate("agent");
+            .populate("agent")
+            .populate("entreprise");
       }
       if (!isStructure)
         return res
@@ -279,9 +285,11 @@ class MessageController {
               status: false,
             });
         isMessage = await Message.findOne({ _id: req.params.id, statut: 1 })
-          .populate("entreprise")
+          .populate("groupe")
           .populate("contact")
-          .populate("groupe");
+          .populate("user")
+          .populate("agent")
+          .populate("entreprise");
       }
       if (!isMessage)
         return res
@@ -351,7 +359,12 @@ class MessageController {
               message: "Vous ne faites pas partie d'aucune structure.",
               status: false,
             });
-        isMessage = await Message.find({ statut: 1 }).populate("entreprise");
+        isMessage = await Message.find({ statut: 1 })
+          .populate("groupe")
+          .populate("contact")
+          .populate("user")
+          .populate("agent")
+          .populate("entreprise");
       }
       if (!isMessage.length)
         return res
@@ -634,7 +647,7 @@ class MessageController {
       });
       // On transmet l'information de l'expéditeur vers le receveur
       const email = await connection.sendMail({
-        from: `"${plateforme[0].raisonSociale}" <${plateforme[0].emailInfo}>`,
+        from: `${plateforme[0].raisonSociale} <${plateforme[0].emailInfo}>`,
         bcc: [req.body.email],
         subject: "VALIDATION DE SECURITE",
         html: code_auth(donneEmail),
@@ -669,7 +682,7 @@ class MessageController {
 
   static async createEmail(req, res) {
     try {
-      const { _id, email, entreprise, role } = req.auth;
+      const { _id, entreprise } = req.auth;
 
       let { canal, contenu, contact } = req.body;
       // On vérifie si la constante contact est un tableau qui contient au moins un adresse email
@@ -726,9 +739,19 @@ class MessageController {
       // Si le canal est celui des adresses emails, on stocke le nom de l'entreprise et les informations à transferer dans une constante donneEmail
       const donneEmail = { plateforme: verifCompagny.raisonSociale, contenu };
       // On établie la connexion auserveur de messagerie ootlmail
+      // console.log(req.body);
+      // const connection = transporteur({ user: 'devdjobo@outlook.com', pass: 'nfcDJ0B0'});
+      if (!verifCompagny.password)
+        return res
+          .status(402)
+          .json({
+            message:
+              "Impossible de se connecter au serveur de messagerie, Veuillez rattacher le mot de passe de connexion au serveur de messagerie !",
+            statut: false,
+          });
       const connection = transporteur({
-        user: verifCompagny.emailInfo,
-        pass: verifCompagny.passwordEmailInfo,
+        user: verifCompagny.email,
+        pass: verifCompagny.password,
       });
       const attachements = [];
       if (req.files) {
@@ -743,6 +766,7 @@ class MessageController {
       const datas = {
         // On définit le nom et d'adresse au destinataire
         from: `"${verifCompagny.raisonSociale}" <${verifCompagny.emailInfo}>`,
+        // from: `"devdjobo@outlook.com" <devdjobo@outlook.com>`,
         // On fait une copie des adresse en caché de sorte que l'receveur n'arrive pas à avoir connaissance aux autres qui ont réçu le même message
         bcc: contact,
         // On définit l'objet du message
@@ -771,7 +795,7 @@ class MessageController {
 
   static async sendWhatsAppMessage(req, res) {
     try {
-      const { _id, email, entreprise, role } = req.auth;
+      const { _id, entreprise } = req.auth;
       let { canal, contenu, contact } = req.body;
       const verifCompagny = await Entreprise.findOne({
         _id: entreprise,
