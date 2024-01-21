@@ -214,7 +214,6 @@ class GroupeController{
      */
     static async delete(req, res){
         try {
-            console.log(req.auth)
             const { _id, email, entreprise } = req.auth;
             const isUser = await User.findOne({_id, email, entreprise, statut: 1});
             const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});

@@ -19,5 +19,6 @@ RouterMessage.get('/getById/:id', AUTH,  MessageController.getById);
 RouterMessage.get('/getByName/:object', AUTH,  MessageController.getByName);
 RouterMessage.put('/update/:id', AUTH, Attachement.array("piecesJointes"),  MessageController.update);
 RouterMessage.delete('/delete/:id', AUTH,  MessageController.delete);
+RouterMessage.put('/updateSendingMessage/:id', AUTH, MessageController.updateSendingMessage);
 
 export default RouterMessage;
