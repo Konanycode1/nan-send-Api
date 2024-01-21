@@ -146,6 +146,37 @@ class GroupeController{
         }
     }
 
+     /**
+     * 
+     * @param {Express.Request} req 
+     * @param {Express.Response} res 
+     */
+    static async getAllDeleted(req, res){
+        try {
+            
+            const { _id, email, entreprise, plateforme } = req.auth;
+            const isUser = await User.findOne({_id, email, entreprise, statut: 1});
+            const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
+            const isAdmin = await Administrateur.findOne({_id, email, plateforme, statut: 1});
+            let isStructure, isMember, resultat = [];
+            if(!isUser && !isAgent && !isAdmin) return res.status(402).json({message: "Mot de passe ou email incorrects.", status: false});
+            isMember = isUser || isAgent;
+            if(isMember){
+                isStructure = await Entreprise.findOne({_id:isMember.entreprise, statut: 1});
+                if(isStructure) resultat = await Groupe.find({entreprise: isStructure._id, statut: 0}).populate('entreprise').populate('user').populate('agent').populate('contact');
+            }else{
+                isStructure = await Plateforme.findOne({_id:isAdmin.plateforme._id});
+                if(isStructure) resultat = await Groupe.find({ statut: 0 }).populate('entreprise').populate('user').populate('agent').populate('contact');
+            }
+            if(!isStructure) return res.status(402).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
+            if(!resultat.length) return res.status(402).json({message: "Aucun contact trouvé.", status: false});
+            console.table(resultat)
+            return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, data:resultat});
+        } catch (error) {
+            res.status(500).json({message: error.message, status: false});
+        }
+    }
+
     /**
      * 
      * @param {Express.Request} req 
@@ -232,6 +263,38 @@ class GroupeController{
                 if(!req.body[key]) delete req.body[key];
             }
             const updated = await Groupe.updateOne({_id: req.params.id, entreprise, statut: 1}, {statut: 0});
+            if(!updated.acknowledged || !updated.modifiedCount) return res.status(203).json({statut: false, message: "Suppression non effectuée."});
+            res.status(202).json({ status:true, message: "Suppression effectuée avec succès !", status: true});
+        } catch (error) {
+            res.status(500).json({message: error.message, status: false});
+        }
+    }
+
+
+    // la fonction pour restaurer le groupe supprimer ( mettre son statut a 1) 
+    /**
+     * 
+     * @param {Express.Request} req 
+     * @param {Express.Response} res 
+     */
+    static async recover(req, res){
+        try {
+            console.log(req.auth)
+            const { _id, email, entreprise } = req.auth;
+            const isUser = await User.findOne({_id, email, entreprise, statut: 1});
+            const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
+            let isGroupe = undefined;
+            let isCompagny = undefined;
+            if(!isUser && !isAgent) return res.status(402).json({message: "Mot de passe ou email incorrects.", status: false});
+            isCompagny = await Entreprise.findOne({_id: entreprise, statut: 1});
+            if(!isCompagny) return res.status(402).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
+            isGroupe = await Groupe.findOne({_id: req.params.id, entreprise, statut: 0});
+            if(!isGroupe) return res.status(402).json({message: "Le groupe à modifier n'existe pas.", status: false});
+            delete req.body._id;
+            for (const key in req.body) {
+                if(!req.body[key]) delete req.body[key];
+            }
+            const updated = await Groupe.updateOne({_id: req.params.id, entreprise, statut: 0}, {statut: 1});
             if(!updated.acknowledged || !updated.modifiedCount) return res.status(203).json({statut: false, message: "Suppression non effectuée."});
             res.status(202).json({ status:true, message: "Suppression effectuée avec succès !", status: true});
         } catch (error) {
