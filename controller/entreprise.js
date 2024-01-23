@@ -72,28 +72,29 @@ class EntrepriseController{
     static async getById(req, res){
         try {
             const {_id, entreprise, plateforme} = req.auth;
+            
             const isAdmin = await Administrateur.findOne({_id, email:req.auth.email, plateforme, statut:1 });
             const isUser =  await User.findOne({_id, email:req.auth.email, entreprise, statut: 1});
             const isAgent = await Agent.findOne({_id, email:req.auth.email, entreprise, statut: 1});
             let isEntreprise, isPlateforme;
             if(!isAdmin && !isAgent && !isUser) return res.status(402).json({message: "Mot de passe ou email incorrects", status: false});
             if(isAgent || isUser){
-                if(req.params.id !== entreprise ) return res.status(402).json({message: "Vous ne faites pas partie de cette entreprise.", status: false})
+                // console.log(isEntreprise);
+                // if(req.params.id !== entreprise) return res.status(402).json({message: "Vous ne faites pas partie de cette entreprise.", status: false})
                 isEntreprise = await Entreprise.findOne({_id:entreprise, statut:1});
-            }else{
-                isPlateforme = await Plateforme.findOne({_id:plateforme, statut:1});
-            }
+            }else isPlateforme = await Plateforme.findOne({_id:plateforme, statut:1});
+            
 
+            
             if(!isEntreprise && !isPlateforme) return res.status(402).json({message: "Vous ne faites pas partie d'aucune structure", status: false});
+            
+            // const entrepri = isEntreprise ? isEntreprise : await Entreprise.findOne({_id: req.params.id, statut: 1}).populate('user');
 
-            const entrepri = isEntreprise ? isEntreprise : await Entreprise.findOne({_id: req.params.id, statut: 1}).populate('user');
-
-            if(!entrepri) return res.status(202).json({message: "Données introuvables", status: false});
-            res.status(202).json({message: "Requête traitée avec succès.", status: true, data: entrepri});
+            // if(!entrepri) return res.status(202).json({message: "Données introuvables", status: false});
+            res.status(202).json({message: "Requête traitée avec succès.", status: true, data: isEntreprise});
         } catch (error) {
             res.status(501).json({message : "Erreur survenue lors du traitement de la requête !", errorMessage: error.message, status: false});
         }
-        
     }
 
     /**

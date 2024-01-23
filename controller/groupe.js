@@ -70,7 +70,6 @@ class GroupeController{
      */
     static async getAll(req, res){
         try {
-            
             const { _id, email, entreprise, plateforme } = req.auth;
             const isUser = await User.findOne({_id, email, entreprise, statut: 1});
             const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
@@ -87,7 +86,6 @@ class GroupeController{
             }
             if(!isStructure) return res.status(402).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
             if(!resultat.length) return res.status(402).json({message: "Aucun contact trouvé.", status: false});
-            console.table(resultat)
             return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, data:resultat});
         } catch (error) {
             res.status(500).json({message: error.message, status: false});
@@ -216,7 +214,6 @@ class GroupeController{
      */
     static async delete(req, res){
         try {
-            console.log(req.auth)
             const { _id, email, entreprise } = req.auth;
             const isUser = await User.findOne({_id, email, entreprise, statut: 1});
             const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});

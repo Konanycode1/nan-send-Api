@@ -46,7 +46,7 @@ class UserController {
             const isUser = await User.findOne({_id, email, entreprise, statut:1});
             const agent = await Agent.findOne({ email, entreprise, statut:1});
             if(!admin && !isUser && !agent) return res.status(203).json({message: "Mot de passe ou email incorrects !", status: false});
-            const user = await User.findOne({_id: req.params.id, statut: 1}).populate('entreprise');
+            const user = await User.findOne({_id, email, statut: 1}).populate('entreprise');
             if(!user) return res.status(203).json({message: "Aucun utilisateur trouvé !", status: false});
             res.status(200).json({message: "Un utilisateur trouvé !", status: true, data: user});
         } catch (error) {
