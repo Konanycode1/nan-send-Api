@@ -312,6 +312,7 @@ class MessageController{
 
     static async verifyEmail(req, res){
         try {
+            
             // On récupère le destinataire dans la base de données
             const user = await User.findOne({email: req.body.email});
             // Si le destinataire existe on interrompe l'envoie du mail en envoyant un message au client pour informer que le compte est utilisé
@@ -319,7 +320,7 @@ class MessageController{
             // Si le destinataire n'existe pas dans la base de données on tente de récpérer l'expéditeur dans la base de données
             const plateforme = await Plateforme.find();
             // Si l'expéditeur n'existe pas on interrompe la suite du traitement en envoyant un message au client
-            if(!plateforme.length) return res.status(202).json({message: "Service momentanement indisponible !", statut:false});
+            if(!plateforme.length) return res.status(400).json({message: "Service momentanement indisponible !", statut:false});
             // Si l'expéditeur existe en génère de manière aléatoire un code de 6 chiffre dont le premier chiffre est difference de 0
             req.body.code = generateRandomString("0123456789", 6);
             const isTry = await ValidateCode.findOne({email: req.body.email});
@@ -329,6 +330,7 @@ class MessageController{
             const url = req.body.urlfrontend+`/?${req.body.code}#${req.body.email}`;
             // On met en forme l'information à transmettre
             const donneEmail={ fullname:req.body.fullname, plateforme:plateforme[0].raisonSociale, url, code:req.body.code };
+            
             // On établie la connexion au serveur de méssagerie ootlmail
             const connection = transporteur({ user: `${plateforme[0].emailInfo}`, pass: `${plateforme[0].passwordEmailInfo}`});
             // On transmet l'information de l'expéditeur vers le receveur

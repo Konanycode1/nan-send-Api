@@ -1,6 +1,4 @@
 import {Schema, model} from "mongoose";
-import mongooseAutoPopulate from "mongoose-autopopulate";
-
 
 const Plateforme = new Schema(
     {
@@ -14,7 +12,6 @@ const Plateforme = new Schema(
         modifierPar:{type: Schema.Types.ObjectId, ref: "user" },
         // Type d'entreprise c'est-à-dire s'il sagit d'une SARL, SASU, SAS, SA, etc...
         emailNormal:{ type: String, required: true },
-        passwordEmailNormal:{ type: String, required: true }, 
         emailInfo:{ type: String, required: true },
         passwordEmailInfo:{ type: String, required: true },
         telephone1:{ type: String, required: true },
