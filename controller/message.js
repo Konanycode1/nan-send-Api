@@ -3,21 +3,21 @@ import Entreprise from "../models/entreprise.js";
 import User from "../models/user.js";
 // import { verifEmail } from '../util/verifEmail.js';
 // import { sendEmail } from '../util/sendMail.js';
+import verify_email_adress from "../laboratoire/verify_email_adress.js";
 import htmlFormatEmail from "../mailling/htmlFormatEmail.js";
 import transporteur from "../mailling/transporteur.js";
-import verify_email_adress from "../laboratoire/verify_email_adress.js";
 // import Message from '../models/message.js';
+import mongoose from "mongoose";
+import wbm from "wbm";
+import generateRandomString from "../laboratoire/generateRandomString.js";
+import verify_number from "../laboratoire/verify_number.js";
+import code_auth from "../mailling/code_auth.js";
+import Administrateur from "../models/administrateur.js";
+import Contact from "../models/contact.js";
+import Groupe from "../models/groupe.js";
+import Message from "../models/message.js";
 import Plateforme from "../models/plateforme.js";
 import ValidateCode from "../models/validateCode.js";
-import code_auth from "../mailling/code_auth.js";
-import generateRandomString from "../laboratoire/generateRandomString.js";
-import wbm from "wbm";
-import verify_number from "../laboratoire/verify_number.js";
-import Contact from "../models/contact.js";
-import Message from "../models/message.js";
-import Groupe from "../models/groupe.js";
-import mongoose from "mongoose";
-import Administrateur from "../models/administrateur.js";
 
 const urlFont = "http://localhost:5173/entreprise";
 
@@ -39,25 +39,21 @@ class MessageController {
         statut: 1,
       });
       if (!isUser && !isAgent)
-        return res
-          .status(403)
-          .json({
-            message:
-              "vous n'êtes pas authorisé(s) à effectuer cette requête: Mot de passe ou email incorrects",
-            status: false,
-          });
+        return res.status(403).json({
+          message:
+            "vous n'êtes pas authorisé(s) à effectuer cette requête: Mot de passe ou email incorrects",
+          status: false,
+        });
       const isEntreprise = await Entreprise.findOne({
         _id: entreprise,
         statut: 1,
       });
       if (!isEntreprise)
-        return res
-          .status(403)
-          .json({
-            message:
-              "vous n'êtes pas authorisé(s) à effectuer cette requête: Vous n'êtes pas membre de l'entreprise",
-            status: false,
-          });
+        return res.status(403).json({
+          message:
+            "vous n'êtes pas authorisé(s) à effectuer cette requête: Vous n'êtes pas membre de l'entreprise",
+          status: false,
+        });
       if (
         !Array.isArray(req.body.groupe) &&
         typeof req.body.groupe === "string"
@@ -83,12 +79,10 @@ class MessageController {
           idCollection.includes(item)
         );
         if (!newCollections.length)
-          return res
-            .status(403)
-            .json({
-              message: "Les contacts ou groupe n'existent pas",
-              status: false,
-            });
+          return res.status(403).json({
+            message: "Les contacts ou groupe n'existent pas",
+            status: false,
+          });
         newCollections.map((item) =>
           idObjetCollection.push(new mongoose.Types.ObjectId(item))
         );
@@ -96,23 +90,19 @@ class MessageController {
       } else if (req.body.contact && req.body.contact.length) {
         let myContacts = await Contact.find({ entreprise, statut: 1 });
         if (!myContacts.length)
-          return res
-            .status(403)
-            .json({
-              message: "Vous ne disposez aucun contact.",
-              status: false,
-            });
+          return res.status(403).json({
+            message: "Vous ne disposez aucun contact.",
+            status: false,
+          });
         myContacts.map((item) => idCollection.push(item._id.toString()));
         newCollections = req.body.contact.filter((item) =>
           idCollection.includes(item)
         );
         if (!newCollections.length)
-          return res
-            .status(403)
-            .json({
-              message: "Les contacts ou groupe n'existent pas",
-              status: false,
-            });
+          return res.status(403).json({
+            message: "Les contacts ou groupe n'existent pas",
+            status: false,
+          });
         newCollections.map((item) =>
           idObjetCollection.push(new mongoose.Types.ObjectId(item))
         );
@@ -134,13 +124,11 @@ class MessageController {
       delete req.body.statut;
       const newMessage = await Message.create(req.body);
       console.log(newMessage);
-      res
-        .status(201)
-        .json({
-          message: "Message créer avec succès",
-          status: false,
-          data: newMessage,
-        });
+      res.status(201).json({
+        message: "Message créer avec succès",
+        status: false,
+        data: newMessage,
+      });
     } catch (error) {
       console.log(error.message, error);
       res.status(500).json({ status: false, message: error.message });
@@ -172,12 +160,10 @@ class MessageController {
         isMember,
         resultat = [];
       if (!isUser && !isAgent && !isAdmin)
-        return res
-          .status(203)
-          .json({
-            message: "Mot de passe ou email incorrects.",
-            status: false,
-          });
+        return res.status(203).json({
+          message: "Mot de passe ou email incorrects.",
+          status: false,
+        });
       isMember = isUser || isAgent;
       if (isMember) {
         isStructure = await Entreprise.findOne({
@@ -203,24 +189,20 @@ class MessageController {
             .populate("entreprise");
       }
       if (!isStructure)
-        return res
-          .status(203)
-          .json({
-            message: "Vous ne faites pas partie d'aucune structure.",
-            status: false,
-          });
+        return res.status(203).json({
+          message: "Vous ne faites pas partie d'aucune structure.",
+          status: false,
+        });
       if (!resultat.length)
         return res
           .status(203)
           .json({ message: "Aucun contact trouvé.", status: false });
-      return res
-        .status(202)
-        .json({
-          message: "Requête traitée avec succès.",
-          total: resultat.length,
-          status: true,
-          data: resultat,
-        });
+      return res.status(202).json({
+        message: "Requête traitée avec succès.",
+        total: resultat.length,
+        status: true,
+        data: resultat,
+      });
     } catch (e) {
       console.log(e);
       res.status(500).json({ status: false, message: e.message });
@@ -251,22 +233,18 @@ class MessageController {
       let isMessage = undefined;
       let isCompagny = undefined;
       if (!isUser && !isAgent && !isAdmin)
-        return res
-          .status(402)
-          .json({
-            message: "Mot de passe ou email incorrects.",
-            status: false,
-          });
+        return res.status(402).json({
+          message: "Mot de passe ou email incorrects.",
+          status: false,
+        });
 
       if (isUser || isAgent) {
         isCompagny = await Entreprise.findOne({ _id: entreprise, statut: 1 });
         if (!isCompagny)
-          return res
-            .status(402)
-            .json({
-              message: "Vous ne faites pas partie d'aucune structure.",
-              status: false,
-            });
+          return res.status(402).json({
+            message: "Vous ne faites pas partie d'aucune structure.",
+            status: false,
+          });
         isMessage = await Message.findOne({
           _id: req.params.id,
           entreprise,
@@ -278,12 +256,10 @@ class MessageController {
       } else {
         isCompagny = await Plateforme.findOne({ _id: plateforme, statut: 1 });
         if (!isCompagny)
-          return res
-            .status(402)
-            .json({
-              message: "Vous ne faites pas partie d'aucune structure.",
-              status: false,
-            });
+          return res.status(402).json({
+            message: "Vous ne faites pas partie d'aucune structure.",
+            status: false,
+          });
         isMessage = await Message.findOne({ _id: req.params.id, statut: 1 })
           .populate("groupe")
           .populate("contact")
@@ -295,13 +271,11 @@ class MessageController {
         return res
           .status(402)
           .json({ message: "Ce message n'existe pas.", status: false });
-      res
-        .status(202)
-        .json({
-          message: "Requête traitée avec succès.",
-          status: true,
-          data: isMessage,
-        });
+      res.status(202).json({
+        message: "Requête traitée avec succès.",
+        status: true,
+        data: isMessage,
+      });
     } catch (error) {
       console.log("Try catch(500)", "\n", error, "\n", error.message);
       res.status(500).json({ message: error.message, status: false });
@@ -332,33 +306,27 @@ class MessageController {
       let isMessage = undefined;
       let isCompagny = undefined;
       if (!isUser && !isAgent && !isAdmin)
-        return res
-          .status(402)
-          .json({
-            message: "Mot de passe ou email incorrects.",
-            status: false,
-          });
+        return res.status(402).json({
+          message: "Mot de passe ou email incorrects.",
+          status: false,
+        });
       if (isUser || isAgent) {
         isCompagny = await Entreprise.findOne({ _id: entreprise, statut: 1 });
         if (!isCompagny)
-          return res
-            .status(402)
-            .json({
-              message: "Vous ne faites pas partie d'aucune structure.",
-              status: false,
-            });
+          return res.status(402).json({
+            message: "Vous ne faites pas partie d'aucune structure.",
+            status: false,
+          });
         isMessage = await Message.find({ entreprise, statut: 1 }).populate(
           "entreprise"
         );
       } else {
         isCompagny = await Plateforme.findOne({ _id: plateforme, statut: 1 });
         if (!isCompagny)
-          return res
-            .status(402)
-            .json({
-              message: "Vous ne faites pas partie d'aucune structure.",
-              status: false,
-            });
+          return res.status(402).json({
+            message: "Vous ne faites pas partie d'aucune structure.",
+            status: false,
+          });
         isMessage = await Message.find({ statut: 1 })
           .populate("groupe")
           .populate("contact")
@@ -379,13 +347,11 @@ class MessageController {
         return res
           .status(402)
           .json({ message: "Message non trouvé.", status: false });
-      res
-        .status(202)
-        .json({
-          message: "Requête traitée avec succès.",
-          status: true,
-          data: isMessage,
-        });
+      res.status(202).json({
+        message: "Requête traitée avec succès.",
+        status: true,
+        data: isMessage,
+      });
     } catch (error) {
       res.status(500).json({ message: error.message, status: false });
     }
@@ -407,37 +373,31 @@ class MessageController {
         statut: 1,
       });
       if (!isUser && !isAgent)
-        return res
-          .status(403)
-          .json({
-            message:
-              "vous n'êtes pas authorisé(s) à effectuer cette requête: Mot de passe ou email incorrects",
-            status: false,
-          });
+        return res.status(403).json({
+          message:
+            "vous n'êtes pas authorisé(s) à effectuer cette requête: Mot de passe ou email incorrects",
+          status: false,
+        });
       const isEntreprise = await Entreprise.findOne({
         _id: entreprise,
         statut: 1,
       });
       if (!isEntreprise)
-        return res
-          .status(403)
-          .json({
-            message:
-              "vous n'êtes pas authorisé(s) à effectuer cette requête: Vous n'êtes pas membre de l'entreprise",
-            status: false,
-          });
+        return res.status(403).json({
+          message:
+            "vous n'êtes pas authorisé(s) à effectuer cette requête: Vous n'êtes pas membre de l'entreprise",
+          status: false,
+        });
       const hasMessage = await Message.findOne({
         _id: req.params.id,
         entreprise,
         statut: 1,
       });
       if (!hasMessage)
-        return res
-          .status(403)
-          .json({
-            message: "Le message à modifier n'est pas disponible.",
-            status: false,
-          });
+        return res.status(403).json({
+          message: "Le message à modifier n'est pas disponible.",
+          status: false,
+        });
       if (!req.body.canal) req.body.canal = hasMessage.canal;
       if (
         !Array.isArray(req.body.groupe) &&
@@ -463,12 +423,10 @@ class MessageController {
           idCollection.includes(item)
         );
         if (!newCollections.length)
-          return res
-            .status(403)
-            .json({
-              message: "Les contacts ou groupe n'existent pas",
-              status: false,
-            });
+          return res.status(403).json({
+            message: "Les contacts ou groupe n'existent pas",
+            status: false,
+          });
         newCollections.map((item) =>
           idObjetCollection.push(new mongoose.Types.ObjectId(item))
         );
@@ -476,23 +434,19 @@ class MessageController {
       } else if (req.body.contact && req.body.contact.length) {
         let myContacts = await Contact.find({ entreprise, statut: 1 });
         if (!myContacts.length)
-          return res
-            .status(403)
-            .json({
-              message: "Vous ne disposez aucun contact.",
-              status: false,
-            });
+          return res.status(403).json({
+            message: "Vous ne disposez aucun contact.",
+            status: false,
+          });
         myContacts.map((item) => idCollection.push(item._id.toString()));
         newCollections = req.body.contact.filter((item) =>
           idCollection.includes(item)
         );
         if (!newCollections.length)
-          return res
-            .status(403)
-            .json({
-              message: "Les contacts ou groupe n'existent pas",
-              status: false,
-            });
+          return res.status(403).json({
+            message: "Les contacts ou groupe n'existent pas",
+            status: false,
+          });
         newCollections.map((item) =>
           idObjetCollection.push(new mongoose.Types.ObjectId(item))
         );
@@ -521,13 +475,11 @@ class MessageController {
         { _id: req.params.id, entreprise, statut: 1 },
         req.body
       );
-      res
-        .status(201)
-        .json({
-          message: "Message créer avec succès",
-          status: false,
-          data: newMessage,
-        });
+      res.status(201).json({
+        message: "Message créer avec succès",
+        status: false,
+        data: newMessage,
+      });
     } catch (error) {
       res.status(500).json({ message: error.message, status: false });
     }
@@ -551,32 +503,26 @@ class MessageController {
       let isMessage = undefined;
       let isCompagny = undefined;
       if (!isUser && !isAgent)
-        return res
-          .status(402)
-          .json({
-            message: "Mot de passe ou email incorrects.",
-            status: false,
-          });
+        return res.status(402).json({
+          message: "Mot de passe ou email incorrects.",
+          status: false,
+        });
       isCompagny = await Entreprise.findOne({ _id: entreprise, statut: 1 });
       if (!isCompagny)
-        return res
-          .status(402)
-          .json({
-            message: "Vous ne faites pas partie d'aucune structure.",
-            status: false,
-          });
+        return res.status(402).json({
+          message: "Vous ne faites pas partie d'aucune structure.",
+          status: false,
+        });
       isMessage = await Message.findOne({
         _id: req.params.id,
         entreprise,
         statut: 1,
       });
       if (!isMessage)
-        return res
-          .status(402)
-          .json({
-            message: "Le message à modifier n'existe pas.",
-            status: false,
-          });
+        return res.status(402).json({
+          message: "Le message à modifier n'existe pas.",
+          status: false,
+        });
       delete req.body._id;
       for (const key in req.body) {
         if (!req.body[key]) delete req.body[key];
@@ -589,13 +535,11 @@ class MessageController {
         return res
           .status(203)
           .json({ statut: false, message: "Suppression non effectuée." });
-      res
-        .status(202)
-        .json({
-          status: true,
-          message: "Suppression effectuée avec succès !",
-          status: true,
-        });
+      res.status(202).json({
+        status: true,
+        message: "Suppression effectuée avec succès !",
+        status: true,
+      });
     } catch (error) {
       res.status(500).json({ message: error.message, status: false });
     }
@@ -614,12 +558,10 @@ class MessageController {
       const plateforme = await Plateforme.find();
       // Si l'expéditeur n'existe pas on interrompe la suite du traitement en envoyant un message au client
       if (!plateforme.length)
-        return req
-          .status(202)
-          .json({
-            message: "Service momentanement indisponible !",
-            statut: false,
-          });
+        return req.status(202).json({
+          message: "Service momentanement indisponible !",
+          statut: false,
+        });
       // Si l'expéditeur existe en génère de manière aléatoire un code de 6 chiffre dont le premier chiffre est difference de 0
       req.body.code = generateRandomString("0123456789", 6);
       const isTry = await ValidateCode.findOne({ email: req.body.email });
@@ -659,24 +601,20 @@ class MessageController {
           .json({ message: "Connexion interrompue.", statut: false, error });
       const validate = await ValidateCode.create(req.body);
       // Sinon on retourne le code de validation au client.
-      return res
-        .status(201)
-        .json({
-          message: "Code de validation unique.",
-          code: validate.code,
-          data: validate,
-          statut: true,
-        });
+      return res.status(201).json({
+        message: "Code de validation unique.",
+        code: validate.code,
+        data: validate,
+        statut: true,
+      });
     } catch (error) {
       console.log(error);
       // Si un problème survient au niveau du serveur, on retourne un message
-      res
-        .status(501)
-        .json({
-          message: "Traitement de la demande a été interrompu.",
-          statut: false,
-          error,
-        });
+      res.status(501).json({
+        message: "Traitement de la demande a été interrompu.",
+        statut: false,
+        error,
+      });
     }
   }
 
@@ -693,12 +631,10 @@ class MessageController {
           (typeof contact == "string" && verify_email_adress(contact))
         )
       )
-        return res
-          .status(400)
-          .json({
-            message: "Les contacts chargés ne contiennent aucun adresse mail.",
-            status: false,
-          });
+        return res.status(400).json({
+          message: "Les contacts chargés ne contiennent aucun adresse mail.",
+          status: false,
+        });
       // On tente de récupérer les informations de l'entréprise dans la base de données
       if (
         Array.isArray(contact) &&
@@ -730,25 +666,21 @@ class MessageController {
 
       // Sinon, on vérifie si le canal de difision n'est pas celui du canal email on renvoie un message au client
       if (canal != "email")
-        return res
-          .status(404)
-          .json({
-            status: false,
-            message: "Impossible de poursuivre cette requette.",
-          });
+        return res.status(404).json({
+          status: false,
+          message: "Impossible de poursuivre cette requette.",
+        });
       // Si le canal est celui des adresses emails, on stocke le nom de l'entreprise et les informations à transferer dans une constante donneEmail
       const donneEmail = { plateforme: verifCompagny.raisonSociale, contenu };
       // On établie la connexion auserveur de messagerie ootlmail
       // console.log(req.body);
       // const connection = transporteur({ user: 'devdjobo@outlook.com', pass: 'nfcDJ0B0'});
       if (!verifCompagny.password)
-        return res
-          .status(402)
-          .json({
-            message:
-              "Impossible de se connecter au serveur de messagerie, Veuillez rattacher le mot de passe de connexion au serveur de messagerie !",
-            statut: false,
-          });
+        return res.status(402).json({
+          message:
+            "Impossible de se connecter au serveur de messagerie, Veuillez rattacher le mot de passe de connexion au serveur de messagerie !",
+          statut: false,
+        });
       const connection = transporteur({
         user: verifCompagny.email,
         pass: verifCompagny.password,
@@ -815,23 +747,19 @@ class MessageController {
           .json({ status: false, message: "Compte introuvable" });
       // Sinon, on vérifie si le canal de difision n'est pas celui du canal email on renvoie un message au client
       if (canal != "whatsApp")
-        return res
-          .status(400)
-          .json({
-            status: false,
-            message: "Impossible de poursuivre cette requette.",
-          });
+        return res.status(400).json({
+          status: false,
+          message: "Impossible de poursuivre cette requette.",
+        });
       const allContact = await Contact.find({
         entreprise: entreprise,
         statut: 1,
       });
       if (!allContact.length)
-        return res
-          .status(404)
-          .json({
-            status: false,
-            message: "Vous contacts ne sont pas conforment.",
-          });
+        return res.status(404).json({
+          status: false,
+          message: "Vous contacts ne sont pas conforment.",
+        });
       const filterContact = contact.filter(
         (number) =>
           allContact.find(
@@ -839,12 +767,10 @@ class MessageController {
           ) && verify_number(number.phone)
       );
       if (!filterContact.length)
-        return res
-          .status(404)
-          .json({
-            status: false,
-            message: "Vous contacts ne sont pas conforment.",
-          });
+        return res.status(404).json({
+          status: false,
+          message: "Vous contacts ne sont pas conforment.",
+        });
       wbm
         .start()
         .then(async () => {
@@ -854,26 +780,22 @@ class MessageController {
               .status(501)
               .json({ message: "Traitement a été interrompu.", status: false });
           const finish = await wbm.end();
-          res
-            .status(202)
-            .json({
-              message: "Message envoyé.",
-              status: true,
-              sending,
-              finish,
-            });
+          res.status(202).json({
+            message: "Message envoyé.",
+            status: true,
+            sending,
+            finish,
+          });
         })
         .catch((err) => {
           console.log(err);
         });
     } catch (error) {
-      res
-        .status(501)
-        .json({
-          message: "Traitement de la demande a été interrompu.",
-          status: false,
-          error,
-        });
+      res.status(501).json({
+        message: "Traitement de la demande a été interrompu.",
+        status: false,
+        error,
+      });
     }
   }
 }
