@@ -17,7 +17,7 @@ import Message from "../models/message.js";
 import Plateforme from "../models/plateforme.js";
 import ValidateCode from "../models/validateCode.js";
 
-// import { Client, LocalAuth } from 'whatsapp-web.js';
+import qrcode from "qrcode-terminal";
 import pkg from "whatsapp-web.js";
 import { SendMessageBusness } from "../laboratoire/dataMetaBusness.js";
 
@@ -619,7 +619,7 @@ class MessageController {
       const plateforme = await Plateforme.find();
       // Si l'expéditeur n'existe pas on interrompe la suite du traitement en envoyant un message au client
       if (!plateforme.length)
-        return res.status(202).json({
+        return res.status(400).json({
           message: "Service momentanement indisponible !",
           statut: false,
         });
@@ -643,6 +643,7 @@ class MessageController {
         url,
         code: req.body.code,
       };
+
       // On établie la connexion au serveur de méssagerie ootlmail
       const connection = transporteur({
         user: `${plateforme[0].emailInfo}`,
@@ -793,12 +794,10 @@ class MessageController {
         _id: entreprise,
         statut: 1,
       });
-
       if (!verifCompagny)
         return res
           .status(404)
           .json({ status: false, message: "Entreprise introuvable" });
-
       const isMember =
         (await Agent.findOne({ _id, entreprise, statut: 1 })) ||
         (await User.findOne({ _id, entreprise, statut: 1 }));
@@ -807,7 +806,6 @@ class MessageController {
         return res
           .status(404)
           .json({ status: false, message: "Compte introuvable" });
-
       const FindMessage = await Message.findOne({
         _id: message,
         entreprise,
@@ -816,6 +814,11 @@ class MessageController {
       })
         .populate("groupe")
         .populate("contact");
+      // Sinon, on vérifie si le canal de difision n'est pas celui du canal email on renvoie un message au client
+      if (!FindMessage)
+        return res
+          .status(400)
+          .json({ status: false, message: "Ce message non trouvé." });
 
       // Sinon, on vérifie si le canal de difision n'est pas celui du canal email on renvoie un message au client
       if (!FindMessage)
@@ -839,18 +842,52 @@ class MessageController {
         });
       }
 
-      if (!ThisContactsOrGroupe.length)
-        return res.status(404).json({
-          status: false,
-          message: "Vous contacts ne sont pas conforment.",
+      wbm
+        .start()
+        .then(async () => {
+          const sending = await wbm.send(ThisContactsOrGroupe, contenu);
+          if (!sending)
+            res
+              .status(501)
+              .json({ message: "Traitement a été interrompu.", status: false });
+          const finish = await wbm.end();
+          res.status(202).json({
+            message: "Message envoyé.",
+            status: true,
+            sending,
+            finish,
+          });
+        })
+        .catch((err) => {
+          console.log(err);
         });
 
-      // wbm.start().then(async () => {
-      //     const sending = await wbm.send(ThisContactsOrGroupe, contenu);
-      //     if(!sending) res.status(501).json({message:"Traitement a été interrompu.", status:false});
-      //     const finish = await wbm.end();
-      //     res.status(202).json({message:"Message envoyé.", status:true, sending, finish});
-      // }).catch(err => { console.log(err); });
+      wbm
+        .start()
+        .then(async () => {
+          const sending = await wbm.send(ThisContactsOrGroupe, contenu);
+          if (!sending) {
+            res
+              .status(501)
+              .json({ message: "Traitement a été interrompu.", status: false });
+          } else {
+            const finish = await wbm.end();
+            res.status(202).json({
+              message: "Message envoyé.",
+              status: true,
+              sending,
+              finish,
+            });
+          }
+        })
+        .catch((err) => {
+          console.log("************", err);
+          res.status(501).json({
+            message: "Traitement de la demande a été interrompu.",
+            status: false,
+            error: err.message,
+          });
+        });
 
       // wbm.start().then(async () => {
       //     const sending = await wbm.send(ThisContactsOrGroupe, contenu);
@@ -866,26 +903,26 @@ class MessageController {
       // });
 
       /** const whatsapp = new Client({
-                authStrategy: new LocalAuth()
-            });
-
-            whatsapp.on('qr', qr => {
-                qrcode.generate(qr, {
-                    small: true
-                })
-            })
-
-            whatsapp.on('ready', () => {
-                console.log('Le serveur est prêt !');
-            });
-
-            whatsapp.on('message', async msg => {
-                if (msg.body == '!ping') {
-                    msg.reply('pong');
-                }
-            });
-
-            whatsapp.initialize();*/
+                  authStrategy: new LocalAuth()
+              });
+  
+              whatsapp.on('qr', qr => {
+                  qrcode.generate(qr, {
+                      small: true
+                  })
+              })
+  
+              whatsapp.on('ready', () => {
+                  console.log('Le serveur est prêt !');
+              });
+  
+              whatsapp.on('message', async msg => {
+                  if (msg.body == '!ping') {
+                      msg.reply('pong');
+                  }
+              });
+  
+              whatsapp.initialize();*/
 
       ThisContactsOrGroupe.forEach((adress) => {
         SendMessageBusness(
@@ -941,6 +978,8 @@ class MessageController {
         error,
       });
     }
+
+    np;
   }
 }
 

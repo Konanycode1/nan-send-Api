@@ -17,7 +17,7 @@ import RouterStocke from "./router/stocke.js";
 import RouterCategorie from "./router/categorie.js";
 import RouterArticle from "./router/article.js";
 import RouterAgent from "./router/agent.js";
-import saveAdmin from "./laboratoire/admin.js";
+import saveAdminOrPlateforme from "./laboratoire/saveAdminOrPlateforme.js";
 import RouterValidateCode from "./router/valideCode.js";
 import DeleteExpired from "./laboratoire/filterValidate.js";
 import RouterGroupe from "./router/groupe.js";
@@ -63,7 +63,7 @@ connectDB()
     app.listen(port, ()=>{
         console.log(`server lancé avec ${port}`);
         console.log("La base de données a été bien connectéé avec succès !");
-        saveAdmin();
+        saveAdminOrPlateforme();
         DeleteExpired();
     })    
 })

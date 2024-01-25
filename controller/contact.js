@@ -236,7 +236,8 @@ class ControlContact {
       delete req.body._id;
       const updated = await Contact.updateOne({_id:isPresent, entreprise:isEntreprise._id, statut:1}, req.body);
       if(!updated.acknowledged || !updated.modifiedCount) return res.status(403).json({statut: false,message: "Modification non effectué."});
-      res.status(201).json({message: "Modification effectué avec succès", status: true});
+      const newContact = await Contact.findById(isPresent);
+      res.status(201).json({message: "Modification effectué avec succès", data: newContact, status: true});
     } catch (e) {
       res.status(500).json({ status: false, message: e.message });
     }
