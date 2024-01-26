@@ -1,6 +1,7 @@
 import Administrateur from "../models/administrateur.js";
 import { crypt, comparer } from '../util/bcrypt.js';
 import { generateToken } from "../util/token.js";
+import Entreprise from "../models/entreprise.js";
 
 class AdminController{
     /**
@@ -118,6 +119,144 @@ class AdminController{
             res.status(500).json({message: "Mot de passe ou email incorrect"});
         } 
     }
+
+    static async getEntrepriseById(req,res){
+        try{
+            const {id}= req.params;
+            const {_id} = req.auth;
+            const isAdmin = await Administrateur.findOne({ _id:_id, statut: 1});
+            if(!isAdmin){
+                res.status(400)
+                .json({
+                    statut:false,
+                    message:"admin introuvable !!!"
+                })
+                return
+            }
+            const entrepriseById = await Entreprise.findOne({_id:id});
+            if(!entrepriseById){
+                res.status(400)
+                .json({
+                    statut: false,
+                    message:'Entreprise introuvable !!'
+                })
+            }
+            res.status(201)
+            .json({
+                statut: true,
+                data: entrepriseById
+            })
+
+        }
+        catch(e)
+        {
+            res.status(500)
+            .json({
+                status: false,
+                message:e.message
+            })
+        }
+
+    }
+    static async getEntrepriseByName(req,res){
+        try{
+            const {raisonSociale}= req.params;
+            const {_id} = req.auth;
+            const isAdmin = await Administrateur.findOne({ _id:_id, statut: 1});
+            if(!isAdmin){
+                res.status(400)
+                .json({
+                    statut:false,
+                    message:"admin introuvable !!!"
+                })
+                return
+            }
+            const entrepriseByName = await Entreprise.findOne({raisonSociale:raisonSociale});
+            if(!entrepriseByName){
+                res.status(400)
+                .json({
+                    statut: false,
+                    message:'Entreprise introuvable !!'
+                })
+            }
+            res.status(201)
+            .json({
+                statut: true,
+                data: entrepriseByName
+            })
+
+        }
+        catch(e)
+        {
+            res.status(500)
+            .json({
+                status: false,
+                message:e.message
+            })
+        }
+
+    }
+    static async getEntrepriseChangeStatut(req,res){
+        try{
+            const {id}= req.params;
+            const {_id} = req.auth;
+            const isAdmin = await Administrateur.findOne({ _id:_id, statut: 1});
+            if(!isAdmin){
+                res.status(400)
+                .json({
+                    statut:false,
+                    message:"admin introuvable !!!"
+                })
+                return
+            }
+            const entrepriseChange = await Entreprise.findOne({_id:id});
+            if(!entrepriseByName){
+                res.status(400)
+                .json({
+                    statut: false,
+                    message:'Entreprise introuvable !!'
+                })
+            }
+            await entrepriseChange.updateOne({
+                statut:0
+            })
+            res.status(201)
+            .json({
+                statut: true,
+                message: "Statut entreprise changé"
+            })
+
+        }
+        catch(e)
+        {
+            res.status(500)
+            .json({
+                status: false,
+                message:e.message
+            })
+        }
+
+    }
+    static async getEntrepriseAll(req,res){
+         const {id}= req.params;
+            const {_id} = req.auth;
+            const isAdmin = await Administrateur.findOne({ _id:_id, statut: 1});
+            if(!isAdmin){
+                res.status(400)
+                .json({
+                    statut:false,
+                    message: "Admin introuvable"
+                })
+                return;
+            }
+            const allEntreprise = Entreprise.find() || []
+            res.status(201)
+            .json({
+                statut:true,
+                data: allEntreprise
+            })
+    }
+
 }
 
 export default AdminController;
