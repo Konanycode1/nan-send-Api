@@ -443,7 +443,6 @@ class MessageController{
 
             if(!ThisContactsOrGroupe.length) return res.status(404).json({status:false, message:'Vous contacts ne sont pas conforment.'});
             
-
             wbm.start().then(async () => {
                 const sending = await wbm.send(ThisContactsOrGroupe, contenu);
                 if(!sending) res.status(501).json({message:"Traitement a été interrompu.", status:false});
