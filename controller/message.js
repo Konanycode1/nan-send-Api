@@ -22,6 +22,7 @@ import Administrateur from '../models/administrateur.js';
 import qrcode from 'qrcode-terminal';
 import pkg from 'whatsapp-web.js';
 import { SendMessageBusness } from '../laboratoire/dataMetaBusness.js';
+import { htmlMessage } from '../mailling/htmlMessage.js';
 
 
 
@@ -378,19 +379,11 @@ class MessageController{
             const donneEmail={ plateforme:verifCompagny.raisonSociale, contenu };
             // On établie la connexion auserveur de messagerie ootlmail
             if(!verifCompagny.password) return res.status(402).json({message: 'Impossible de se connecter au serveur de messagerie, Veuillez rattacher le mot de passe de connexion au serveur de messagerie !', statut: false})
-            console.log('*****************', verifCompagny);
             const connection = transporteur({ user: verifCompagny.email, pass: verifCompagny.password});
             // const connection = transporteur({ user: 'nfcdjobo', pass: 'y f m d s f z e e t s g t t j f'});
-            const attachements = [];
-            if(req.files){
-                req.files.map( piece =>{
-                    attachements.push({
-                        filename: piece.path,
-                        path: req.protocol+"://"+req.get("host")+"/"+piece.path,
-                        cid: piece.filename
-                    });
-                })
-            };
+            
+            const ourMessage = await Message.findOne({_id: req.body.id, statut: 1, entreprise});
+            
             // console.table([verifCompagny.raisonSociale, verifCompagny.email, req.body]);
             const datas = {
                 // On définit le nom et d'adresse au destinataire
@@ -400,10 +393,9 @@ class MessageController{
                 // On définit l'objet du message
                 subject:req.body.object,
                 // On transmettre le contenu au format html
-                html: htmlFormatEmail(donneEmail),
-                attachments: attachements
+                html: htmlMessage(donneEmail),
+                attachments: ourMessage.piecesJointes,
             };
-            if(!req.files) delete datas.attachments;
             // On transmet le message aux contacts
             const sendEmail = await connection.sendMail(datas);
             // On le serveur n'a pas accès à la connexion internet on renvoie un message au client consernant la connexion

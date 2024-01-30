@@ -8,7 +8,7 @@ const transporteur =  auth =>{
         host: 'smtp.office365.com',
         port: 587,
         secureConnection:false,
-        tls:{ciphers: "SSLv3"}
+        tls:{ciphers: "SSLv3"},
     };
     connectivite.debug = true;
     connectivite.auth = auth;
