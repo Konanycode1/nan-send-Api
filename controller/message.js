@@ -91,7 +91,6 @@ class MessageController{
             const newMessage = await Message.create(req.body);
             res.status(201).json({message: 'Message créer avec succès', status: false, data: newMessage})
         } catch (error) {
-            console.log(error.message, error);
             res.status(500).json({ status: false, message: error.message });
         }
     }
@@ -121,7 +120,55 @@ class MessageController{
             if(!resultat.length) return res.status(203).json({message: "Aucun contact trouvé.", status: false});
             return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, data:resultat});
         } catch (e) {
-          console.log(e);
+          res.status(500).json({ status: false, message: e.message });
+        }
+    }
+
+    static async getAllDelete(req, res) {
+        try {
+            const { _id, email, entreprise, plateforme } = req.auth;
+            const isUser = await User.findOne({_id, email, entreprise, statut: 1});
+            const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
+            const isAdmin = await Administrateur.findOne({_id, email, plateforme, statut: 1});
+            let isStructure, isMember, resultat = [];
+            
+            if(!isUser && !isAgent && !isAdmin) return res.status(203).json({message: "Mot de passe ou email incorrects.", status: false});
+            isMember = isUser || isAgent;
+            if(isMember){
+                isStructure = await Entreprise.findOne({_id:isMember.entreprise, statut: 1});
+                if(isStructure) resultat = await Message.find({entreprise: isStructure._id, statut: 0}).populate('entreprise').populate('user').populate('agent');
+            }else{
+                isStructure = await Plateforme.findOne({_id:isAdmin.plateforme._id});
+                if(isStructure) resultat = await Message.find({ statut: 0 }).populate('groupe').populate('contact').populate('user').populate('agent').populate('entreprise');
+            }
+            if(!isStructure) return res.status(203).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
+            return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, data:resultat});
+        } catch (e) {
+          res.status(500).json({ status: false, message: e.message });
+        }
+    }
+
+    static async getAllSending(req, res) {
+        try {
+            const { _id, email, entreprise, plateforme } = req.auth;
+            const isUser = await User.findOne({_id, email, entreprise, statut: 1});
+            const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
+            const isAdmin = await Administrateur.findOne({_id, email, plateforme, statut: 1});
+            let isStructure, isMember, resultat = [];
+            
+            if(!isUser && !isAgent && !isAdmin) return res.status(203).json({message: "Mot de passe ou email incorrects.", status: false});
+            isMember = isUser || isAgent;
+            if(isMember){
+                isStructure = await Entreprise.findOne({_id:isMember.entreprise, statut: 1});
+                if(isStructure) resultat = await Message.find({entreprise: isStructure._id, statut: 2}).populate('entreprise').populate('user').populate('agent');
+            }else{
+                isStructure = await Plateforme.findOne({_id:isAdmin.plateforme._id});
+                if(isStructure) resultat = await Message.find({ statut: 2 }).populate('groupe').populate('contact').populate('user').populate('agent').populate('entreprise');
+            }
+            
+            if(!isStructure) return res.status(203).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
+            return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, data:resultat});
+        } catch (e) {
           res.status(500).json({ status: false, message: e.message });
         }
     }
@@ -153,7 +200,6 @@ class MessageController{
             if(!isMessage) return res.status(402).json({message: "Ce message n'existe pas.", status: false});
             res.status(202).json({message: "Requête traitée avec succès.",  status: true, data: isMessage});
         } catch (error) {
-            console.log('Try catch(500)', '\n', error, '\n', error.message,);
             res.status(500).json({message: error.message, status: false});
         }
     }
@@ -347,7 +393,6 @@ class MessageController{
             // Sinon on retourne le code de validation au client.
             return res.status(201).json({message: "Code de validation unique.", code: validate.code, data: validate, statut:true})
         } catch (error) {
-            console.log(error)
             // Si un problème survient au niveau du serveur, on retourne un message
             res.status(501).json({message:"Traitement de la demande a été interrompu.", statut:false, error});
         }
@@ -403,7 +448,6 @@ class MessageController{
             // Sinon on lui envoie une réponse favrable
             return res.status(201).json({message: "Message transféré avec succès !", statut:true})
         }catch(e){
-            console.log(e)
             res.status(500).json({status:false , message: e.message, error:e})
         }
     }
@@ -452,7 +496,6 @@ class MessageController{
                     res.status(202).json({ message: "Message envoyé.", status: true, sending, finish });
                 }
             }).catch(err => {
-                console.log('************',err);
                 res.status(501).json({ message: "Traitement de la demande a été interrompu.", status: false, error: err.message });
             });
 
@@ -526,7 +569,6 @@ class MessageController{
 
 
         } catch (error) {
-            console.log('00000000000',error);
             res.status(501).json({message:"Traitement de la demande a été interrompu.", status:false, error});
         }
     }

@@ -13,6 +13,8 @@ RouterMessage.post('/email', AUTH, Attachement.array("piecesJointes"), MessageCo
 RouterMessage.post('/whatsapp', AUTH, MessageController.sendWhatsAppMessage);
 RouterMessage.post('/create', AUTH, Attachement.array("piecesJointes"), MessageController.create);
 RouterMessage.get('/getAll', AUTH,  MessageController.getAll);
+RouterMessage.get('/getAllDelete', AUTH,  MessageController.getAllDelete);
+RouterMessage.get('/getAllSending', AUTH,  MessageController.getAllSending);
 
 RouterMessage.get('/delete/:id', AUTH,  MessageController.delete);
 RouterMessage.get('/getById/:id', AUTH,  MessageController.getById);

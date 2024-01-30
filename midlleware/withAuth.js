@@ -8,7 +8,6 @@ const verify_token = (req, res, next) => {
     req.auth = tokenStatut;
     next();
   } catch (error) {
-    console.log("Erreur produite au niveau du token", error.message);
     res.status(501).json({ message: 'Expired token', status: false, errorMessage: error.message });
   }
 };

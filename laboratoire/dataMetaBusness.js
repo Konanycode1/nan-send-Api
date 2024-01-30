@@ -52,12 +52,9 @@ export const SendMessageBusness = async (expediteur, destinataire, content ) => 
             console.log('Réponse de l\'API:', response.data);
         })
         .catch(error => {
-            console.log('-------------------------',error)
             console.log('Erreur lors de la requête API:', error.response.data || error.message);
         });
     } catch (error) {
-        console.log('*************************',error)
-        console.log('Response Data:', error.response.data);
         console.log('Response Status:', error.response.status);
         
     }

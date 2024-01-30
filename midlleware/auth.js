@@ -10,7 +10,6 @@ const verify_token = (req, res, next) => {
         req.auth = {id: token_decoded.id, email: token_decoded.email, entreprise: token_decoded.entreprise};
         next();
     }catch (error) {
-        console.log("Erreur produite au niveau du token", error.message);
         res.status(404).json({error});
     }
 };

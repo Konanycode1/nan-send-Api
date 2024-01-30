@@ -36,7 +36,6 @@ class EntrepriseController{
             };
             res.status(202).json({status:true, message:'Entreprise bien crée !', token: generateToken(data), data:newEntrprise})
         } catch (error) {
-            console.log("Erreur provenant de entrepriseController.create", error);
             res.status(500).json({message: error.message});
         } 
     }
@@ -59,7 +58,6 @@ class EntrepriseController{
             if(!entreprise.length) return res.status(402).json({message: "Aucune donnée trouvée.", status: false});
             res.status(202).json({total: entreprise.length, message: "Requête effectuée avec succès.", status: true, data: entreprise});
         } catch (error) {
-            console.log("Erreur provenant de entrepriseController.create", error);
             res.status(500).json({message: "Mot de passe ou email incorrect", status: false});
         } 
     }
@@ -137,7 +135,6 @@ class EntrepriseController{
             if(!updated.acknowledged || !updated.modifiedCount) return res.status(402).json({statut: false, message: "Mise à jour non effectuée."});
             res.status(202).json({ message: "Mise à jour effectuée avec succès !", status: true});
         } catch (error) {
-            console.log("Erreur provenant de entrepriseController.create", error);
             res.status(500).json({message: "Mot de passe ou email incorrect"});
         } 
     }
@@ -162,7 +159,6 @@ class EntrepriseController{
             if(!updated.acknowledged || !updated.modifiedCount) return res.status(402).json({statut: false, message: "Mise à jour non effectuée."});
             res.status(202).json({ status:true, message: "Mise à jour effectuée avec succès !", status: true});
         } catch (error) {
-            console.log("Erreur provenant de entrepriseController.create", error);
             res.status(500).json({message: "Mot de passe ou email incorrect"});
         } 
     }

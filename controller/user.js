@@ -11,7 +11,6 @@ class UserController {
     // FUNCTION POUR CREER UN UTILISATEUR 
     static async create(req, res){
         try {
-            console.log(req.body)
             const {email, password, ...body} = req.body;
             const user =  await User.findOne({email, statut: 1});
             if(user) return res.status(203).json({status:false,message: "Utilisateur existe déjà"});

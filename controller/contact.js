@@ -71,7 +71,6 @@ class ControlContact {
       const Collections = [];
       if(fs.existsSync(myFile.path)){
         if(extension === '.csv'){
-          console.log('Results');
           fs.createReadStream(myFile.path)
             .pipe(csvParser())
             .on('data', async data => Results.push(data))
@@ -120,7 +119,6 @@ class ControlContact {
       }
       fs.remove(myFile.path);
     } catch (e) {
-      console.log( e);
       res.status(501).json({ status: false, message: e.message });
     }
   }
@@ -332,10 +330,8 @@ class ControlContact {
       if(!isStructure) return res.status(403).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
       
       if(!resultat.length) return res.status(403).json({message: "Aucun contact trouvé.", status: false});
-      // console.log(resultat);
       return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, data: resultat});
     } catch (e) {
-      console.log(e);
       res.status(500).json({ status: false, message: e.message });
     }
   }
@@ -352,22 +348,18 @@ class ControlContact {
       isMember = isUser || isAgent;
       
       if(isMember){
-        
         isStructure = await Entreprise.findOne({_id:isMember.entreprise, statut: 1});
-        
         if(isStructure) resultat = await Contact.find({entreprise: isStructure._id, statut: 0}).populate('entreprise').populate('user').populate('agent');
-        console.table(resultat)
       }else{
         isStructure = await Plateforme.findOne({_id:isAdmin.plateforme._id});
         if(isStructure) resultat = await Contact.find({ statut: 0 }).populate('entreprise').populate('user').populate('agent');
       }
       if(!isStructure) return res.status(403).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
       
-      if(!resultat.length) return res.status(200).json({message: "Aucun contact trouvé.", status: false});
-      // console.log(resultat);
+      if(!resultat.length) return res.status(200).json({message: "Aucun contact trouvé.", status: false, data:resultat});
+
       return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, data: resultat});
     } catch (e) {
-      console.log(e);
       res.status(500).json({ status: false, message: e.message });
     }
   }

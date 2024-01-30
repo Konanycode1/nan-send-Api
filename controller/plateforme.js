@@ -38,7 +38,6 @@ class PlateformeController{
                 res.status(203).json({statut: true, message: "Mise à jour effectuée avec succès."});
             }
         }catch(error) {
-            console.log(error)
             res.status(401).json({error : "Une erreur est survenue, veuillez réessayer dans quelques instants !", status: false})
         }
     }

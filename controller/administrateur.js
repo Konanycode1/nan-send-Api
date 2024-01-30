@@ -19,7 +19,6 @@ class AdminController{
             res.cookie("token", generateToken(newAdmin.toObject()))
             res.status(201).json({ status:true, token: generateToken(newAdmin.toObject()), message : "Compte crée Merci  !!!!", newAdmin })
         } catch (error) {
-            console.log(error);
             res.status(501).json({message: error.message});
         }
     }
@@ -37,7 +36,6 @@ class AdminController{
             if(!allAdmin.length) return res.status(401).json({message:"Aucune donnée n'est trouvée !", status: false});
             res.status(202).json({ status:true, message : "Entrprise bien crée !!", data: allAdmin });
         } catch (error) {
-            console.log("Erreur provenant de entrepriseController.create", error);
             res.status(500).json({message: "Mot de passe ou email incorrect", status: false});
         } 
     }
@@ -55,7 +53,6 @@ class AdminController{
             if(!admin || !admin.statut) return res.status(401).json({message:"Aucune donnée n'est trouvée !", status: false});
             res.status(201).json({ status:true, data: admin, messag: 'Requête favorable.'});
         } catch (error) {
-            console.log("Erreur provenant de entrepriseController.create", error);
             res.status(500).json({message: "Mot de passe ou email incorrect", status: false});
         } 
     }
@@ -72,7 +69,6 @@ class AdminController{
             const allAdmin = await Administrateur.find({fullname: req.params.fullname, statut: 1}).populate('plateforme');
             res.status(200).json({ status:true, data: allAdmin, message:`Il y'a ${allAdmin.length} élément trouvés`});
         } catch (error) {
-            console.log("Erreur provenant de entrepriseController.getByName", error.message);
             res.status(500).json({message: error.messag, status: false});
         } 
     }
@@ -93,7 +89,6 @@ class AdminController{
             const updated = await Administrateur.findByIdAndUpdate(req.params.id, req.body, {new: true});
             res.status(202).json({ status:true, data: updated});
         } catch (error) {
-            console.log("Erreur provenant de entrepriseController.create", error);
             res.status(500).json({message: "Mot de passe ou email incorrect"});
         } 
     }
@@ -114,7 +109,6 @@ class AdminController{
             const deleted = await Administrateur.updateOne({_id: id}, {statut: 0});
             res.status(202).json({ status:true, data: deleted, message: 'Modification effectuée avec succès !'});
         } catch (error) {
-            console.log("Erreur provenant de entrepriseController.create", error);
             res.status(500).json({message: "Mot de passe ou email incorrect"});
         } 
     }

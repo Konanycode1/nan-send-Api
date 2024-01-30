@@ -25,7 +25,6 @@ class LoginController{
             res.cookie("token", generateToken(data));
             res.status(201).json({ message: "Connexion effectuée avec succès !", _id: data._id, token: generateToken(data), status: true })
         } catch (error) {
-            console.log(error)
             res.status(501).json({ message: error.message })
         }
     }
