@@ -3,6 +3,9 @@ import { generateToken } from '../util/token.js';
 import { crypt, comparer } from '../util/bcrypt.js';
 import Agent from '../models/agent.js';
 import Administrateur from '../models/administrateur.js';
+import Entreprise from '../models/entreprise.js';
+import Plateforme from '../models/plateforme.js';
+
 
 class UserController {
     // FUNCTION POUR CREER UN UTILISATEUR 
@@ -37,7 +40,6 @@ class UserController {
         }
     }
 
-
     //  OBTENIR UN UTILISATEUR UNIQUE   
     static async getById(req , res ){
         try {
@@ -53,8 +55,6 @@ class UserController {
             res.status(501).json({message : error});
         }
     }
-
-    
 
     // SUPPRIMER UTILISATEUR AVEC SON ID
     static async delete(req , res){
@@ -74,7 +74,6 @@ class UserController {
         }
     }
 
-
     // SUPPRIMER UTILISATEUR AVEC SON ID
     static async destroy(req , res){
         try {
@@ -87,7 +86,6 @@ class UserController {
             res.status(400).json({message : error});
         }
     }
-
 
     // METTRE A JOUR LES INFORMATION DE L'UTILISATEUR
     static async update( req , res ){
@@ -106,6 +104,78 @@ class UserController {
             res.status(201).json({message: "Mise à jour effectué avec succès", data: true, status: true});            
         } catch (error) {
             res.status(400).json({message : error});
+        }
+    }
+
+    static async updatePassword(req, res){
+        try {
+            const {_id, email, entreprise, plateforme} = req.auth;
+            delete req.body._id;
+            delete req.body.statut;
+
+            if(req.body.password !== req.body.passwordc) return res.status(402).json({message: 'Les mot de passe et mot de passe de confirmation incorrects', statut: false})
+
+            const isEntreprise = await Entreprise.findOne({_id: entreprise, statut: 1});
+            const isPlateforme = await Plateforme.findOne({_id: plateforme, statut: 1});
+            const IsUser = await User.findOne({_id, email:req.body.email, entreprise, statut: 1});
+            const IsAgent = await Agent.findOne({_id, email:req.body.email, entreprise, statut: 1});
+            const IsAdmin = await Administrateur.findOne({_id, email:req.body.email , plateforme});
+
+            if(isEntreprise){
+                if(IsUser){
+                    const newPassword = await crypt(req.body.password);
+                    const updated = await User.updateOne({_id, email:req.body.email, entreprise, statut: 1}, {password: newPassword});
+                    if(!updated.acknowledged || !updated.modifiedCount) return res.status(203).json({statut: false, message: "Mise à jour non effectué."});
+                    const newUsers = await User.findOne({_id, email: req.body.email, entreprise, statut: 1});
+                    const data = {
+                        _id: newUsers._id,
+                        email: newUsers.email,
+                        password: newUsers.password,
+                        entreprise: newUsers?.entreprise,
+                        plateforme: newUsers?.plateforme
+                    };
+                    res.cookie("token", generateToken(data));
+                    res.status(201).json({ message: "Connexion effectuée avec succès !", _id: data._id, token: generateToken(data), status: true })
+                }else if(IsAgent){
+                    const newPassword = await crypt(req.body.password);
+                    const updated = await IsAgent.updateOne({_id, email, entreprise, statut: 1}, {password: newPassword});
+                    if(!updated.acknowledged || !updated.modifiedCount) return res.status(402).json({statut: false, message: "Mise à jour non effectué."});
+                    const newAgents = await Agent.findOne({_id, email: req.body.email, entreprise, statut: 1});
+                    const data = {
+                        _id: newAgents._id,
+                        email: newAgents.email,
+                        password: newAgents.password,
+                        entreprise: newAgents?.entreprise,
+                        plateforme: newAgents?.plateforme
+                    };
+                    res.cookie("token", generateToken(data));
+                    res.status(201).json({ message: "Connexion effectuée avec succès !", _id: data._id, token: generateToken(data), status: true });
+                }else{
+                    res.status(402).json({message: 'Email incorrect !', status: false})
+                }
+            }else if(isPlateforme){
+                if(IsAdmin){
+                    const newPassword = await crypt(req.body.password);
+                    const updated = await IsAdmin.updateOne({_id, email, entreprise, statut: 1}, {password: newPassword});
+                    if(!updated.acknowledged || !updated.modifiedCount) return res.status(402).json({statut: false, message: "Mise à jour non effectué."});
+                    const newAdmins = await Administrateur.findOne({_id, email: req.body.email, entreprise, statut: 1});
+                    const data = {
+                        _id: newAdmins._id,
+                        email: newAdmins.email,
+                        password: newAdmins.password,
+                        entreprise: newAdmins?.entreprise,
+                        plateforme: newAdmins?.plateforme
+                    };
+                    res.cookie("token", generateToken(data));
+                    res.status(201).json({ message: "Connexion effectuée avec succès !", _id: data._id, token: generateToken(data), status: true });
+                }else{
+                    res.status(402).json({message: 'Email incorrecte !', status: false});
+                }
+            }else{
+                res.status(402).json({message: 'Vous n\'êtes pas autorisé à effectuer cette requête', status: false})
+            }
+        }catch(error){
+            res.status(402).json({message: 'Vous n\'êtes pas autorisé à effectuer cette requête', status: false})
         }
     }
 }

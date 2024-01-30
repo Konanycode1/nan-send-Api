@@ -378,8 +378,9 @@ class MessageController{
             const donneEmail={ plateforme:verifCompagny.raisonSociale, contenu };
             // On établie la connexion auserveur de messagerie ootlmail
             if(!verifCompagny.password) return res.status(402).json({message: 'Impossible de se connecter au serveur de messagerie, Veuillez rattacher le mot de passe de connexion au serveur de messagerie !', statut: false})
-            // const connection = transporteur({ user: verifCompagny.email, pass: verifCompagny.password});
-            const connection = transporteur({ user: 'nfcdjobo', pass: 'y f m d s f z e e t s g t t j f'});
+            console.log('*****************', verifCompagny);
+            const connection = transporteur({ user: verifCompagny.email, pass: verifCompagny.password});
+            // const connection = transporteur({ user: 'nfcdjobo', pass: 'y f m d s f z e e t s g t t j f'});
             const attachements = [];
             if(req.files){
                 req.files.map( piece =>{

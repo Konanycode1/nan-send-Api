@@ -52,7 +52,6 @@ class ControlContact {
    */
   static async saveContentFileToJson(req, res) {
     try {
-      console.log(req.file)
       const { _id, email, entreprise } = req.auth;
       const isUser = await User.findOne({_id, email, entreprise, statut: 1});
       const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
@@ -212,6 +211,42 @@ class ControlContact {
     }
   }
 
+  static async getContactEmailDelete(req, res){
+    try {
+      const { _id, email, entreprise, plateforme } = req.auth;
+      const isUser = await User.findOne({_id, email, entreprise, statut: 1});
+      const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
+      const isAdmin = await Administrateur.findOne({_id, email, plateforme, statut: 1});
+      const isUserOrIsAgent = isUser ? isUser : (isAgent ? isAgent : undefined);
+      let structure, contact, resultat=[];
+      
+      if(!isUserOrIsAgent && !isAdmin) return res.status(403).json({message: "Mot de passe ou email incorrects !", status: false});
+      if(isUserOrIsAgent){
+        structure = await Entreprise.findOne({_id: isUserOrIsAgent.entreprise._id, statut: 1});
+        if(!structure) return res.status(403).json({message: "Vous ne faites pas partie d'uncune entreprise.", status: false});
+        contact = await  Contact.find({entreprise:structure._id, statut:0 }).populate('entreprise').populate('user').populate('agent');
+      }else{
+        const 
+        structure = await Plateforme.findOne({_id: isAdmin.plateforme._id});
+        if(!structure) return res.status(403).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
+        contact = await  Contact.find({ statut:0 }).populate('entreprise').populate('user').populate('agent');
+      }
+
+      if(!contact.length) return res.status(403).json({message: "Aucun contact trouvé.", status: false});
+      contact.map(element => {
+        if(verify_email_adress(element.email)){
+          const {fullname, email} = element;
+          resultat.push({fullname:fullname, email:email});
+        }
+      })
+
+      if(!resultat.length) return res.status(403).json({message: "Aucun contact trouvé.", status: false});
+      res.status(202).json({message: "Requête effectuée avec succès.", total:resultat.length, status: true, data: resultat});
+    } catch (error) {
+      res.status(500).json({ status: false, message: error.message });
+    }
+  }
+
     /**
    * 
    * @param {Express.Request} req 
@@ -305,6 +340,38 @@ class ControlContact {
     }
   }
 
+  static async getAllDelete(req, res) {
+    try {
+      const { _id, email, entreprise, plateforme } = req.auth;
+      
+      const isUser = await User.findOne({_id, email, entreprise, statut: 1});
+      const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
+      const isAdmin = await Administrateur.findOne({_id, email, plateforme, statut: 1});
+      let isStructure, isMember, resultat = [];
+      if(!isUser && !isAgent && !isAdmin) return res.status(403).json({message: "Mot de passe ou email incorrects.", status: false});
+      isMember = isUser || isAgent;
+      
+      if(isMember){
+        
+        isStructure = await Entreprise.findOne({_id:isMember.entreprise, statut: 1});
+        
+        if(isStructure) resultat = await Contact.find({entreprise: isStructure._id, statut: 0}).populate('entreprise').populate('user').populate('agent');
+        console.table(resultat)
+      }else{
+        isStructure = await Plateforme.findOne({_id:isAdmin.plateforme._id});
+        if(isStructure) resultat = await Contact.find({ statut: 0 }).populate('entreprise').populate('user').populate('agent');
+      }
+      if(!isStructure) return res.status(403).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
+      
+      if(!resultat.length) return res.status(200).json({message: "Aucun contact trouvé.", status: false});
+      // console.log(resultat);
+      return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, data: resultat});
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({ status: false, message: e.message });
+    }
+  }
+
   /**
    * 
    * @param {Express.Request} req 
@@ -345,6 +412,41 @@ class ControlContact {
     }
   }
 
+  static async getContactWhatsAppDelete(req, res){
+    try {
+      const { _id, email, entreprise, plateforme } = req.auth;
+      const isUser = await User.findOne({_id, email, entreprise, statut: 1});
+      const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
+      const isAdmin = await Administrateur.findOne({_id, email, plateforme, statut: 1});
+      const isUserOrIsAgent = isUser ? isUser : (isAgent ? isAgent : undefined);
+      let structure, contact, resultat=[];
+      
+      if(!isUserOrIsAgent && !isAdmin) return res.status(403).json({message: "Mot de passe ou email incorrects !", status: false});
+      if(isUserOrIsAgent){
+        structure = await Entreprise.findOne({_id: isUserOrIsAgent.entreprise._id, statut: 1});
+        if(!structure) return res.status(403).json({message: "Vous ne faites pas partie d'uncune entreprise.", status: false});
+        contact = await  Contact.find({entreprise:structure._id, statut:0 }).populate('entreprise').populate('user').populate('agent');
+      }else{
+        structure = await Plateforme.findOne({_id: isAdmin.plateforme._id});
+        if(!structure) return res.status(403).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
+        contact = await  Contact.find({ statut:0 }).populate('entreprise').populate('user').populate('agent');
+      }
+
+      if(!contact.length) return res.status(403).json({message: "Aucun contact trouvé.", status: false});
+      contact.map(element => {
+          const {fullname, numeroWhatsapp} = element;
+          if(numeroWhatsapp){
+            resultat.push({fullname:fullname, WhatasApp:numeroWhatsapp});
+          }
+      })
+
+      if(!resultat.length) return res.status(403).json({message: "Aucun contact trouvé.", status: false});
+      res.status(202).json({message: "Requête effectuée avec succès.", total:resultat.length, status: true, data: resultat});
+    } catch (error) {
+      res.status(500).json({ status: false, message: error.message });
+    }
+  }
+
   /**
    * 
    * @param {Express.Request} req 
@@ -368,6 +470,39 @@ class ControlContact {
         structure = await Plateforme.findOne({_id: isAdmin.plateforme._id});
         if(!structure) return res.status(403).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
         contact = await  Contact.find({ statut:1 }).populate('entreprise').populate('user').populate('agent');
+      }
+
+      if(!contact.length) return res.status(403).json({message: "Aucun contact trouvé.", status: false});
+      contact.map(element => {
+          const {fullname, numeroSms} = element;
+          if(numeroSms)resultat.push({fullname:fullname, smsNumber:numeroSms});
+      })
+
+      if(!resultat.length) return res.status(403).json({message: "Aucun contact trouvé.", status: false});
+      res.status(202).json({message: "Requête effectuée avec succès.", total:resultat.length, status: true, data: resultat});
+    } catch (error) {
+      res.status(500).json({ status: false, message: error.message });
+    }
+  }
+
+  static async getContactSMSDelete(req, res){
+    try {
+      const { _id, email, entreprise, plateforme } = req.auth;
+      const isUser = await User.findOne({_id, email, entreprise, statut: 1});
+      const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
+      const isAdmin = await Administrateur.findOne({_id, email, plateforme, statut: 1});
+      const isUserOrIsAgent = isUser ? isUser : (isAgent ? isAgent : undefined);
+      let structure, contact, resultat=[];
+      
+      if(!isUserOrIsAgent && !isAdmin) return res.status(403).json({message: "Mot de passe ou email incorrects !", status: false});
+      if(isUserOrIsAgent){
+        structure = await Entreprise.findOne({_id: isUserOrIsAgent.entreprise._id, statut: 1});
+        if(!structure) return res.status(403).json({message: "Vous ne faites pas partie d'uncune entreprise.", status: false});
+        contact = await  Contact.find({entreprise:structure._id, statut:0 }).populate('entreprise').populate('user').populate('agent');
+      }else{
+        structure = await Plateforme.findOne({_id: isAdmin.plateforme._id});
+        if(!structure) return res.status(403).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
+        contact = await  Contact.find({ statut:0 }).populate('entreprise').populate('user').populate('agent');
       }
 
       if(!contact.length) return res.status(403).json({message: "Aucun contact trouvé.", status: false});

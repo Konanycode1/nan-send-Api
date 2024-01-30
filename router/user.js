@@ -11,4 +11,6 @@ RouterUser.put('/update/:id', AUTH, UserController.update);
 RouterUser.delete('/destroy/:email', UserController.destroy);
 // RouterUser.get('/getByName/:name', AUTH, UserController.getByName);
 
+RouterUser.put('/updatePassword', AUTH, UserController.updatePassword);
+
 export default RouterUser;
