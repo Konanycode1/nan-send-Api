@@ -1,5 +1,4 @@
 import {Schema, model} from "mongoose";
-import mongooseAutoPopulate from "mongoose-autopopulate";
 
 const Administrateur = new Schema ({
     fullname:{type: String, required: true},
