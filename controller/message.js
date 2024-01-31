@@ -3,7 +3,7 @@ import Entreprise  from '../models/entreprise.js';
 import User from '../models/user.js';
 // import { verifEmail } from '../util/verifEmail.js';
 // import { sendEmail } from '../util/sendMail.js';
-import htmlFormatEmail from "../mailling/htmlFormatEmail.js";
+// import htmlFormatEmail from "../mailling/htmlFormatEmail.js";
 import transporteur from "../mailling/transporteur.js";
 import verify_email_adress from '../laboratoire/verify_email_adress.js';
 // import Message from '../models/message.js';
@@ -12,30 +12,18 @@ import ValidateCode from '../models/validateCode.js';
 import code_auth from "../mailling/code_auth.js";
 import generateRandomString from '../laboratoire/generateRandomString.js';
 import wbm from 'wbm';
-import verify_number from '../laboratoire/verify_number.js';
+// import verify_number from '../laboratoire/verify_number.js';
 import Contact from '../models/contact.js';
 import Message from '../models/message.js';
 import Groupe from '../models/groupe.js';
 import mongoose from 'mongoose';
 import Administrateur from '../models/administrateur.js';
 
-import qrcode from 'qrcode-terminal';
+// import qrcode from 'qrcode-terminal';
 import pkg from 'whatsapp-web.js';
 import { SendMessageBusness } from '../laboratoire/dataMetaBusness.js';
 import { htmlMessage } from '../mailling/htmlMessage.js';
 
-
-
-
-
-
-
-
-
-
-
-
-const urlFont = 'http://localhost:5173/entreprise';
 
 class MessageController{
     /**
@@ -358,8 +346,7 @@ class MessageController{
     }
 
     static async verifyEmail(req, res){
-        try {
-            
+        try { 
             // On récupère le destinataire dans la base de données
             const user = await User.findOne({email: req.body.email});
             // Si le destinataire existe on interrompe l'envoie du mail en envoyant un message au client pour informer que le compte est utilisé
@@ -397,6 +384,7 @@ class MessageController{
             res.status(501).json({message:"Traitement de la demande a été interrompu.", statut:false, error});
         }
     }
+
 
     static async createEmail(req,res){
         try{
@@ -572,8 +560,6 @@ class MessageController{
             res.status(501).json({message:"Traitement de la demande a été interrompu.", status:false, error});
         }
     }
+}
 
-
-
-np}
 export default MessageController;
