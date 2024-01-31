@@ -19,7 +19,6 @@ class StockeController {
             if(!stocke) return res.status(201).json({message: "Enrégistrement échoué !", statut: false});
             res.status(200).json({message: "Stocke ajouté !!", data: stocke, statut: true});
         } catch (error){
-            console.log(error);
             res.status(500).json({message: error.massege, statut: false});
         }
     }
@@ -35,7 +34,6 @@ class StockeController {
             const stocke = await Stocke.find({statut: 1, entreprise});
             res.status(200).json({data: stocke, statut: true});
         }catch(error){
-            console.log(error)
             res.status(500).json({data: error.message, statut: false});
         }
     }
@@ -88,7 +86,6 @@ class StockeController {
             if(!newEntrprise.acknowledged || !newEntrprise.modifiedCount) return res.status(203).json({message: "Modification non effectué.", status: false});
             res.status(201).json({message: "Modification effectué avec succès", statut: true});
         } catch (error) {
-            console.log(error);
             res.status(400).json({error})
         }
     }

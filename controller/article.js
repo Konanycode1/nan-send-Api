@@ -39,7 +39,6 @@ class ArticleController {
             if(!article.length) return res.status(401).json({message: "Aucun article n'est trouvé.", status: false});
             res.status(200).json({data: article, status: true});
         }catch(error){
-            console.log(error)
             res.status(500).json({data: error.message, status: false});
         }
     }
@@ -108,7 +107,6 @@ class ArticleController {
             if(!newEntrprise.acknowledged || !newEntrprise.modifiedCount) return res.status(203).json({statut: false, message: "Suppression non effectué."});
             res.status(201).json({message: "Suppression effectué avec succès", status: true});
         } catch (error) {
-            console.log("Controller Stocke try{}catch(){}", error.message, error)
             res.status(501).json({message: "Controller Stocke try{}catch(){}"+error.message,error, statut: false})
         }
     }

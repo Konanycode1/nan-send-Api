@@ -58,7 +58,6 @@ class GroupeController{
             const newGroupe = await Groupe.create(req.body);
             res.status(202).json({data: newGroupe, message: "Enregistrer effectué avec succès.", status:true});
         } catch (error) {
-            console.log(error.message, error);
             res.status(500).json({ status: false, message: error.message });
         }
     }
@@ -92,6 +91,30 @@ class GroupeController{
         }
     }
 
+    static async getAllDelete(req, res){
+        try {
+            const { _id, email, entreprise, plateforme } = req.auth;
+            const isUser = await User.findOne({_id, email, entreprise, statut: 1});
+            const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});
+            const isAdmin = await Administrateur.findOne({_id, email, plateforme, statut: 1});
+            let isStructure, isMember, resultat = [];
+            if(!isUser && !isAgent && !isAdmin) return res.status(402).json({message: "Mot de passe ou email incorrects.", status: false});
+            isMember = isUser || isAgent;
+            if(isMember){
+                isStructure = await Entreprise.findOne({_id:isMember.entreprise, statut: 1});
+                if(isStructure) resultat = await Groupe.find({entreprise: isStructure._id, statut: 0}).populate('entreprise').populate('user').populate('agent').populate('contact');
+            }else{
+                isStructure = await Plateforme.findOne({_id:isAdmin.plateforme._id});
+                if(isStructure) resultat = await Groupe.find({ statut: 0 }).populate('entreprise').populate('user').populate('agent').populate('contact');
+            }
+            if(!isStructure) return res.status(402).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
+            // if(!resultat.length) return res.status(202).json({message: "Aucun contact trouvé.", status: false, data:resultat});
+            return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, data:resultat});
+        } catch (error) {
+            res.status(500).json({message: error.message, status: false});
+        }
+    }
+
     /**
      * 
      * @param {Express.Request} req 
@@ -113,7 +136,6 @@ class GroupeController{
             if(!isGroupe) return res.status(402).json({message: "Ce groupe n'existe pas.", status: false});
             res.status(202).json({message: "Requête traitée avec succès.",  status: true, data:isGroupe});
         } catch (error) {
-            console.log('Try catch(500)',error.message, '\n', error);
             res.status(500).json({message: error.message, status: false});
         }
     }
@@ -245,7 +267,6 @@ class GroupeController{
      */
     static async delete(req, res){
         try {
-            console.log(req.auth)
             const { _id, email, entreprise } = req.auth;
             const isUser = await User.findOne({_id, email, entreprise, statut: 1});
             const isAgent = await Agent.findOne({_id, email, entreprise, statut: 1});

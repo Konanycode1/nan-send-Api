@@ -25,7 +25,6 @@ class AgentController {
             res.cookie("token", generateToken(newAgent.toObject()));
             res.status(201).json({ status:true, message : "Compte crée Merci  !!!!", data: newAgent });
         } catch (e) {
-            console.log(e);
             res.status(501).json({message: e.message});
         }
     }
@@ -138,7 +137,6 @@ class AgentController {
             if(!updated.acknowledged || !updated.modifiedCount) return res.status(401).json({statut: false, message: "Mise à jour non effectué."});
             res.status(201).json({message: "Mise à jour effectué avec succès", status: true});
         } catch (error) {
-            console.log(error);
             res.status(400).json({message : error});
         }
     }

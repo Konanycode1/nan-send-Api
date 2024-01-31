@@ -13,11 +13,14 @@ RouterMessage.post('/email', AUTH, Attachement.array("piecesJointes"), MessageCo
 RouterMessage.post('/whatsapp', AUTH, MessageController.sendWhatsAppMessage);
 RouterMessage.post('/create', AUTH, Attachement.array("piecesJointes"), MessageController.create);
 RouterMessage.get('/getAll', AUTH,  MessageController.getAll);
+RouterMessage.get('/getAllDelete', AUTH,  MessageController.getAllDelete);
+RouterMessage.get('/getAllSending', AUTH,  MessageController.getAllSending);
 
 RouterMessage.get('/delete/:id', AUTH,  MessageController.delete);
 RouterMessage.get('/getById/:id', AUTH,  MessageController.getById);
 RouterMessage.get('/getByName/:object', AUTH,  MessageController.getByName);
 RouterMessage.put('/update/:id', AUTH, Attachement.array("piecesJointes"),  MessageController.update);
 RouterMessage.delete('/delete/:id', AUTH,  MessageController.delete);
+RouterMessage.put('/updateSendingMessage/:id', AUTH, MessageController.updateSendingMessage);
 
 export default RouterMessage;

@@ -22,10 +22,9 @@ class LoginController{
             };
             const isConforme = await comparer(password, user ? user.password : (agent ? agent.password : admin.password));
             if(!isConforme) return res.status(401).json({ message: 'Adresse mail / mot de passe incorrect' });
-            res.cookie("token", generateToken(data))
+            res.cookie("token", generateToken(data));
             res.status(201).json({ message: "Connexion effectuée avec succès !", _id: data._id, token: generateToken(data), status: true })
         } catch (error) {
-            console.log(error)
             res.status(501).json({ message: error.message })
         }
     }

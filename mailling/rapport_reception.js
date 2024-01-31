@@ -1,5 +1,4 @@
-const rapport_reception = data => 
-    ` <div class="inbox-area">
+const rapport_reception = data => ` <div class="inbox-area">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -18,4 +17,4 @@ const rapport_reception = data =>
             </div>
         </div>
     </div>`;
-module.exports = rapport_reception;
+export default rapport_reception;
