@@ -374,11 +374,12 @@ class MessageController{
                 subject:"VALIDATION DE SECURITE",
                 html: code_auth(donneEmail)
             });
+            console.log(email);
             // Si l'expéditeur n'a pas accès à la connexion internet on envoie un message au client
             if(!email.response.includes("OK")) return res.status(400).json({message: "Connexion interrompue.", statut:false, error});
-            const validate = await ValidateCode.create(req.body);
+            // const validate = await ValidateCode.create(req.body);
             // Sinon on retourne le code de validation au client.
-            return res.status(201).json({message: "Code de validation unique.", code: validate.code, data: validate, statut:true})
+            return res.status(201).json({message: "Code de validation unique.", /*data: validate,*/ statut:true})
         } catch (error) {
             // Si un problème survient au niveau du serveur, on retourne un message
             res.status(501).json({message:"Traitement de la demande a été interrompu.", statut:false, error});
