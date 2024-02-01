@@ -49,13 +49,16 @@ class EntrepriseController{
     static async getAll(req, res){
         try {
             const {_id, email, plateforme} = req.auth;
+            
             if(!plateforme) return res.status(400).json({message: "Vous n'êtes pas authorisé à effectuer cette requête.", status:false});
             const isAdmin = await Administrateur.findOne({_id, email, plateforme, statut: 1});
             if(!isAdmin) return res.status(402).json({message: "Mot de passe ou email incorrects !", status: false});
-            const isPlateforme = await Plateforme.findOne({_id:plateforme, statut: 1});
-            if(!isPlateforme) return res.status(402).json({message: "Vous n'êtes pas authorisé à effectuer cette requête."? status: false});
+            const isPlateforme = await Plateforme.findOne({_id:plateforme});
+            
+            if(!isPlateforme) return res.status(402).json({message: "Vous n'êtes pas authorisé à effectuer cette requête.", status: false});
             const entreprise = await Entreprise.find({statut: 1}).populate('user');
-            if(!entreprise.length) return res.status(402).json({message: "Aucune donnée trouvée.", status: false});
+            console.log(entreprise);
+            
             res.status(202).json({total: entreprise.length, message: "Requête effectuée avec succès.", status: true, data: entreprise});
         } catch (error) {
             res.status(500).json({message: "Mot de passe ou email incorrect", status: false});

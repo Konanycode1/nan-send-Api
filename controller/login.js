@@ -12,7 +12,8 @@ class LoginController{
             const user = await User.findOne({ email, statut: 1 });
             const agent = await Agent.findOne({ email, statut: 1 });
             if(!user && !agent && !admin) return res.status(401).json({ message: 'Compte introuvable', status: false});
-            const resultat = user ? user : (agent ? agent : admin);
+            const resultat = user ? user : agent ? agent : admin;
+            
             const data = {
                 _id:resultat._id,
                 email: resultat.email,
@@ -20,6 +21,7 @@ class LoginController{
                 entreprise: resultat.entreprise ? resultat.entreprise._id : undefined,
                 plateforme: resultat.plateforme ? resultat.plateforme._id : undefined
             };
+            console.log(data)
             const isConforme = await comparer(password, user ? user.password : (agent ? agent.password : admin.password));
             if(!isConforme) return res.status(401).json({ message: 'Adresse mail / mot de passe incorrect' });
             res.cookie("token", generateToken(data));
