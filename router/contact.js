@@ -14,5 +14,6 @@ RouterContact.get('/getContactEmail', withAuth, ControlContact.getContactEmail);
 RouterContact.get('/getContactSMS', withAuth, ControlContact.getContactSMS);
 RouterContact.get('/getContactWhatsApp', withAuth, ControlContact.getContactWhatsApp);
 RouterContact.post('/saveContentFileToJson', withAuth, Attachement.single('excelOrCsv'), ControlContact.saveContentFileToJson);
+RouterContact.get('/getAllDelete', withAuth, ControlContact.getAllDelete);
 
 export default RouterContact;

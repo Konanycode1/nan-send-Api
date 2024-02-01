@@ -21,14 +21,12 @@ class UserController {
           .status(204)
           .json({ status: false, message: "inscription echouée" });
       res.cookie("token", generateToken(newUser.toObject()));
-      res
-        .status(201)
-        .json({
-          status: true,
-          token: generateToken(newUser.toObject()),
-          message: "Compte crée Merci  !!!!",
-          data: newUser,
-        });
+      res.status(201).json({
+        status: true,
+        token: generateToken(newUser.toObject()),
+        message: "Compte crée Merci  !!!!",
+        data: newUser,
+      });
     } catch (e) {
       res.status(501).json({ message: e.message });
     }
@@ -45,12 +43,10 @@ class UserController {
         statut: 1,
       });
       if (!admin)
-        return res
-          .status(203)
-          .json({
-            message: "Mot de passe ou email incorrects !",
-            status: false,
-          });
+        return res.status(203).json({
+          message: "Mot de passe ou email incorrects !",
+          status: false,
+        });
       const listUser = await User.find({ statut: 1 }).populate("entreprise");
       if (!listUser.length)
         return res
@@ -78,12 +74,10 @@ class UserController {
       const isUser = await User.findOne({ _id, email, entreprise, statut: 1 });
       const agent = await Agent.findOne({ email, entreprise, statut: 1 });
       if (!admin && !isUser && !agent)
-        return res
-          .status(203)
-          .json({
-            message: "Mot de passe ou email incorrects !",
-            status: false,
-          });
+        return res.status(203).json({
+          message: "Mot de passe ou email incorrects !",
+          status: false,
+        });
       const user = await User.findOne({ _id, email, statut: 1 }).populate(
         "entreprise"
       );
@@ -112,20 +106,16 @@ class UserController {
       });
       // const agent = await Agent.findOne({ email, entreprise, statut:1});
       if (!isAdmin)
-        return res
-          .status(203)
-          .json({
-            message: "Mot de passe ou email incorrects !",
-            status: false,
-          });
+        return res.status(203).json({
+          message: "Mot de passe ou email incorrects !",
+          status: false,
+        });
       const user = await User.findOne({ _id: id, statut: 1 });
       if (!user)
-        return res
-          .status(203)
-          .json({
-            message: "L'utilisateur à modifier n'existe pas !",
-            status: false,
-          });
+        return res.status(203).json({
+          message: "L'utilisateur à modifier n'existe pas !",
+          status: false,
+        });
       const updated = await User.updateOne(
         { _id: req.params.id, entreprise, statut: 1 },
         { statut: 0 }
@@ -134,13 +124,11 @@ class UserController {
         return res
           .status(203)
           .json({ statut: false, message: "Suppression non effectué." });
-      res
-        .status(201)
-        .json({
-          message: "Suppression effectué avec succès",
-          data: updated,
-          status: true,
-        });
+      res.status(201).json({
+        message: "Suppression effectué avec succès",
+        data: updated,
+        status: true,
+      });
     } catch (error) {
       res.status(400).json({ message: error });
     }
@@ -152,12 +140,10 @@ class UserController {
       const { email } = req.params;
       const user = await User.findOne({ email, statut: 1 });
       if (!user)
-        return res
-          .status(203)
-          .json({
-            message: "L'utilisateur à modifier n'existe pas !",
-            status: false,
-          });
+        return res.status(203).json({
+          message: "L'utilisateur à modifier n'existe pas !",
+          status: false,
+        });
       if (!user.entreprise)
         await User.deleteOne({ _id: user._id, email, statut: 1 });
       res.status(201).json({ message: "ok", data: [true], status: true });
@@ -174,20 +160,16 @@ class UserController {
       const isUser = await User.findOne({ _id, email, entreprise, statut: 1 });
       const agent = await Agent.findOne({ email, entreprise, statut: 1 });
       if (!isUser && !agent)
-        return res
-          .status(203)
-          .json({
-            message: "Mot de passe ou email incorrects !",
-            status: false,
-          });
+        return res.status(203).json({
+          message: "Mot de passe ou email incorrects !",
+          status: false,
+        });
       const user = await User.findOne({ _id: id, statut: 1 });
       if (!user)
-        return res
-          .status(203)
-          .json({
-            message: "L'utilisateur à modifier n'existe pas !",
-            status: false,
-          });
+        return res.status(203).json({
+          message: "L'utilisateur à modifier n'existe pas !",
+          status: false,
+        });
       delete req.body.statut;
       delete req.body.delete_id;
       const updated = await User.updateOne(
@@ -198,13 +180,11 @@ class UserController {
         return res
           .status(203)
           .json({ statut: false, message: "Mise à jour non effectué." });
-      res
-        .status(201)
-        .json({
-          message: "Mise à jour effectué avec succès",
-          data: true,
-          status: true,
-        });
+      res.status(201).json({
+        message: "Mise à jour effectué avec succès",
+        data: true,
+        status: true,
+      });
     } catch (error) {
       res.status(400).json({ message: error });
     }

@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 const transporteur =  auth =>{
-    const connectivite = !auth.user.includes('@') ?
+    const connectivite = !auth.user.includes('@outlook') ?
     {
         service: 'gmail'
     } : 
