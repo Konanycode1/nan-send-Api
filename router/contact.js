@@ -7,6 +7,7 @@ import Attachement from '../midlleware/attachement.js';
 RouterContact.post('/create', withAuth, ControlContact.create);
 RouterContact.put('/update/:id', withAuth, ControlContact.update);
 RouterContact.delete('/delete/:id', withAuth, ControlContact.delete);
+RouterContact.put('/recover/:id' , withAuth, ControlContact.recover);
 RouterContact.get('/getById/:id', withAuth, ControlContact.getById);
 RouterContact.get('/getAll', withAuth, ControlContact.getAll);
 RouterContact.get('/getAllDelete', withAuth, ControlContact.getAllDelete);
