@@ -9,7 +9,7 @@ export const connectDB = async ()=>{
             dbName: inProduction ? "NaNSend" : "NaNSend-test",
             useNewUrlParser: true,
             useUnifiedTopology: true,
-            // connectTimeoutMS: 10000,
+            connectTimeoutMS: 60000,
         });
     } catch (error) {
         console.log('Veuillez vérifier vos connexion internet !');

@@ -22,8 +22,6 @@ import RouterValidateCode from "./router/valideCode.js";
 import DeleteExpired from "./laboratoire/filterValidate.js";
 import RouterGroupe from "./router/groupe.js";
 
-
-
 const  app = express();
 config({
     path:path.join(process.cwd(),'.env')
@@ -33,7 +31,6 @@ app.use(cors());
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
 app.use(cookieParser());
-
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use("/attachement", express.static(path.join(__dirname, "attachement")));
