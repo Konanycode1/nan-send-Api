@@ -17,4 +17,4 @@ const Contact = new Schema ({
     timesTamps: true
 })
 
-export default model("Contact", Contact)
+export default model("contact", Contact)
