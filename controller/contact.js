@@ -107,23 +107,53 @@ class ControlContact {
     try {
       const { _id,  entreprise} = req.auth;
       const { id } = req.params;
-      const { email,} = req.body;
-      const isUser = await User.findOne({_id, email: req.auth.email, entreprise, statut: 1});
-      const isAgent = await User.findOne({_id, email: req.auth.email, entreprise, statut: 1});
-      if(isUser) req.body.user = isUser._id;
-      if(isAgent) req.body.agent = isAgent._id;
-      const isUserOrIsAgent = isUser ? isUser : (isAgent ? isAgent : undefined);
-      if(!isUserOrIsAgent) return res.status(203).json({message: "Mot de passe ou email incorrects !", status: false});
-      const isEntreprise = await Entreprise.findOne({_id: entreprise, statut: 1});
-      if(!isEntreprise) return res.status(203).json({message: "Vous ne faites pas partie d'uncune entreprise.", status: false});
-      const isPresent = await Contact.findOne({_id: id, entreprise:isEntreprise._id, statut: 1});
-      if(!isPresent) return res.status(203).json({message: "Ce contact n'existe pas.", status: false});
-      req.body.entreprise = isEntreprise._id;
-      delete req.body.statut;
-      delete req.body._id;
-      const updated = await Contact.updateOne({_id:isPresent, entreprise:isEntreprise._id, statut:1}, req.body);
-      if(!updated.acknowledged || !updated.modifiedCount) return res.status(203).json({statut: false,message: "Modification non effectué."});
-      res.status(201).json({message: "Modification effectué avec succès", status: true});
+      console.log(req.params)
+      const { email, ...body } = req.body;
+      const user = await User.findById(_id);
+      if (!user) {
+        res.status(401).json({
+          status: false,
+          message: "compte introuvable !!",
+        });
+      }
+      const contactExist = await Contact.findOne({ _id: id });
+      console.log(contactExist)
+      if (!contactExist) {
+        res.status(401).json({
+          status: false,
+          message: "contact introuvable !!",
+        });
+        return
+      }
+      const mailUsed = await Contact.findOne({ email : req.body.email})
+      if(mailUsed){
+        res.status(401).json({
+          status:false,
+          message:'adresse mail déjà utilisé !!!'
+        })
+        return
+      }
+      const numeroWhatsappUsed = await Contact.findOne({ numeroWhatsapp: req.body.numeroWhatsapp})
+      if(numeroWhatsappUsed){
+        res.status(401).json({
+          status:false,
+          message:"numero whatsapp déjà utilisé !!!"
+        })
+        return
+      }
+      const numeroSmsUsed = await Contact.findOne({ numeroSms: req.body.numeroSms})
+      if(numeroSmsUsed){
+        res.status(401).json({
+          status:false,
+          message: 'numéro sms déjà utilisé !!!'
+        })
+        return
+      }
+      await contactExist.updateOne({ email, ...body });
+      res.status(200).json({
+        status: true,
+        message: "Contact modifié",
+      });
     } catch (e) {
       res.status(500).json({ status: false, message: e.message });
     }
@@ -196,6 +226,7 @@ class ControlContact {
         if(!structure) return res.status(203).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
         contact = await  Contact.find({ statut:1 }).populate('entreprise').populate('user').populate('agent');
       }
+
 
       if(!contact.length) return res.status(203).json({message: "Aucun contact trouvé.", status: false});
       contact.map(element => {
