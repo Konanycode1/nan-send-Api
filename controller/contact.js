@@ -221,21 +221,22 @@ class ControlContact {
     try {
       const { _id,  entreprise} = req.auth;
       const { id } = req.params;
+      const { email,} = req.body;
       const isUser = await User.findOne({_id, email: req.auth.email, entreprise, statut: 1});
       const isAgent = await User.findOne({_id, email: req.auth.email, entreprise, statut: 1});
       if(isUser) req.body.user = isUser._id;
       if(isAgent) req.body.agent = isAgent._id;
       const isUserOrIsAgent = isUser ? isUser : (isAgent ? isAgent : undefined);
-      if(!isUserOrIsAgent) return res.status(403).json({message: "Mot de passe ou email incorrects !", status: false});
+      if(!isUserOrIsAgent) return res.status(203).json({message: "Mot de passe ou email incorrects !", status: false});
       const isEntreprise = await Entreprise.findOne({_id: entreprise, statut: 1});
-      if(!isEntreprise) return res.status(403).json({message: "Vous ne faites pas partie d'uncune entreprise.", status: false});
+      if(!isEntreprise) return res.status(203).json({message: "Vous ne faites pas partie d'uncune entreprise.", status: false});
       const isPresent = await Contact.findOne({_id: id, entreprise:isEntreprise._id, statut: 1});
-      if(!isPresent) return res.status(403).json({message: "Ce contact n'existe pas.", status: false});
+      if(!isPresent) return res.status(203).json({message: "Ce contact n'existe pas.", status: false});
       req.body.entreprise = isEntreprise._id;
       delete req.body.statut;
       delete req.body._id;
       const updated = await Contact.updateOne({_id:isPresent, entreprise:isEntreprise._id, statut:1}, req.body);
-      if(!updated.acknowledged || !updated.modifiedCount) return res.status(403).json({statut: false,message: "Modification non effectué."});
+      if(!updated.acknowledged || !updated.modifiedCount) return res.status(203).json({statut: false,message: "Modification non effectué."});
       res.status(201).json({message: "Modification effectué avec succès", status: true});
     } catch (e) {
       res.status(500).json({ status: false, message: e.message });

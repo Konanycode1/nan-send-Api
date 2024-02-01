@@ -6,6 +6,7 @@ import path from 'path';
 
 import { fileURLToPath } from 'url';
 import { config } from "dotenv";
+import teamRouter from "./router/teams.js"
 import RouterEntreprise from "./router/entreprise.js";
 import RouterUser from "./router/user.js";
 import RouterContact from "./router/contact.js";
@@ -41,7 +42,7 @@ app.use("/images" ,express.static( path.join(__dirname,'images') ));
 app.use("/documents" ,express.static( path.join(__dirname,'documents') ));
 app.use('/attachement', express.static(path.join(__dirname, 'attachement/documents/')));
 app.use('/api/user',RouterUser);
-
+app.use('/api/team',teamRouter);
 app.use('/api/entreprise',RouterEntreprise);
 app.use('/api/contact',RouterContact);
 app.use('/api/admin',RouterAdministrateur);
