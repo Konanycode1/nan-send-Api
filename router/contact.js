@@ -10,11 +10,7 @@ RouterContact.delete('/delete/:id', withAuth, ControlContact.delete);
 RouterContact.put('/recover/:id' , withAuth, ControlContact.recover);
 RouterContact.get('/getById/:id', withAuth, ControlContact.getById);
 RouterContact.get('/getAll', withAuth, ControlContact.getAll);
-<<<<<<< HEAD
-RouterContact.get('/getAllDeleted' , withAuth , ControlContact.getAllDeleted);
-=======
 RouterContact.get('/getAllDelete', withAuth, ControlContact.getAllDelete);
->>>>>>> 3f0f4321378de0dfc0dbff883e94fcf6bb238269
 RouterContact.get('/getByEmail/:email', withAuth, ControlContact.getByEmail);
 RouterContact.get('/getContactEmail', withAuth, ControlContact.getContactEmail);
 RouterContact.get('/getContactSMS', withAuth, ControlContact.getContactSMS);
