@@ -36,7 +36,7 @@ class ArticleController {
             const isEntreprise = await Entreprise.findOne({_id:req.auth.entreprise});
             if(!isEntreprise) return res.status(401).json({message: "Vos accès de l'entreprise introuvable !", status: false});
             const article = await Article.find({statut: 1, entreprise}).populate('entreprise').populate('stocke').populate('categorie');
-            if(!article.length) return res.status(401).json({message: "Aucun article n'est trouvé.", status: false});
+            // if(!article.length) return res.status(401).json({message: "Aucun article n'est trouvé.", status: false});
             res.status(200).json({data: article, status: true});
         }catch(error){
             res.status(500).json({data: error.message, status: false});

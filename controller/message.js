@@ -105,7 +105,7 @@ class MessageController{
             if(isStructure) resultat = await Message.find({ statut: 1 }).populate('groupe').populate('contact').populate('user').populate('agent').populate('entreprise');
             }
             if(!isStructure) return res.status(203).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
-            if(!resultat.length) return res.status(203).json({message: "Aucun contact trouvé.", status: false});
+            // if(!resultat.length) return res.status(203).json({message: "Aucun contact trouvé.", status: false, data: });
             return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, data:resultat});
         } catch (e) {
           res.status(500).json({ status: false, message: e.message });
@@ -347,6 +347,7 @@ class MessageController{
 
     static async verifyEmail(req, res){
         try { 
+            console.log('****************', 0)
             // On récupère le destinataire dans la base de données
             const user = await User.findOne({email: req.body.email});
             // Si le destinataire existe on interrompe l'envoie du mail en envoyant un message au client pour informer que le compte est utilisé

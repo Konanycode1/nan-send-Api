@@ -55,7 +55,7 @@ class EntrepriseController{
             // const isPlateforme = await Plateforme.findOne({_id:plateforme, statut: 1});
             // if(!isPlateforme) return res.status(402).json({message: "Vous n'êtes pas authorisé à effectuer cette requête."? status: false});
             const entreprise = await Entreprise.find({statut: 1}).populate('user');
-            if(!entreprise.length) return res.status(402).json({message: "Aucune donnée trouvée.", status: false});
+            // if(!entreprise.length) return res.status(402).json({message: "Aucune donnée trouvée.", status: false});
             res.status(202).json({total: entreprise.length, message: "Requête effectuée avec succès.", status: true, data: entreprise});
         } catch (error) {
             res.status(500).json({message: "Mot de passe ou email incorrect", status: false});

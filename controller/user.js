@@ -31,7 +31,7 @@ class UserController {
             const admin = await Administrateur.findOne({_id, email, plateforme, statut:1})
             if(!admin) return res.status(203).json({message: "Mot de passe ou email incorrects !", status: false});
             const listUser = await User.find({statut: 1}).populate('entreprise');
-            if(!listUser.length) return res.status(203).json({message: "Aucun utilisateur trouvé !", statut: false});
+            // if(!listUser.length) return res.status(203).json({message: "Aucun utilisateur trouvé !", statut: false});
             
             res.status(202).json({total: listUser.length, data: listUser, status: true});
         } catch (error) {

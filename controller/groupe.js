@@ -84,7 +84,7 @@ class GroupeController{
                 if(isStructure) resultat = await Groupe.find({ statut: 1 }).populate('entreprise').populate('user').populate('agent').populate('contact');
             }
             if(!isStructure) return res.status(402).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
-            if(!resultat.length) return res.status(402).json({message: "Aucun contact trouvé.", status: false});
+            // if(!resultat.length) return res.status(402).json({message: "Aucun contact trouvé.", status: false});
             return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, data:resultat});
         } catch (error) {
             res.status(500).json({message: error.message, status: false});
@@ -189,7 +189,7 @@ class GroupeController{
                 if(isStructure) resultat = await Groupe.find({ statut: 0 }).populate('entreprise').populate('user').populate('agent').populate('contact');
             }
             if(!isStructure) return res.status(402).json({message: "Vous ne faites pas partie d'aucune structure.", status: false});
-            if(!resultat.length) return res.status(402).json({message: "Aucun contact trouvé.", status: false});
+            // if(!resultat.length) return res.status(402).json({message: "Aucun contact trouvé.", status: false});
             console.table(resultat)
             return res.status(202).json({message: "Requête traitée avec succès.", total: resultat.length, status: true, data:resultat});
         } catch (error) {

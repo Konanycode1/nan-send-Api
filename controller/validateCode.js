@@ -15,39 +15,48 @@ class ValidateCodeController{
     static async deleteIfExpires(req, res){
         try {
             const {email, code} = req.params;
-            
+            console.log('****************', 0)
             const isValideCode = await ValidateCode.findOne({email, code});
             const isUser = await User.findOne({email});
             let deleted = null;
             let isEntreprise = null;
             if(isValideCode && !isUser && isValideCode.expireIn > Date.now()){
+                console.log('****************', 1)
                 res.status(201).json({message: 'register entreprise', status: true, data: isValideCode});
             }else if(isValideCode && !isUser && isValideCode.expireIn <= Date.now()){
+                console.log('****************', 2)
                 deleted = await ValidateCode.deleteOne({email, code});
                 res.status(203).json({message: 'register user', status: false, data: deleted});
             }else if(isValideCode && isUser && isValideCode.expireIn <= Date.now()){
+                console.log('****************', 3)
                 deleted = await ValidateCode.deleteOne({email, code});
                 res.status(203).json({message: 'register entreprise', status: false, data: deleted});
             }else if(isValideCode && isUser && isValideCode.expireIn > Date.now()){
                 isEntreprise = await Entreprise.findOne({user: isUser._id});
                 if(isEntreprise){
+                    console.log('****************', 4)
                     deleted = await ValidateCode.deleteOne({email, code});
                     res.status(201).json({message: 'location dashboard', status: false, data: deleted});
                 }else{
+                    console.log('****************', 5)
                     res.status(203).json({message: 'register entreprise', status: true, data: isValideCode});
                 }
             }else if(!isValideCode && isUser){
                 isEntreprise = await Entreprise.findOne({user: isUser._id});
                 if(isEntreprise){
+                    console.log('****************', 6)
                     delete isEntreprise.user;
                     res.status(203).json({message: 'location dashboard', status: false, data: isEntreprise});
                 }else{
+                    console.log('****************', 7)
                     res.status(203).json({message: 'register entreprise', status: true, data: isValideCode});
                 }
             }else if(!isValideCode && !isUser){
+                console.log('****************', 8)
                 res.status(203).json({message: 'location user', status: true, data: [0]});
             }
         } catch (error) {
+            console.log('****************', 9)
             res.status(501).json({status: false, message: error.message})
         }
     }
@@ -57,6 +66,7 @@ class ValidateCodeController{
         const fetchAll = await ValidateCode.findOne({email});
         if(!fetchAll) return res.status(203).json({message: "Email expiré.", status: false});
         if(fetchAll.expireIn < Date.now()) await ValidateCode.deleteOne({_id: fetchAll._id});
+        console.log('****************', 10)
         res.status(200).json({status: true, data: [1]});
     }
 
@@ -66,6 +76,7 @@ class ValidateCodeController{
         if(isSave) await ValidateCode.deleteOne({_id, code});
         const isPresente = await ValidateCode.findOne({_id, code, email});
         if(isPresente) await ValidateCode.deleteOne({_id, code, email});
+        console.log('****************', 12)
         res.status(202).json({message: 'ok', status: true})
     }
 }
