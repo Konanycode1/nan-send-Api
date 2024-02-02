@@ -440,7 +440,7 @@ class MessageController{
             return res.status(201).json({message: "Message transféré avec succès !", statut:true})
         }catch(error){
             console.log('***********************', error)
-            res.status(500).json({status:false , message: e.message, error:error})
+            res.status(500).json({status:false , error:error})
         }
     }
 
