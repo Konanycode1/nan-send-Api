@@ -21,6 +21,7 @@
 import nodemailer from "nodemailer";
 
 const transporteur = (auth) => {
+    
     const connectivite = {
         auth,
         debug: true,
@@ -38,6 +39,8 @@ const transporteur = (auth) => {
         connectivite.tls = { ciphers: "SSLv3" };
     }
 
+    console.log('----------connectivite------------', connectivite);
+    
     return nodemailer.createTransport(connectivite);
 };
 
