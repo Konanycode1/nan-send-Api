@@ -7,7 +7,10 @@ const RouterEntreprise = Router();
 
 RouterEntreprise.post('/create', verify_token, EntrepriseController.create)
 RouterEntreprise.get('/getAll', verify_token , EntrepriseController.getAll)
-RouterEntreprise.get('/getById/:id', verify_token, EntrepriseController.getOneById)
+RouterEntreprise.get('/getById/:id', verify_token, EntrepriseController.getOneById);
+
+RouterEntreprise.get('/getById2/:id', verify_token, EntrepriseController.getById2)
+
 RouterEntreprise.get('/getById' , verify_token , EntrepriseController.getById)
 RouterEntreprise.get('/getByName/:raisonSociale', verify_token, EntrepriseController.getByName)
 RouterEntreprise.put('/update/:id', verify_token, EntrepriseController.update)

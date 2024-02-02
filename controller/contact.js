@@ -209,6 +209,27 @@ class ControlContact {
     }
   }
 
+  static async getContactByEntreprise(req, res){
+    try {
+      
+      const { _id, email, plateforme } = req.auth;
+      const IsPlateforme = await Plateforme.findOne({_id:plateforme});
+      if(!IsPlateforme) return res.status(402).json({message: 'no', status: false});
+      
+      const IsAdmin = await Administrateur.findOne({_id, email, statut: 1});
+      if(!IsAdmin) return res.status(402).json({message: 'no', status: false});
+      console.log('************', req.params.entreprise)
+      const CheckContacts = await Contact.find({entreprise: req.params.entreprise});
+      res.status(201).json({message: 'yes', data: CheckContacts})
+    } catch (error) {
+      console.log(error)
+    }
+    
+  }
+
+
+
+
   static async getContactEmailDelete(req, res){
     try {
       const { _id, email, entreprise, plateforme } = req.auth;

@@ -86,6 +86,25 @@ class EntrepriseController{
         }
     }
 
+    static async getById2(req, res){
+        try {
+           
+            const {_id, plateforme} = req.auth;
+            
+            const isAdmin = await Administrateur.findOne({_id, email:req.auth.email, plateforme, statut:1 });
+            if(!isAdmin) return res.status(402).json({message: "Mot de passe ou email incorrects", status: false});
+            const isPlateforme = await Plateforme.findOne({_id:plateforme});
+           
+            if(!isPlateforme) return res.status(402).json({message: "Vous ne faites pas partie d'aucune structure", status: false});
+            const isEntreprise = await Entreprise.findOne({_id:req.params.id, statut:1});
+            if(!isEntreprise) return res.status(402).json({message: "Vous ne faites pas partie d'aucune structure", status: false});
+            console.log('***********', isEntreprise)
+            res.status(202).json({message: "Requête traitée avec succès.", status: true, data: isEntreprise});
+        } catch (error) {
+            res.status(501).json({message : "Erreur survenue lors du traitement de la requête !", errorMessage: error.message, status: false});
+        }
+    }
+
     static async getOneById(req, res){
         try {
             const { id } = req.params
