@@ -40,8 +40,8 @@ app.use("/attachement", express.static(path.join(__dirname, "attachement")));
 app.use("/images" ,express.static( path.join(__dirname,'images') ));
 app.use("/documents" ,express.static( path.join(__dirname,'documents') ));
 app.use('/attachement', express.static(path.join(__dirname, 'attachement/documents/')));
-app.use('/api/user',RouterUser);
 
+app.use('/api/user',RouterUser);
 app.use('/api/entreprise',RouterEntreprise);
 app.use('/api/contact',RouterContact);
 app.use('/api/admin',RouterAdministrateur);

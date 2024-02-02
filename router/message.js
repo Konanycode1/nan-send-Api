@@ -9,7 +9,9 @@ const RouterMessage = express.Router();
 /** LES ROUTES CONCERNANT L'ENOIE D'EMAIL DE CODE DE VALIDATION */
 /***************************************** */
 RouterMessage.post("/verifyEmail", MessageController.verifyEmail);
+
 RouterMessage.post('/createEmail', AUTH, Attachement.array("piecesJointes"), MessageController.createEmail);
+
 RouterMessage.post('/whatsapp', AUTH, MessageController.sendWhatsAppMessage);
 RouterMessage.post('/create', AUTH, Attachement.array("piecesJointes"), MessageController.create);
 RouterMessage.get('/getAll', AUTH,  MessageController.getAll);
