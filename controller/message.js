@@ -390,33 +390,41 @@ class MessageController{
     static async createEmail(req,res){
         try{
             const {_id, entreprise} = req.auth;
-            
+            console.log('&&&&&&&&&&&&&&&&&&&&&&&&&req.auth', req.auth);
             let {canal, contenu, contact} = req.body;
             // On vérifie si la constante contact est un tableau qui contient au moins un adresse email
             if(!(Array.isArray(contact) && contact.some(emailAdress =>verify_email_adress(emailAdress)) || (typeof(contact)=="string" && verify_email_adress(contact)))) return res.status(400).json({message: "Les contacts chargés ne contiennent aucun adresse mail.", status: false});
             // On tente de récupérer les informations de l'entréprise dans la base de données
             if(Array.isArray(contact) && contact.some(emailAdress =>verify_email_adress(emailAdress))) contact = contact.filter(item=>verify_email_adress(item));
             
+            console.log('&&&&&&&&&&&&&&&&&&&&&&&&&req.body', req.body);
+
             const verifCompagny = await Entreprise.findOne({_id:entreprise, statut: 1});
             // Si la l'entréprise n'existe pas dans la base de données, on renvoie un message au client
             if(!verifCompagny) return res.status(404).json({status:false,message:'Entreprise introuvable'});
             /**Si l'entreprise existe, on vérifie si celui qui effectue la requette est le chef d'entreprise, sinon il devra être un employé de l'entreprise
              * et on tente de recupèrer  les information de ce employé dans la base données
             */
+            console.log('&&&&&&&&&&&&&&&&&&&&&&&&&verifCompagny', verifCompagny);
             const isMember =  await Agent.findOne({_id, entreprise, statut: 1}) || await User.findOne({_id, entreprise, statut: 1});
             // Si ce employé n'est belle pas dans la base de données, on renvoie un message au client
             if(!isMember) return res.status(404).json({status:false, message:'Compte introuvable'});
             
+            console.log('&&&&&&&&&&&&&&&&&&&&&&&&&isMember', isMember);
             // Sinon, on vérifie si le canal de difision n'est pas celui du canal email on renvoie un message au client
             if(canal != "email") return res.status(404).json({status:false, message:'Impossible de poursuivre cette requette.'});
             // Si le canal est celui des adresses emails, on stocke le nom de l'entreprise et les informations à transferer dans une constante donneEmail
             const donneEmail={ plateforme:verifCompagny.raisonSociale, contenu };
+            console.log('&&&&&&&&&&&&&&&&&&&&&&&&&donneEmail', donneEmail);
             // On établie la connexion auserveur de messagerie ootlmail
             if(!verifCompagny.password) return res.status(402).json({message: 'Impossible de se connecter au serveur de messagerie, Veuillez rattacher le mot de passe de connexion au serveur de messagerie !', statut: false})
             const connection = transporteur({ user: verifCompagny.email, pass: verifCompagny.password});
             // const connection = transporteur({ user: 'nfcdjobo', pass: 'y f m d s f z e e t s g t t j f'});
+            console.log('&&&&&&&&&&&&&&&&&&&&&&&&&connection', connection);
             
             const ourMessage = await Message.findOne({_id: req.body.id, statut: 1, entreprise});
+
+            console.log('&&&&&&&&&&&&&&&&&&&&&&&&&ourMessage', ourMessage);
             
             // console.table([verifCompagny.raisonSociale, verifCompagny.email, req.body]);
             const datas = {
