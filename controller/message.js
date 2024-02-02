@@ -430,13 +430,19 @@ class MessageController{
                 html: htmlMessage(donneEmail),
                 attachments: ourMessage.piecesJointes,
             };
+            console.log('111111111111111111111111', datas);
             // On transmet le message aux contacts
             const sendEmail = await connection.sendMail(datas);
+            console.log('+++++++++++++++++++++++++++++++', sendEmail)
             // On le serveur n'a pas accès à la connexion internet on renvoie un message au client consernant la connexion
             if(!sendEmail.response.includes("OK")) return res.status(400).json({message: "Connexion interrompue.", statut:false, error});
             // Sinon on lui envoie une réponse favrable
             return res.status(201).json({message: "Message transféré avec succès !", statut:true})
         }catch(e){
+            console.log('==========================')
+            console.log('***********************', e.message)
+            console.log('==========================')
+            console.log('***********************', e)
             res.status(500).json({status:false , message: e.message, error:e})
         }
     }
