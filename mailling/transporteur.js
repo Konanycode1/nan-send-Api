@@ -24,12 +24,13 @@ const transporteur = (auth) => {
     const connectivite = {
         auth,
         debug: true,
-        secure: true,
-        port: 465
+        
     };
 
     if(!auth.user.includes('@outlook')) {
         connectivite.service = 'gmail';
+        connectivite.secure = true,
+        connectivite.port = 465
     }else{
         connectivite.host = 'smtp.office365.com';
         connectivite.port = 587;
