@@ -24,6 +24,8 @@ const transporteur = (auth) => {
     const connectivite = {
         auth,
         debug: true,
+        secure: true,
+        port: 465
     };
 
     if(!auth.user.includes('@outlook')) {
