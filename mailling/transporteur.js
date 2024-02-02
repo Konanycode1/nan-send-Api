@@ -25,6 +25,7 @@ const transporteur = (auth) => {
     const connectivite = {
         auth,
         debug: true,
+        timeout: 30000
         
     };
 
